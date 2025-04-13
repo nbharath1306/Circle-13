@@ -4,88 +4,91 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>N.Bharath – Founder of Circle 13</title>
+  <title>Circle 13 – Grow and Grow Together</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    /* Custom Animations */
-    .btn-hover:hover {
-      transform: scale(1.05);
-      transition: transform 0.3s ease-in-out;
-    }
-
-    .fade-in {
-      animation: fadeIn 2s ease-in-out;
-    }
-
-    @keyframes fadeIn {
-      from {
-        opacity: 0;
-      }
-
-      to {
-        opacity: 1;
-      }
+    .glass {
+      backdrop-filter: blur(12px);
+      background-color: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.15);
     }
   </style>
 </head>
 
-<body class="bg-gradient-to-b from-black via-indigo-900 to-blue-900 text-white font-sans">
-  <!-- Hero Section -->
-  <section class="h-screen flex flex-col justify-center items-center text-center fade-in">
-    <h1 class="text-4xl md:text-6xl font-bold mb-6">N.Bharath – Founder of Circle 13</h1>
+<body class="bg-gradient-to-br from-black via-gray-900 to-gray-800 text-white font-sans">
+  <!-- Navbar -->
+  <nav class="flex justify-between items-center px-6 py-4 bg-black bg-opacity-50 fixed top-0 left-0 right-0 z-50">
+    <h1 class="text-2xl font-bold text-indigo-500">Circle 13</h1>
     <div class="space-x-4">
-      <a href="https://discord.gg/jTC4u97w5Z" target="_blank" class="px-6 py-3 bg-blue-500 text-white rounded-lg btn-hover">Join Discord</a>
-      <a href="https://forms.gle/v3VFBCP3wKJgvpCR6" target="_blank"
-        class="px-6 py-3 bg-green-500 text-white rounded-lg btn-hover">Apply Now</a>
+      <a href="#about" class="text-gray-300 hover:text-white transition">About</a>
+      <a href="#core" class="text-gray-300 hover:text-white transition">Team</a>
+      <a href="https://forms.gle/v3VFBCP3wKJgvpCR6" target="_blank" class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded-xl text-white font-medium">Apply</a>
     </div>
-  </section>
+  </nav>
+
+  <!-- Hero Section -->
+  <header class="h-screen flex items-center justify-center text-center px-6 pt-24">
+    <div>
+      <h1 class="text-6xl font-extrabold text-indigo-500 mb-4 tracking-tight">Circle 13</h1>
+      <p class="text-xl text-gray-300 italic mb-6">Grow and Grow Together</p>
+      <div class="space-x-4">
+        <a href="https://discord.gg/jTC4u97w5Z" target="_blank" class="bg-indigo-600 hover:bg-indigo-700 px-6 py-3 rounded-xl text-white text-lg font-semibold transition">Join Discord</a>
+        <a href="https://forms.gle/v3VFBCP3wKJgvpCR6" target="_blank" class="bg-green-600 hover:bg-green-700 px-6 py-3 rounded-xl text-white text-lg font-semibold transition">Apply Now</a>
+      </div>
+    </div>
+  </header>
 
   <!-- About Section -->
-  <section class="py-12 px-8 md:px-16 lg:px-32">
-    <h2 class="text-3xl md:text-4xl font-bold mb-4 text-center">About</h2>
-    <p class="text-lg md:text-xl text-gray-300 text-center leading-8">
-      Hi, I'm N.Bharath, the founder of <strong>Circle 13</strong>. Circle 13 is a forward-thinking organization driven
-      by innovation and a passion for creating impactful solutions. Our mission is to empower individuals and
-      communities to achieve their goals through technology and collaboration.
+  <section id="about" class="py-24 px-6 max-w-6xl mx-auto">
+    <h2 class="text-4xl font-bold text-center mb-16 text-white">What is Circle 13?</h2>
+    <div class="grid md:grid-cols-3 gap-10">
+      <div class="glass p-6 rounded-2xl shadow-lg">
+        <h3 class="text-xl font-semibold mb-3 text-indigo-400">Thinkers</h3>
+        <p class="text-sm text-gray-300">We brainstorm, ideate, and explore. Bold ideas are the roots of real change.</p>
+      </div>
+      <div class="glass p-6 rounded-2xl shadow-lg">
+        <h3 class="text-xl font-semibold mb-3 text-indigo-400">Creators</h3>
+        <p class="text-sm text-gray-300">We design and develop things that matter. A space where code meets creativity.</p>
+      </div>
+      <div class="glass p-6 rounded-2xl shadow-lg">
+        <h3 class="text-xl font-semibold mb-3 text-indigo-400">Doers</h3>
+        <p class="text-sm text-gray-300">From vision to execution. We hustle with focus and grow as a unit.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Core Members -->
+  <section id="core" class="py-24 px-6 bg-gray-900">
+    <h2 class="text-4xl font-bold text-center mb-16">Core Members</h2>
+    <div class="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+      <a href="profile.html" class="glass p-6 rounded-xl flex items-center space-x-4 hover:bg-gray-800 transition">
+        <img src="https://drive.google.com/uc?id=1wXgHZXK7BPRClE_Lvap_TGMGnNcqu6le" alt="N.BHARATH" class="w-16 h-16 rounded-full border border-white object-cover">
+        <div>
+          <h4 class="text-lg font-bold">N.BHARATH</h4>
+          <p class="text-sm text-gray-400">Founder • Visionary</p>
+        </div>
+      </a>
+      <div class="glass p-6 rounded-xl flex items-center space-x-4">
+        <div class="w-16 h-16 rounded-full border border-white bg-gray-700 flex items-center justify-center text-sm text-gray-400">Photo</div>
+        <div>
+          <h4 class="text-lg font-bold text-gray-400">Name</h4>
+          <p class="text-sm text-gray-500">Co-Founder • Role</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="py-8 text-center bg-black">
+    <p class="text-gray-400 text-sm">
+      Connect with <a href="https://www.linkedin.com/in/n-bharath-2b86311b9/" target="_blank" class="text-indigo-400 underline hover:text-indigo-300">N.BHARATH</a>
     </p>
-  </section>
-
-  <!-- Achievements Section -->
-  <section class="py-12 px-8 md:px-16 lg:px-32 bg-indigo-800">
-    <h2 class="text-3xl md:text-4xl font-bold mb-4 text-center">Achievements</h2>
-    <div class="space-y-6">
-      <div class="border-l-4 border-blue-400 pl-4">
-        <h3 class="font-semibold text-xl">Founder of Circle 13</h3>
-        <p class="text-gray-300">Created a dynamic organization focused on innovation and community impact.</p>
-      </div>
-      <div class="border-l-4 border-blue-400 pl-4">
-        <h3 class="font-semibold text-xl">Launched [Project Name]</h3>
-        <p class="text-gray-300">Led the development and launch of impactful projects in [industry/domain].</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- Fun Facts Section -->
-  <section class="py-12 px-8 md:px-16 lg:px-32">
-    <h2 class="text-3xl md:text-4xl font-bold mb-4 text-center">Fun Facts</h2>
-    <ul class="text-lg md:text-xl text-gray-300 leading-8 list-disc list-inside">
-      <li>When I'm not coding, I'm exploring the world of photography.</li>
-      <li>I love experimenting with new tech stacks and frameworks.</li>
-      <li>Big fan of minimalist design and sleek user experiences.</li>
-    </ul>
-  </section>
-
-  <!-- Social Media Section -->
-  <footer class="py-8 px-8 md:px-16 lg:px-32 bg-black text-center">
-    <h2 class="text-2xl font-bold mb-4">Connect with Me</h2>
-    <div class="space-x-4">
-      <a href="https://linkedin.com" target="_blank" class="px-6 py-3 bg-blue-600 rounded-lg btn-hover">LinkedIn</a>
-      <a href="https://instagram.com" target="_blank" class="px-6 py-3 bg-pink-500 rounded-lg btn-hover">Instagram</a>
-    </div>
+    <p class="text-gray-600 text-xs mt-2">&copy; 2025 Circle 13. All rights reserved.</p>
   </footer>
 </body>
 
 </html>
+
 
 
 
