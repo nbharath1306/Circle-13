@@ -2,76 +2,66 @@
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Anish Rana Profile</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    .glass {
-      backdrop-filter: blur(12px);
-      background-color: rgba(255, 255, 255, 0.04);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-    }
-
-    .profile-image {
-      width: 300px;
-      height: 400px;
-      object-fit: cover;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    }
-
-    .button {
-      background-color: #4C6BFF;
-      padding: 12px 28px;
-      font-size: 18px;
-      color: white;
-      border-radius: 6px;
-      text-decoration: none;
-      text-align: center;
-      display: inline-block;
-      transition: all 0.3s ease;
-    }
-
-    .button:hover {
-      background-color: #365bdb;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anish Rana's Profile</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .glass {
+            backdrop-filter: blur(12px);
+            background-color: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+    </style>
 </head>
 
 <body class="bg-gradient-to-br from-black via-gray-900 to-gray-800 text-white font-sans">
+    <!-- Profile Header -->
+    <header class="flex justify-center items-center py-16 px-6">
+        <div class="text-center">
+            <!-- Displaying larger image, no circle -->
+            <img src="https://raw.githubusercontent.com/nbharath1306/Circle-13/main/473405150_2063043110885285_3026353798091714186_n.jpg"
+                alt="Anish Rana" class="w-56 h-56 object-cover mx-auto rounded-lg shadow-lg">
+            <h1 class="text-4xl font-extrabold text-indigo-500 mt-6">Anish Rana</h1>
+            <p class="text-xl text-gray-300 mt-2">Developer • Backend Specialist</p>
+        </div>
+    </header>
 
-  <!-- Profile Section -->
-  <section class="py-24 px-6 text-center max-w-4xl mx-auto">
-    <!-- Profile Image -->
-    <div class="mb-8">
-      <img src="https://raw.githubusercontent.com/AnishRana0100/Circle-13/main/473405150_2063043110885285_3026353798091714186_n.jpg" alt="Anish Rana" class="profile-image mx-auto rounded-xl">
-    </div>
+    <!-- About Section -->
+    <section class="py-16 px-6 max-w-4xl mx-auto">
+        <h2 class="text-3xl font-bold text-center text-white mb-6">About Anish</h2>
+        <p class="text-gray-300 text-lg leading-relaxed">
+            Anish is a highly skilled backend developer with experience in designing and developing scalable systems. He has
+            a strong passion for coding and problem-solving, particularly in server-side technologies.
+        </p>
+    </section>
 
-    <!-- Name and Title -->
-    <h1 class="text-5xl font-extrabold text-indigo-500 mb-4">Anish Rana</h1>
-    <p class="text-xl text-gray-300 italic mb-6">Developer • Innovator</p>
+    <!-- Connect Section -->
+    <section class="py-16 px-6 bg-gray-900">
+        <h2 class="text-3xl font-bold text-center text-white mb-6">Connect with Anish</h2>
+        <div class="flex justify-center space-x-8">
+            <a href="https://www.linkedin.com/in/anish-rana-81129b1b9/" target="_blank"
+                class="bg-blue-600 hover:bg-blue-700 text-white py-2 px-6 rounded-xl text-lg font-semibold transition">
+                LinkedIn
+            </a>
+            <a href="https://github.com/AnishRana0100" target="_blank"
+                class="bg-gray-800 hover:bg-gray-900 text-white py-2 px-6 rounded-xl text-lg font-semibold transition">
+                GitHub
+            </a>
+        </div>
+    </section>
 
-    <!-- Bio Section -->
-    <p class="text-lg text-gray-400 mb-6">I am a passionate developer with a keen interest in software engineering, aiming to build impactful solutions that make a difference. With experience in various tech stacks, I focus on quality, efficiency, and creativity in all my projects.</p>
+    <!-- Footer -->
+    <footer class="py-8 text-center bg-black">
+        <p class="text-gray-400 text-sm">
+            Profile Page created for Anish Rana. &copy; <span id="year"></span> Circle 13. All rights reserved.
+        </p>
+    </footer>
 
-    <!-- Social Links -->
-    <div class="flex justify-center space-x-6">
-      <a href="https://www.linkedin.com/in/anish-rana-81129b1b9/" target="_blank" class="button">LinkedIn</a>
-      <a href="https://github.com/AnishRana0100" target="_blank" class="button">GitHub</a>
-    </div>
-  </section>
-
-  <!-- Footer -->
-  <footer class="py-8 text-center bg-black mt-24">
-    <p class="text-gray-400 text-sm">Connect with <a href="https://www.linkedin.com/in/anish-rana-81129b1b9/" target="_blank" class="text-indigo-400 underline hover:text-indigo-300">Anish Rana</a></p>
-    <p class="text-gray-600 text-xs mt-2">&copy; <span id="year"></span> Anish Rana. All rights reserved.</p>
-  </footer>
-
-  <script>
-    document.getElementById("year").textContent = new Date().getFullYear();
-  </script>
-
+    <script>
+        document.getElementById("year").textContent = new Date().getFullYear();
+    </script>
 </body>
 
 </html>
+
