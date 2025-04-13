@@ -12,6 +12,16 @@
       background-color: rgba(255, 255, 255, 0.05);
       border: 1px solid rgba(255, 255, 255, 0.2);
     }
+
+    /* LinkedIn and Instagram Button Animations */
+    .btn-linkedin, .btn-instagram {
+      transition: transform 0.3s ease, background-color 0.3s ease;
+    }
+
+    .btn-linkedin:hover, .btn-instagram:hover {
+      transform: scale(1.1);
+      background-color: #1a73e8; /* LinkedIn blue */
+    }
   </style>
 </head>
 
@@ -47,13 +57,14 @@
     </div>
 
     <div class="flex space-x-6 mt-6">
-      <a href="https://www.linkedin.com/in/n-bharath-2b86311b9/" target="_blank" class="bg-indigo-600 hover:bg-indigo-700 px-6 py-3 rounded-xl text-white text-lg font-semibold transition">LinkedIn</a>
-      <a href="https://www.instagram.com/bharath_theunassailable/" target="_blank" class="bg-pink-600 hover:bg-pink-700 px-6 py-3 rounded-xl text-white text-lg font-semibold transition">Instagram</a>
+      <a href="https://www.linkedin.com/in/n-bharath-2b86311b9/" target="_blank" class="btn-linkedin bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded-xl text-white text-lg font-semibold transition">LinkedIn</a>
+      <a href="https://www.instagram.com/bharath_theunassailable/" target="_blank" class="btn-instagram bg-pink-600 hover:bg-pink-700 px-6 py-3 rounded-xl text-white text-lg font-semibold transition">Instagram</a>
     </div>
   </section>
 
 </body>
 
 </html>
+
 
 
