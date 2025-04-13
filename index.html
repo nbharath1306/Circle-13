@@ -4,219 +4,85 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>N.Bharath | Circle 13 Founder</title>
-
-  <!-- External Libraries for Smooth Scrolling & Animations -->
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <title>N.Bharath – Founder of Circle 13</title>
   <script src="https://cdn.tailwindcss.com"></script>
-
   <style>
-    body {
-      font-family: 'Roboto', sans-serif;
-      background: #1a1a1a;
-      margin: 0;
-      padding: 0;
-      overflow-x: hidden;
-    }
-
-    /* Smooth Scroll */
-    html {
-      scroll-behavior: smooth;
-    }
-
-    /* Hero Section */
-    .hero {
-      background: linear-gradient(to bottom, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.3)), url('https://drive.google.com/uc?export=view&id=1wXgHZXK7BPRClE_Lvap_TGMGnNcqu6le') center/cover no-repeat;
-      height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      text-align: center;
-      color: white;
-    }
-
-    .hero h1 {
-      font-size: 3rem;
-      font-weight: 700;
-    }
-
-    .hero p {
-      font-size: 1.25rem;
-      margin-top: 15px;
-    }
-
-    .cta-button {
-      padding: 12px 40px;
-      background-color: #3b82f6;
-      color: white;
-      text-transform: uppercase;
-      font-weight: 600;
-      border-radius: 5px;
-      margin-top: 20px;
-      text-decoration: none;
-      transition: all 0.3s ease;
-    }
-
-    .cta-button:hover {
-      background-color: #2563eb;
+    /* Custom Animations */
+    .btn-hover:hover {
       transform: scale(1.05);
+      transition: transform 0.3s ease-in-out;
     }
 
-    /* About Section */
-    #about {
-      padding: 60px 0;
-      background-color: #2d2d2d;
-      color: white;
-      text-align: center;
+    .fade-in {
+      animation: fadeIn 2s ease-in-out;
     }
 
-    /* Achievements Section */
-    #achievements {
-      background-color: #222;
-      padding: 60px 0;
-      color: white;
-    }
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
 
-    .timeline-item {
-      display: flex;
-      justify-content: center;
-      margin-bottom: 30px;
-      position: relative;
+      to {
+        opacity: 1;
+      }
     }
-
-    .timeline-item .content {
-      background: #333;
-      padding: 20px;
-      border-radius: 10px;
-      width: 80%;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-    }
-
-    .timeline-item::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 50%;
-      width: 3px;
-      height: 100%;
-      background: #3b82f6;
-      transform: translateX(-50%);
-    }
-
-    /* Fun Facts Section */
-    #fun-facts {
-      background-color: #333;
-      padding: 60px 0;
-      color: white;
-      text-align: center;
-    }
-
-    /* Social Links Section */
-    #socials {
-      background-color: #222;
-      padding: 40px 0;
-      text-align: center;
-    }
-
-    .social-links {
-      display: flex;
-      justify-content: center;
-      gap: 20px;
-    }
-
-    .social-links a {
-      padding: 10px 30px;
-      background-color: #3b82f6;
-      color: white;
-      text-decoration: none;
-      border-radius: 5px;
-      font-weight: 600;
-      transition: transform 0.3s ease;
-    }
-
-    .social-links a:hover {
-      transform: scale(1.1);
-      background-color: #2563eb;
-    }
-
-    /* Footer Section */
-    footer {
-      background-color: #1a1a1a;
-      color: white;
-      text-align: center;
-      padding: 20px;
-    }
-
   </style>
 </head>
 
-<body>
-
+<body class="bg-gradient-to-b from-black via-indigo-900 to-blue-900 text-white font-sans">
   <!-- Hero Section -->
-  <section class="hero">
-    <div>
-      <h1>N.Bharath</h1>
-      <p>Founder of Circle 13 - Innovator & Visionary</p>
-      <a href="#about" class="cta-button">Learn More</a>
+  <section class="h-screen flex flex-col justify-center items-center text-center fade-in">
+    <h1 class="text-4xl md:text-6xl font-bold mb-6">N.Bharath – Founder of Circle 13</h1>
+    <div class="space-x-4">
+      <a href="https://discord.gg/jTC4u97w5Z" target="_blank" class="px-6 py-3 bg-blue-500 text-white rounded-lg btn-hover">Join Discord</a>
+      <a href="https://forms.gle/v3VFBCP3wKJgvpCR6" target="_blank"
+        class="px-6 py-3 bg-green-500 text-white rounded-lg btn-hover">Apply Now</a>
     </div>
   </section>
 
   <!-- About Section -->
-  <section id="about">
-    <div>
-      <h2 class="text-3xl font-bold">About Me</h2>
-      <p class="mt-5">I'm N.Bharath, founder of Circle 13. I strive to make an impact in the tech world by developing innovative solutions and collaborating with talented individuals. I’m passionate about clean code, building impactful projects, and helping others achieve success through technology.</p>
-    </div>
+  <section class="py-12 px-8 md:px-16 lg:px-32">
+    <h2 class="text-3xl md:text-4xl font-bold mb-4 text-center">About</h2>
+    <p class="text-lg md:text-xl text-gray-300 text-center leading-8">
+      Hi, I'm N.Bharath, the founder of <strong>Circle 13</strong>. Circle 13 is a forward-thinking organization driven
+      by innovation and a passion for creating impactful solutions. Our mission is to empower individuals and
+      communities to achieve their goals through technology and collaboration.
+    </p>
   </section>
 
   <!-- Achievements Section -->
-  <section id="achievements">
-    <div class="text-center">
-      <h2 class="text-3xl font-bold">Achievements</h2>
-      <div class="timeline-item">
-        <div class="content">
-          <h4 class="text-xl font-semibold">Founder of Circle 13</h4>
-          <p>Started and launched Circle 13 to innovate and create sustainable growth through collaboration.</p>
-        </div>
+  <section class="py-12 px-8 md:px-16 lg:px-32 bg-indigo-800">
+    <h2 class="text-3xl md:text-4xl font-bold mb-4 text-center">Achievements</h2>
+    <div class="space-y-6">
+      <div class="border-l-4 border-blue-400 pl-4">
+        <h3 class="font-semibold text-xl">Founder of Circle 13</h3>
+        <p class="text-gray-300">Created a dynamic organization focused on innovation and community impact.</p>
       </div>
-      <div class="timeline-item">
-        <div class="content">
-          <h4 class="text-xl font-semibold">Developed Web Applications</h4>
-          <p>Created multiple web apps that address real-world challenges and facilitate meaningful change.</p>
-        </div>
+      <div class="border-l-4 border-blue-400 pl-4">
+        <h3 class="font-semibold text-xl">Launched [Project Name]</h3>
+        <p class="text-gray-300">Led the development and launch of impactful projects in [industry/domain].</p>
       </div>
     </div>
   </section>
 
   <!-- Fun Facts Section -->
-  <section id="fun-facts">
-    <div>
-      <h2 class="text-3xl font-bold">Fun Facts</h2>
-      <ul class="mt-5">
-        <li>I enjoy coding late into the night while listening to Lo-fi music.</li>
-        <li>I believe in learning from failure, as it’s an important step toward success.</li>
-        <li>I'm a huge fan of startups and love exploring new innovations.</li>
-      </ul>
-    </div>
+  <section class="py-12 px-8 md:px-16 lg:px-32">
+    <h2 class="text-3xl md:text-4xl font-bold mb-4 text-center">Fun Facts</h2>
+    <ul class="text-lg md:text-xl text-gray-300 leading-8 list-disc list-inside">
+      <li>When I'm not coding, I'm exploring the world of photography.</li>
+      <li>I love experimenting with new tech stacks and frameworks.</li>
+      <li>Big fan of minimalist design and sleek user experiences.</li>
+    </ul>
   </section>
 
-  <!-- Social Links Section -->
-  <section id="socials">
-    <div>
-      <h2 class="text-3xl font-bold text-white">Connect with Me</h2>
-      <div class="social-links mt-6">
-        <a href="https://www.linkedin.com/in/n-bharath-2b86311b9/" target="_blank">LinkedIn</a>
-        <a href="https://www.instagram.com/bharath_theunassailable/" target="_blank">Instagram</a>
-      </div>
+  <!-- Social Media Section -->
+  <footer class="py-8 px-8 md:px-16 lg:px-32 bg-black text-center">
+    <h2 class="text-2xl font-bold mb-4">Connect with Me</h2>
+    <div class="space-x-4">
+      <a href="https://linkedin.com" target="_blank" class="px-6 py-3 bg-blue-600 rounded-lg btn-hover">LinkedIn</a>
+      <a href="https://instagram.com" target="_blank" class="px-6 py-3 bg-pink-500 rounded-lg btn-hover">Instagram</a>
     </div>
-  </section>
-
-  <!-- Footer Section -->
-  <footer>
-    <p>&copy; 2025 N.Bharath. All rights reserved.</p>
   </footer>
-
 </body>
 
 </html>
