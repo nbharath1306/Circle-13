@@ -12,6 +12,30 @@
       background-color: rgba(255, 255, 255, 0.04);
       border: 1px solid rgba(255, 255, 255, 0.15);
     }
+
+    .profile-image {
+      width: 300px;
+      height: 400px;
+      object-fit: cover;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .button {
+      background-color: #4C6BFF;
+      padding: 12px 28px;
+      font-size: 18px;
+      color: white;
+      border-radius: 6px;
+      text-decoration: none;
+      text-align: center;
+      display: inline-block;
+      transition: all 0.3s ease;
+    }
+
+    .button:hover {
+      background-color: #365bdb;
+    }
   </style>
 </head>
 
@@ -19,30 +43,39 @@
 
   <!-- Profile Section -->
   <section class="py-24 px-6 text-center max-w-4xl mx-auto">
-    <img src="https://raw.githubusercontent.com/nbharath1306/Circle-13/main/WhatsApp%20Image%202025-04-14%20at%2012.28.49%20AM.jpeg" alt="N.Bharath" class="w-32 h-32 rounded-full border-4 border-indigo-500 mx-auto mb-4">
-    <h1 class="text-4xl font-extrabold text-indigo-500 mb-4">N.Bharath</h1>
+    <!-- Profile Image -->
+    <div class="mb-8">
+      <img src="https://raw.githubusercontent.com/nbharath1306/Circle-13/main/WhatsApp%20Image%202025-04-14%20at%2012.28.49%20AM.jpeg" alt="N.Bharath" class="profile-image mx-auto rounded-xl">
+    </div>
+
+    <!-- Name and Title -->
+    <h1 class="text-5xl font-extrabold text-indigo-500 mb-4">N.Bharath</h1>
     <p class="text-xl text-gray-300 italic mb-6">Founder • Visionary</p>
-    <p class="text-sm text-gray-400 mb-6">I am passionate about technology, design, and creating impactful solutions. My focus is on innovating and solving real-world challenges with a combination of coding and creativity. I'm dedicated to making a difference in everything I do.</p>
+
+    <!-- Bio Section -->
+    <p class="text-lg text-gray-400 mb-6">Passionate about technology and design, I aim to create impactful solutions that solve real-world problems. Whether it’s through coding, creativity, or innovation, I strive to leave a positive mark in every project I undertake.</p>
 
     <!-- Social Links -->
     <div class="flex justify-center space-x-6">
-      <a href="https://www.linkedin.com/in/nbharath1306/" target="_blank" class="bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded-xl text-white text-lg font-semibold transition">LinkedIn</a>
-      <a href="https://github.com/nbharath1306" target="_blank" class="bg-gray-700 hover:bg-gray-800 px-6 py-3 rounded-xl text-white text-lg font-semibold transition">GitHub</a>
+      <a href="https://www.linkedin.com/in/n-bharath-2b86311b9/" target="_blank" class="button">LinkedIn</a>
+      <a href="https://github.com/nbharath1306" target="_blank" class="button">GitHub</a>
     </div>
   </section>
 
   <!-- Footer -->
-  <footer class="py-8 text-center bg-black">
-    <p class="text-gray-400 text-sm">Connect with <a href="https://www.linkedin.com/in/nbharath1306/" target="_blank" class="text-indigo-400 underline hover:text-indigo-300">N.Bharath</a></p>
+  <footer class="py-8 text-center bg-black mt-24">
+    <p class="text-gray-400 text-sm">Connect with <a href="https://www.linkedin.com/in/n-bharath-2b86311b9/" target="_blank" class="text-indigo-400 underline hover:text-indigo-300">N.Bharath</a></p>
     <p class="text-gray-600 text-xs mt-2">&copy; <span id="year"></span> N.Bharath. All rights reserved.</p>
   </footer>
 
   <script>
     document.getElementById("year").textContent = new Date().getFullYear();
   </script>
+
 </body>
 
 </html>
+
 
 
 
