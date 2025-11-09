@@ -17,84 +17,82 @@ body {
   overflow-x: hidden;
 }
 
-/* Dynamic gradient background - Full Rebrand */
-body::before {
-  content: '';
-  position: fixed;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
-  background: 
-    radial-gradient(ellipse at top left, rgba(14, 165, 233, 0.15), transparent 50%),
-    radial-gradient(ellipse at top right, rgba(236, 72, 153, 0.12), transparent 50%),
-    radial-gradient(ellipse at center, rgba(168, 85, 247, 0.1), transparent 60%),
-    radial-gradient(ellipse at bottom left, rgba(34, 211, 238, 0.12), transparent 50%),
-    radial-gradient(ellipse at bottom right, rgba(251, 146, 60, 0.15), transparent 50%);
-  z-index: -1;
-  pointer-events: none;
-  animation: bgPulse 15s ease infinite alternate;
-}
+    /* Background gradients - Futuristic */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: 
+        radial-gradient(ellipse at top left, rgba(139, 92, 246, 0.15), transparent 50%),
+        radial-gradient(ellipse at top right, rgba(6, 182, 212, 0.12), transparent 50%),
+        radial-gradient(ellipse at center, rgba(236, 72, 153, 0.08), transparent 60%),
+        radial-gradient(ellipse at bottom left, rgba(34, 211, 238, 0.1), transparent 50%),
+        radial-gradient(ellipse at bottom right, rgba(168, 85, 247, 0.12), transparent 50%);
+      z-index: -1;
+      animation: bgPulse 12s ease-in-out infinite alternate;
+    }
+    
+    @keyframes bgPulse {
+      0% { 
+        filter: brightness(1) saturate(1.2) hue-rotate(0deg);
+        transform: scale(1);
+      }
+      100% { 
+        filter: brightness(1.3) saturate(1.5) hue-rotate(5deg);
+        transform: scale(1.02);
+      }
+    }
 
-@keyframes bgPulse {
-  0% { 
-    filter: brightness(1) hue-rotate(0deg);
-  }
-  100% { 
-    filter: brightness(1.2) hue-rotate(10deg);
-  }
-}
-
-/* Custom Cursor - Cyan/Pink */
+/* Custom Cursor - Holographic */
 .cursor { 
-  width: 24px; height: 24px; 
-  border: 2px solid #06b6d4; 
+  width: 28px; height: 28px; 
+  border: 2px solid #8b5cf6; 
   border-radius: 50%; 
   position: fixed; 
   pointer-events: none; 
   z-index: 99999; 
   transition: transform 0.2s ease, border-color 0.3s ease;
   mix-blend-mode: screen;
-  box-shadow: 0 0 20px rgba(6, 182, 212, 0.3);
+  box-shadow: 0 0 20px rgba(139, 92, 246, 0.6), inset 0 0 10px rgba(236, 72, 153, 0.3);
+  animation: cursorPulse 2s ease-in-out infinite;
 }
-.cursor-follower { 
-  width: 10px; height: 10px; 
-  background: linear-gradient(135deg, #ec4899, #a855f7, #06b6d4);
-  border-radius: 50%; 
-  position: fixed; 
-  pointer-events: none; 
-  z-index: 99998;
-  box-shadow: 0 0 15px rgba(236, 72, 153, 0.5);
+@keyframes cursorPulse {
+  0%, 100% { box-shadow: 0 0 20px rgba(139, 92, 246, 0.6), inset 0 0 10px rgba(236, 72, 153, 0.3); }
+  50% { box-shadow: 0 0 30px rgba(139, 92, 246, 0.8), inset 0 0 15px rgba(236, 72, 153, 0.5); }
 }
 .cursor.expand { 
-  transform: scale(2); 
+  transform: scale(2.5); 
   border-color: #ec4899;
-  box-shadow: 0 0 30px rgba(236, 72, 153, 0.6);
+  box-shadow: 0 0 40px rgba(236, 72, 153, 0.9), inset 0 0 20px rgba(139, 92, 246, 0.5);
 }
-@media (max-width: 768px) { .cursor, .cursor-follower { display: none; } }
+@media (max-width: 768px) { .cursor { display: none; } }
 
-/* Navbar - Rebrand */
+/* Navbar - Futuristic Premium */
 .navbar { 
   position: fixed; top: 0; left: 0; right: 0; 
   z-index: 9999; 
-  background: rgba(10, 10, 15, 0.98); 
+  background: rgba(10, 10, 15, 0.85); 
   backdrop-filter: blur(30px) saturate(180%);
-  border-bottom: 1px solid rgba(6, 182, 212, 0.3); 
+  border-bottom: 1px solid rgba(139, 92, 246, 0.3); 
   transform: translateY(-100%); 
   transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 10px 40px rgba(6, 182, 212, 0.1);
+  box-shadow: 0 10px 50px rgba(139, 92, 246, 0.2), 0 0 100px rgba(6, 182, 212, 0.1);
 }
 .navbar.visible { transform: translateY(0); }
 .nav-link { 
-  color: #999; 
+  color: #94a3b8; 
   text-decoration: none; 
-  padding: 0.75rem 1.25rem; 
+  padding: 0.75rem 1.5rem; 
   position: relative;
   transition: all 0.3s ease;
   font-weight: 600;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  font-size: 0.875rem;
 }
 .nav-link:hover { 
-  color: #fff; 
-  text-shadow: 0 0 20px rgba(6, 182, 212, 0.5);
+  color: #f1f5f9; 
+  text-shadow: 0 0 20px rgba(139, 92, 246, 0.6), 0 0 40px rgba(236, 72, 153, 0.3);
 }
 .nav-link::after {
   content: '';
@@ -102,12 +100,18 @@ body::before {
   bottom: 0; left: 50%;
   transform: translateX(-50%);
   width: 0; height: 3px;
-  background: linear-gradient(90deg, #06b6d4, #ec4899, #a855f7, #fb923c);
+  background: linear-gradient(90deg, #8b5cf6, #ec4899, #06b6d4, #8b5cf6);
   transition: width 0.4s ease;
   border-radius: 2px;
-  box-shadow: 0 0 10px currentColor;
+  box-shadow: 0 0 15px currentColor;
+  background-size: 200% 100%;
+  animation: gradientMove 3s linear infinite;
 }
-.nav-link:hover::after { width: 80%; }
+@keyframes gradientMove {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 200% 50%; }
+}
+.nav-link:hover::after { width: 90%; }
 
 /* Typography */
 .hero-title { 
@@ -116,35 +120,104 @@ body::before {
   font-weight: 900; 
   line-height: 0.95;
   letter-spacing: -0.02em;
+  position: relative;
+  animation: simpleFadeUp 1s ease-out;
 }
 
-.gradient-text { 
-  background: linear-gradient(135deg, #06b6d4 0%, #a855f7 40%, #ec4899 70%, #fb923c 100%); 
-  -webkit-background-clip: text; 
-  -webkit-text-fill-color: transparent; 
-  background-clip: text;
-  animation: gradientShift 8s ease infinite;
-  background-size: 200% 200%;
+@keyframes simpleFadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-@keyframes gradientShift {
-  0%, 100% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
+    .gradient-text { 
+      background: linear-gradient(90deg, #06b6d4, #8b5cf6, #ec4899, #06b6d4); 
+      background-size: 300% 100%;
+      -webkit-background-clip: text; 
+      -webkit-text-fill-color: transparent; 
+      background-clip: text;
+      animation: gradientFlow 4s ease infinite;
+    }
+    
+    @keyframes gradientFlow {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+
+.text-white {
+  color: #ffffff;
 }
 
-/* Smooth Reveals */
+/* Simple hover glow */
+.hero-title:hover .gradient-text {
+  filter: drop-shadow(0 0 20px rgba(139, 92, 246, 0.6));
+}
+
+.hero-title:hover .text-white {
+  text-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
+}
+
+/* Smooth Reveals with Bounce */
 .reveal { 
   opacity: 0; 
-  transform: translateY(60px); 
-  transition: opacity 0.8s ease, transform 0.8s ease;
+  transform: translateY(80px) scale(0.95); 
+  transition: opacity 1s cubic-bezier(0.34, 1.56, 0.64, 1), transform 1s cubic-bezier(0.34, 1.56, 0.64, 1);
+  filter: blur(4px);
 }
-.reveal.active { opacity: 1; transform: translateY(0); }
+.reveal.active { 
+  opacity: 1; 
+  transform: translateY(0) scale(1); 
+  filter: blur(0px);
+}
 
 .reveal-fade { 
   opacity: 0; 
-  transition: opacity 1s ease;
+  transition: opacity 1.2s ease;
+  filter: blur(3px);
 }
-.reveal-fade.active { opacity: 1; }
+.reveal-fade.active { 
+  opacity: 1; 
+  filter: blur(0px);
+}
+
+/* Text Animations */
+.text-glow {
+  animation: textGlowPulse 3s ease-in-out infinite;
+}
+@keyframes textGlowPulse {
+  0%, 100% { 
+    text-shadow: 0 0 10px rgba(139, 92, 246, 0.5), 0 0 20px rgba(236, 72, 153, 0.3);
+  }
+  50% { 
+    text-shadow: 0 0 20px rgba(139, 92, 246, 0.8), 0 0 40px rgba(236, 72, 153, 0.6), 0 0 60px rgba(6, 182, 212, 0.4);
+  }
+}
+
+.text-float {
+  animation: floatText 4s ease-in-out infinite;
+}
+@keyframes floatText {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-8px); }
+}
+
+.text-shimmer {
+  background: linear-gradient(90deg, #8b5cf6 0%, #ec4899 50%, #06b6d4 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  background-size: 200% auto;
+  animation: shimmer 3s linear infinite;
+}
+@keyframes shimmer {
+  0% { background-position: 0% center; }
+  100% { background-position: 200% center; }
+}
 
 /* Staggered delays */
 .delay-100 { transition-delay: 0.1s; }
@@ -152,35 +225,60 @@ body::before {
 .delay-300 { transition-delay: 0.3s; }
 .delay-400 { transition-delay: 0.4s; }
 .delay-500 { transition-delay: 0.5s; }
+.delay-600 { transition-delay: 0.6s; }
+.delay-700 { transition-delay: 0.7s; }
+.delay-800 { transition-delay: 0.8s; }
 
-/* Cards */
+/* Cards - Holographic */
 .card { 
-  background: rgba(255, 255, 255, 0.02); 
-  backdrop-filter: blur(10px); 
-  border: 1px solid rgba(6, 182, 212, 0.15); 
-  border-radius: 20px; 
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02)); 
+  backdrop-filter: blur(20px); 
+  border: 1px solid rgba(139, 92, 246, 0.2); 
+  border-radius: 24px; 
   padding: 2rem; 
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
+  overflow: hidden;
 }
 .card::before {
   content: '';
   position: absolute;
   inset: 0;
-  border-radius: 20px;
-  padding: 1px;
-  background: linear-gradient(135deg, rgba(6, 182, 212, 0.4), rgba(168, 85, 247, 0.4), rgba(236, 72, 153, 0.4));
+  border-radius: 24px;
+  padding: 2px;
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.5), rgba(236, 72, 153, 0.5), rgba(6, 182, 212, 0.5));
   -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
   mask-composite: exclude;
   opacity: 0;
-  transition: opacity 0.4s ease;
+  transition: opacity 0.5s ease;
+  animation: borderGlow 3s ease-in-out infinite;
+}
+@keyframes borderGlow {
+  0%, 100% { filter: brightness(1) hue-rotate(0deg); }
+  50% { filter: brightness(1.3) hue-rotate(15deg); }
+}
+.card::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(45deg, transparent, rgba(139, 92, 246, 0.1), transparent);
+  transform: rotate(45deg);
+  transition: all 0.6s ease;
+  opacity: 0;
 }
 .card:hover::before { opacity: 1; }
+.card:hover::after { 
+  opacity: 0; /* Removed diagonal shine animation */
+}
 .card:hover { 
-  transform: translateY(-8px); 
-  background: rgba(255, 255, 255, 0.04);
-  box-shadow: 0 20px 60px rgba(6, 182, 212, 0.25), 0 0 40px rgba(236, 72, 153, 0.15);
+  transform: translateY(-12px) scale(1.02); 
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03));
+  box-shadow: 0 30px 80px rgba(139, 92, 246, 0.3), 0 0 60px rgba(236, 72, 153, 0.2);
+  border-color: rgba(139, 92, 246, 0.5);
 }
 
 /* Icons */
@@ -195,45 +293,46 @@ body::before {
   filter: grayscale(0);
 }
 
-/* Buttons */
+/* Buttons - Neon Glow */
 .btn { 
-  padding: 16px 40px; 
-  border: 1px solid rgba(6, 182, 212, 0.5); 
-  border-radius: 50px; 
-  background: transparent; 
-  color: white; 
+  padding: 16px 42px; 
+  border: 2px solid rgba(139, 92, 246, 0.6); 
+  border-radius: 12px; 
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(236, 72, 153, 0.1)); 
+  color: #f1f5f9; 
   font-weight: 600; 
-  font-size: 1rem;
-  transition: all 0.3s ease;
+  font-size: 0.95rem;
+  transition: all 0.4s ease;
   text-decoration: none; 
   display: inline-block;
   position: relative;
   overflow: hidden;
   z-index: 1;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  box-shadow: 0 0 20px rgba(139, 92, 246, 0.3), inset 0 0 20px rgba(139, 92, 246, 0.1);
 }
 .btn::before {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, #06b6d4, #a855f7, #ec4899);
+  background: linear-gradient(135deg, #8b5cf6, #ec4899, #06b6d4);
   opacity: 0;
-  transition: opacity 0.3s ease;
+  transition: opacity 0.4s ease;
   z-index: -1;
+  animation: btnGradientShift 3s ease infinite;
+  background-size: 200% 200%;
+}
+@keyframes btnGradientShift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
 }
 .btn:hover::before { opacity: 1; }
 .btn:hover { 
-  border-color: transparent; 
-  transform: translateY(-2px);
-  box-shadow: 0 10px 30px rgba(6, 182, 212, 0.5), 0 0 20px rgba(236, 72, 153, 0.3);
-}
-
-/* Progress bar */
-.progress { 
-  position: fixed; top: 0; left: 0; 
-  height: 3px; 
-  background: linear-gradient(90deg, #06b6d4, #a855f7, #ec4899, #fb923c); 
-  box-shadow: 0 0 15px rgba(6, 182, 212, 0.6);
-  z-index: 99999;
+  border-color: rgba(236, 72, 153, 0.8); 
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 15px 40px rgba(139, 92, 246, 0.5), 0 0 60px rgba(236, 72, 153, 0.4), inset 0 0 30px rgba(255, 255, 255, 0.1);
+  color: #ffffff;
 }
 
 /* Stats */
@@ -241,6 +340,16 @@ body::before {
   font-size: clamp(2.5rem, 8vw, 5rem);
   font-weight: 900;
   font-family: 'Space Grotesk', sans-serif;
+  background: linear-gradient(135deg, #8b5cf6, #ec4899, #06b6d4);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: statGlow 3s ease-in-out infinite;
+  text-shadow: 0 0 30px rgba(139, 92, 246, 0.5);
+}
+@keyframes statGlow {
+  0%, 100% { filter: brightness(1) drop-shadow(0 0 20px rgba(139, 92, 246, 0.5)); }
+  50% { filter: brightness(1.3) drop-shadow(0 0 40px rgba(236, 72, 153, 0.7)); }
 }
 
 /* Section headers */
@@ -249,23 +358,31 @@ body::before {
   font-weight: 800;
   font-family: 'Space Grotesk', sans-serif;
   letter-spacing: -0.02em;
+  animation: titleFloat 4s ease-in-out infinite;
+}
+@keyframes titleFloat {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
 }
 
 /* Founder card special */
 .founder-card {
-  background: linear-gradient(135deg, rgba(6, 182, 212, 0.08), rgba(168, 85, 247, 0.06), rgba(236, 72, 153, 0.05));
-  border: 1px solid rgba(6, 182, 212, 0.25);
+  background: linear-gradient(145deg, rgba(139, 92, 246, 0.15), rgba(236, 72, 153, 0.1), rgba(6, 182, 212, 0.12));
+  border: 2px solid rgba(139, 92, 246, 0.4);
+  box-shadow: 0 0 60px rgba(139, 92, 246, 0.3), inset 0 0 60px rgba(236, 72, 153, 0.1);
 }
 
-/* Badge */
+/* Badge - Holographic */
 .badge {
-  padding: 0.5rem 1.5rem;
-  background: linear-gradient(135deg, rgba(6, 182, 212, 0.2), rgba(168, 85, 247, 0.15));
-  border: 1px solid rgba(6, 182, 212, 0.4);
-  border-radius: 50px;
+  padding: 0.6rem 1.75rem;
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.25), rgba(236, 72, 153, 0.2));
+  border: 1px solid rgba(139, 92, 246, 0.5);
+  border-radius: 30px;
   font-size: 0.875rem;
   font-weight: 600;
-  color: #67e8f9;
+  color: #c4b5fd;
+  text-shadow: 0 0 10px rgba(139, 92, 246, 0.5);
+  box-shadow: 0 0 15px rgba(139, 92, 246, 0.3);
 }
 
 /* Team card enhancements */
@@ -284,6 +401,123 @@ body::before {
   font-size: 0.875rem;
   font-weight: 700;
   box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  animation: badgeBounce 2s ease-in-out infinite;
+}
+@keyframes badgeBounce {
+  0%, 100% { transform: translateX(-50%) translateY(0px); }
+  50% { transform: translateX(-50%) translateY(-5px); }
+}
+
+/* Icon animations - Contextual */
+.card-icon {
+  display: inline-block;
+  font-size: 3rem;
+  animation: iconFloat 3s ease-in-out infinite;
+  filter: drop-shadow(0 0 20px rgba(139, 92, 246, 0.6));
+  transition: all 0.4s ease;
+}
+@keyframes iconFloat {
+  0%, 100% { transform: translateY(0px) scale(1); }
+  50% { transform: translateY(-15px) scale(1.1); }
+}
+
+.card:hover .card-icon {
+  filter: drop-shadow(0 0 35px rgba(236, 72, 153, 0.9));
+}
+
+/* AI/Tech - Data pulse */
+.tech-icon:hover {
+  animation: dataPulse 0.8s ease-in-out !important;
+}
+@keyframes dataPulse {
+  0%, 100% { transform: scale(1); }
+  25% { transform: scale(1.15); opacity: 1; }
+  50% { transform: scale(0.95); opacity: 0.8; }
+  75% { transform: scale(1.1); opacity: 1; }
+}
+
+/* Rocket/Speed - Launch */
+.speed-icon:hover {
+  animation: rocketLaunch 0.6s ease-out !important;
+}
+@keyframes rocketLaunch {
+  0% { transform: translateY(0) rotate(0deg) scale(1); }
+  50% { transform: translateY(-30px) rotate(-15deg) scale(1.2); }
+  100% { transform: translateY(0) rotate(0deg) scale(1); }
+}
+
+/* Mobile - Vibrate */
+.mobile-icon:hover {
+  animation: phoneVibrate 0.4s ease-in-out !important;
+}
+@keyframes phoneVibrate {
+  0%, 100% { transform: translateX(0) rotate(0deg); }
+  10%, 30%, 50%, 70% { transform: translateX(-4px) rotate(-2deg); }
+  20%, 40%, 60% { transform: translateX(4px) rotate(2deg); }
+  80% { transform: translateX(-2px); }
+  90% { transform: translateX(2px); }
+}
+
+/* Event/Target - Ripple */
+.event-icon:hover {
+  animation: targetRipple 0.8s ease-out !important;
+}
+@keyframes targetRipple {
+  0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+  50% { transform: scale(1.15); box-shadow: 0 0 0 15px rgba(16, 185, 129, 0); }
+  100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+}
+
+/* Innovation/Bulb - Flicker */
+.innovation-icon:hover {
+  animation: bulbFlicker 0.5s ease-in-out !important;
+}
+@keyframes bulbFlicker {
+  0%, 100% { filter: brightness(1) drop-shadow(0 0 20px rgba(245, 158, 11, 0.6)); }
+  20%, 40%, 60% { filter: brightness(2) drop-shadow(0 0 50px rgba(245, 158, 11, 1)); }
+  30%, 50% { filter: brightness(1.2) drop-shadow(0 0 30px rgba(245, 158, 11, 0.8)); }
+}
+
+/* Creative/Art - Rainbow spin */
+.creative-icon:hover {
+  animation: rainbowSpin 0.8s ease-in-out !important;
+}
+@keyframes rainbowSpin {
+  0% { filter: hue-rotate(0deg); transform: rotate(0deg); }
+  100% { filter: hue-rotate(360deg); transform: rotate(360deg); }
+}
+
+/* Cloud - Float up */
+.cloud-icon:hover {
+  animation: cloudFloat 1s ease-in-out !important;
+}
+@keyframes cloudFloat {
+  0%, 100% { transform: translateY(0); opacity: 1; }
+  50% { transform: translateY(-25px); opacity: 0.7; }
+}
+
+/* Fire/Hot - Flame dance */
+.fire-icon:hover {
+  animation: flameDance 0.3s ease-in-out infinite !important;
+}
+@keyframes flameDance {
+  0%, 100% { transform: translateY(0) scale(1, 1); }
+  25% { transform: translateY(-3px) scale(1.05, 0.95); }
+  75% { transform: translateY(-2px) scale(0.95, 1.05); }
+}
+
+/* Web3/Blockchain - Matrix effect */
+.web3-icon:hover {
+  animation: matrixGlitch 0.6s ease-in-out !important;
+}
+@keyframes matrixGlitch {
+  0%, 100% { transform: translate(0, 0); }
+  10% { transform: translate(-2px, 2px); }
+  20% { transform: translate(2px, -2px); }
+  30% { transform: translate(-2px, -2px); }
+  40% { transform: translate(2px, 2px); }
+  50% { transform: translate(-3px, 0); }
+  60% { transform: translate(3px, 0); }
 }
 
 /* Responsive */
@@ -291,16 +525,73 @@ body::before {
   .card { padding: 1.5rem; }
   .btn { padding: 12px 30px; }
 }
+
+/* Particle Background */
+.particles {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -2;
+  pointer-events: none;
+}
+.particle {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: radial-gradient(circle, rgba(139, 92, 246, 0.8), transparent);
+  border-radius: 50%;
+  animation: particleFloat 20s linear infinite;
+  box-shadow: 0 0 10px rgba(139, 92, 246, 0.5);
+}
+@keyframes particleFloat {
+  0% {
+    transform: translateY(100vh) translateX(0) scale(0);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-100vh) translateX(100px) scale(1.5);
+    opacity: 0;
+  }
+}
+
+/* Floating Elements */
+.float-slow {
+  animation: floatSlow 6s ease-in-out infinite;
+}
+@keyframes floatSlow {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-20px); }
+}
+
+.pulse-glow {
+  animation: pulseGlow 2s ease-in-out infinite;
+}
+@keyframes pulseGlow {
+  0%, 100% { 
+    box-shadow: 0 0 20px rgba(139, 92, 246, 0.4), 0 0 40px rgba(236, 72, 153, 0.2);
+  }
+  50% { 
+    box-shadow: 0 0 40px rgba(139, 92, 246, 0.8), 0 0 80px rgba(236, 72, 153, 0.5);
+  }
+}
+
 </style>
 </head>
 <body>
 
+<!-- Particle Background -->
+<div class="particles" id="particles"></div>
+
 <!-- Custom Cursor -->
 <div class="cursor" id="cursor"></div>
-<div class="cursor-follower" id="follower"></div>
-
-<!-- Progress Bar -->
-<div class="progress" id="progress" style="width: 0%"></div>
 
 <!-- Navigation -->
 <nav class="navbar" id="navbar">
@@ -322,21 +613,21 @@ body::before {
 <section class="min-h-screen flex items-center justify-center px-6 pt-20">
   <div class="max-w-7xl mx-auto text-center">
     <div class="reveal reveal-fade">
-      <div class="badge inline-block mb-12">
+      <div class="badge inline-block mb-12 text-glow">
         🚀 Innovation Lab & Micro-Startups
       </div>
     </div>
     
-    <h1 class="hero-title reveal delay-100 mb-10">
+    <h1 class="hero-title reveal delay-100 mb-10" id="mainTitle">
       <span class="gradient-text">Circle</span><span class="text-white">13</span>
     </h1>
     
     <p class="text-3xl md:text-4xl font-semibold text-gray-300 mb-6 reveal delay-200 leading-tight max-w-5xl mx-auto">
-      We are a group of <span class="gradient-text">builders</span> and <span class="gradient-text">innovators</span>
+      We are a group of <span class="gradient-text text-glow">builders</span> and <span class="gradient-text text-glow">innovators</span>
     </p>
     
     <p class="text-xl md:text-2xl text-gray-500 mb-8 reveal delay-300 max-w-4xl mx-auto">
-      experimenting across <span class="text-cyan-400">AI</span> and <span class="text-pink-400">real-world impact</span>
+      experimenting across <span class="text-purple-400 text-shimmer">AI</span> and <span class="text-pink-400 text-shimmer">real-world impact</span>
     </p>
     
     <p class="text-lg text-gray-600 mb-14 reveal delay-400 max-w-3xl mx-auto italic">
@@ -398,39 +689,39 @@ body::before {
 <section id="vision" class="py-24 px-6">
   <div class="max-w-7xl mx-auto">
     <div class="text-center mb-20 reveal">
-      <h2 class="section-title mb-4">Our <span class="gradient-text">Vision</span></h2>
+      <h2 class="section-title mb-4">Our <span class="gradient-text text-shimmer">Vision</span></h2>
       <p class="text-xl text-gray-500 mt-4">Building the future through rapid experimentation</p>
     </div>
     
     <!-- Main Vision -->
     <div class="max-w-5xl mx-auto mb-20">
-      <div class="card reveal text-center p-10 md:p-12">
+      <div class="card reveal delay-100 text-center p-10 md:p-12 float-slow">
         <div class="text-5xl mb-8">💡</div>
         <p class="text-2xl md:text-3xl text-gray-200 leading-relaxed mb-6 font-semibold">
-          At Circle13, we <span class="gradient-text font-bold">learn by building</span>
+          At Circle13, we <span class="gradient-text text-glow font-bold">learn by building</span>
         </p>
         <p class="text-lg md:text-xl text-gray-400 leading-relaxed mb-4">
-          Our mission is to <span class="text-cyan-400 font-semibold">ship projects fast</span>, validate them in the real world, and <span class="text-pink-400 font-semibold">scale the ones that work</span>.
+          Our mission is to <span class="text-purple-400 font-semibold text-shimmer">ship projects fast</span>, validate them in the real world, and <span class="text-pink-400 font-semibold text-shimmer">scale the ones that work</span>.
         </p>
         <p class="text-base md:text-lg text-gray-500 leading-relaxed">
-          We function as an <span class="text-white font-bold">innovation lab</span>, launching multiple projects and micro-startups under one roof. We aren't restricted to any single sector; we tackle real-world problems that have a <span class="text-purple-400">real-time impact</span>.
+          We function as an <span class="text-white font-bold text-glow">innovation lab</span>, launching multiple projects and micro-startups under one roof. We aren't restricted to any single sector; we tackle real-world problems that have a <span class="text-purple-400 text-float">real-time impact</span>.
         </p>
       </div>
     </div>
 
     <!-- Core Belief -->
     <div class="max-w-4xl mx-auto mb-24">
-      <div class="reveal">
-        <div class="card founder-card text-center p-12 md:p-16">
+      <div class="reveal delay-200">
+        <div class="card founder-card text-center p-12 md:p-16 pulse-glow">
           <div class="text-6xl mb-8">⚡</div>
-          <h3 class="text-3xl md:text-4xl font-bold mb-6 gradient-text">Our Core Belief</h3>
+          <h3 class="text-3xl md:text-4xl font-bold mb-6 gradient-text text-float">Our Core Belief</h3>
           <div class="my-10">
-            <p class="text-4xl md:text-5xl font-black gradient-text mb-6">
+            <p class="text-4xl md:text-5xl font-black gradient-text text-glow mb-6">
               "Volume negates luck."
             </p>
           </div>
           <p class="text-2xl md:text-3xl text-gray-300 font-semibold">
-            If we build <span class="gradient-text font-bold">10 things</span>, one will make it <span class="gradient-text font-bold">BIG</span>.
+            If we build <span class="gradient-text font-bold text-shimmer">10 things</span>, one will make it <span class="gradient-text font-bold text-shimmer">BIG</span>.
           </p>
         </div>
       </div>
@@ -438,39 +729,39 @@ body::before {
 
     <!-- Three Pillars -->
     <div id="pillars" class="mb-20">
-      <div class="text-center mb-16 reveal">
-        <h3 class="text-4xl md:text-5xl font-bold mb-4">Our Three <span class="gradient-text">Pillars</span></h3>
+      <div class="text-center mb-16 reveal delay-300">
+        <h3 class="text-4xl md:text-5xl font-bold mb-4">Our Three <span class="gradient-text text-shimmer">Pillars</span></h3>
         <p class="text-lg text-gray-500 mt-4">The foundation of everything we create</p>
       </div>
       
       <div class="grid md:grid-cols-3 gap-8">
-        <div class="card reveal delay-100 text-center p-8">
+        <div class="card reveal delay-400 text-center p-8 float-slow">
           <div class="card-icon mb-6">🤖</div>
-          <h4 class="text-2xl md:text-3xl font-bold mb-4 gradient-text">Tech & AI</h4>
+          <h4 class="text-2xl md:text-3xl font-bold mb-4 gradient-text text-glow">Tech & AI</h4>
           <p class="text-gray-400 text-base leading-relaxed mb-6">
-            Developing and implementing cutting-edge artificial intelligence solutions that solve real problems.
+            Developing and implementing cutting-edge <span class="text-purple-400 text-shimmer">artificial intelligence</span> solutions that solve real problems.
           </p>
           <div class="space-y-2 text-left text-sm">
             <div class="flex items-center gap-2 text-gray-500">
-              <span class="text-cyan-400">▸</span>
+              <span class="text-purple-400">▸</span>
               <span>Machine Learning Models</span>
             </div>
             <div class="flex items-center gap-2 text-gray-500">
-              <span class="text-cyan-400">▸</span>
+              <span class="text-purple-400">▸</span>
               <span>AI Automation Tools</span>
             </div>
             <div class="flex items-center gap-2 text-gray-500">
-              <span class="text-cyan-400">▸</span>
+              <span class="text-purple-400">▸</span>
               <span>Intelligent Systems</span>
             </div>
           </div>
         </div>
 
-        <div class="card reveal delay-200 text-center p-8">
+        <div class="card reveal delay-500 text-center p-8 float-slow">
           <div class="card-icon mb-6">🚀</div>
-          <h4 class="text-2xl md:text-3xl font-bold mb-4 gradient-text">Business & Events</h4>
+          <h4 class="text-2xl md:text-3xl font-bold mb-4 gradient-text text-glow">Business & Events</h4>
           <p class="text-gray-400 text-base leading-relaxed mb-6">
-            Creating new business models, strategies, and impactful events that bring communities together.
+            Creating new business models, strategies, and <span class="text-emerald-400 text-shimmer">impactful events</span> that bring communities together.
           </p>
           <div class="space-y-2 text-left text-sm">
             <div class="flex items-center gap-2 text-gray-500">
@@ -488,11 +779,11 @@ body::before {
           </div>
         </div>
 
-        <div class="card reveal delay-300 text-center p-8">
+        <div class="card reveal delay-600 text-center p-8 float-slow">
           <div class="card-icon mb-6">🎨</div>
-          <h4 class="text-2xl md:text-3xl font-bold mb-4 gradient-text">Creative & Branding</h4>
+          <h4 class="text-2xl md:text-3xl font-bold mb-4 gradient-text text-glow">Creative & Branding</h4>
           <p class="text-gray-400 text-base leading-relaxed mb-6">
-            Building unique identities, compelling designs, and strong brand narratives that resonate.
+            Building unique identities, compelling designs, and <span class="text-pink-400 text-shimmer">strong brand narratives</span> that resonate.
           </p>
           <div class="space-y-2 text-left text-sm">
             <div class="flex items-center gap-2 text-gray-500">
@@ -513,11 +804,11 @@ body::before {
     </div>
 
     <!-- Founder's Note -->
-    <div class="max-w-6xl mx-auto reveal">
-      <div class="card founder-card p-10 md:p-14">
+    <div class="max-w-6xl mx-auto reveal delay-700">
+      <div class="card founder-card p-10 md:p-14 pulse-glow">
         <div class="text-center mb-10">
           <div class="text-5xl mb-4">✍️</div>
-          <h3 class="text-3xl md:text-4xl font-bold gradient-text mb-3">A Note from Our Founder</h3>
+          <h3 class="text-3xl md:text-4xl font-bold gradient-text text-float mb-3">A Note from Our Founder</h3>
         </div>
         
         <div class="text-base md:text-lg text-gray-300 leading-relaxed space-y-5">
@@ -526,19 +817,19 @@ body::before {
           </p>
           
           <p>
-            The initial <span class="gradient-text font-bold">core team</span> will be the main pillars for the company. We are <span class="text-cyan-400 font-semibold">destined to succeed</span>... as we work and experiment on multiple things.
+            The initial <span class="gradient-text text-glow font-bold">core team</span> will be the main pillars for the company. We are <span class="text-purple-400 text-shimmer font-semibold">destined to succeed</span>... as we work and experiment on multiple things.
           </p>
           
           <p>
-            I believe in the basic principles of respecting & valuing <span class="gradient-text font-bold">time, energy, vision, and ideas</span>. I expect others in the team to do the same.
+            I believe in the basic principles of respecting & valuing <span class="gradient-text text-glow font-bold">time, energy, vision, and ideas</span>. I expect others in the team to do the same.
           </p>
           
           <p>
-            We will be <span class="text-pink-400 font-semibold">hiring a lot of people</span> into different teams, both technical and non-technical. As the company grows, <span class="text-emerald-400 font-semibold">we grow</span>.
+            We will be <span class="text-pink-400 text-shimmer font-semibold">hiring a lot of people</span> into different teams, both technical and non-technical. As the company grows, <span class="text-emerald-400 text-shimmer font-semibold">we grow</span>.
           </p>
           
           <p>
-            I'm bringing in the core team to <span class="gradient-text font-bold">build this company from scratch</span>.
+            I'm bringing in the core team to <span class="gradient-text text-glow font-bold">build this company from scratch</span>.
           </p>
           
           <div class="text-center my-10">
@@ -548,7 +839,7 @@ body::before {
           </div>
           
           <p class="text-right text-xl font-bold">
-            <span class="text-cyan-400">— N. Bharath</span><br>
+            <span class="text-purple-400">— N. Bharath</span><br>
             <span class="text-gray-500 text-base">Founder & CEO</span>
           </p>
         </div>
@@ -561,69 +852,69 @@ body::before {
 <section id="projects" class="py-24 px-6">
   <div class="max-w-7xl mx-auto">
     <div class="text-center mb-16 reveal">
-      <h2 class="section-title mb-4">What We <span class="gradient-text">Work On</span></h2>
+      <h2 class="section-title mb-4">What We <span class="gradient-text text-shimmer">Work On</span></h2>
       <p class="text-lg text-gray-500 mt-4">Our experiments span across multiple impact areas</p>
     </div>
     
     <div class="grid md:grid-cols-3 gap-6">
-      <div class="card reveal delay-100">
-        <div class="card-icon mb-4">🤖</div>
-        <h3 class="text-xl font-bold mb-3">AI Solutions</h3>
+      <div class="card reveal delay-100 float-slow">
+        <div class="card-icon tech-icon mb-4">🤖</div>
+        <h3 class="text-xl font-bold mb-3 text-glow">AI Solutions</h3>
         <p class="text-gray-400 text-sm mb-3">Building intelligent systems that solve complex problems and automate workflows.</p>
-        <div class="text-xs text-cyan-400 font-semibold">→ Machine Learning • NLP • Computer Vision</div>
+        <div class="text-xs text-purple-400 font-semibold">→ Machine Learning • NLP • Computer Vision</div>
       </div>
       
-      <div class="card reveal delay-200">
-        <div class="card-icon mb-4">⚡</div>
-        <h3 class="text-xl font-bold mb-3">Fast Shipping</h3>
+      <div class="card reveal delay-200 float-slow">
+        <div class="card-icon speed-icon mb-4">⚡</div>
+        <h3 class="text-xl font-bold mb-3 text-glow">Fast Shipping</h3>
         <p class="text-gray-400 text-sm mb-3">Rapid prototyping and deployment to validate ideas in the real world quickly.</p>
         <div class="text-xs text-purple-400 font-semibold">→ MVP Development • Agile • CI/CD</div>
       </div>
       
-      <div class="card reveal delay-300">
-        <div class="card-icon mb-4">��</div>
-        <h3 class="text-xl font-bold mb-3">Mobile-First</h3>
+      <div class="card reveal delay-300 float-slow">
+        <div class="card-icon mobile-icon mb-4">📱</div>
+        <h3 class="text-xl font-bold mb-3 text-glow">Mobile-First</h3>
         <p class="text-gray-400 text-sm mb-3">Creating seamless experiences that work anywhere, on any device.</p>
         <div class="text-xs text-pink-400 font-semibold">→ iOS • Android • Progressive Web Apps</div>
       </div>
       
       <div class="card reveal delay-100">
-        <div class="card-icon mb-4">🎯</div>
+        <div class="card-icon event-icon mb-4">🎯</div>
         <h3 class="text-xl font-bold mb-3">Strategic Events</h3>
         <p class="text-gray-400 text-sm mb-3">Organizing impactful events that bring communities and ideas together.</p>
         <div class="text-xs text-emerald-400 font-semibold">→ Hackathons • Workshops • Conferences</div>
       </div>
       
       <div class="card reveal delay-200">
-        <div class="card-icon mb-4">💡</div>
+        <div class="card-icon innovation-icon mb-4">💡</div>
         <h3 class="text-xl font-bold mb-3">Innovation Lab</h3>
         <p class="text-gray-400 text-sm mb-3">Experimenting with cutting-edge tech and unconventional business models.</p>
         <div class="text-xs text-amber-400 font-semibold">→ R&D • Prototyping • Testing</div>
       </div>
       
       <div class="card reveal delay-300">
-        <div class="card-icon mb-4">🎬</div>
+        <div class="card-icon creative-icon mb-4">🎬</div>
         <h3 class="text-xl font-bold mb-3">Brand Stories</h3>
         <p class="text-gray-400 text-sm mb-3">Crafting compelling narratives that resonate with your audience.</p>
         <div class="text-xs text-rose-400 font-semibold">→ Content • Video • Social Media</div>
       </div>
       
       <div class="card reveal delay-100">
-        <div class="card-icon mb-4">🌐</div>
+        <div class="card-icon web3-icon mb-4">🌐</div>
         <h3 class="text-xl font-bold mb-3">Web3 & Blockchain</h3>
         <p class="text-gray-400 text-sm mb-3">Exploring decentralized technologies and future-proof solutions.</p>
-        <div class="text-xs text-cyan-400 font-semibold">→ Smart Contracts • DApps • NFTs</div>
+        <div class="text-xs text-purple-400 font-semibold">→ Smart Contracts • DApps • NFTs</div>
       </div>
       
       <div class="card reveal delay-200">
-        <div class="card-icon mb-4">☁️</div>
+        <div class="card-icon cloud-icon mb-4">☁️</div>
         <h3 class="text-xl font-bold mb-3">Cloud Infrastructure</h3>
         <p class="text-gray-400 text-sm mb-3">Scalable, secure cloud solutions that grow with your needs.</p>
         <div class="text-xs text-indigo-400 font-semibold">→ AWS • Azure • GCP • DevOps</div>
       </div>
       
       <div class="card reveal delay-300">
-        <div class="card-icon mb-4">🔥</div>
+        <div class="card-icon fire-icon mb-4">🔥</div>
         <h3 class="text-xl font-bold mb-3">Micro-Startups</h3>
         <p class="text-gray-400 text-sm mb-3">Launching and scaling multiple ventures under one roof.</p>
         <div class="text-xs text-orange-400 font-semibold">→ Lean Startup • Product-Market Fit</div>
@@ -636,7 +927,7 @@ body::before {
 <section id="team" class="py-24 px-6">
   <div class="max-w-7xl mx-auto">
     <div class="text-center mb-16 reveal">
-      <h2 class="section-title mb-4">The Core <span class="gradient-text">Team</span></h2>
+      <h2 class="section-title mb-4">The Core <span class="gradient-text text-shimmer">Team</span></h2>
       <p class="text-lg text-gray-500 mt-4">The main pillars building Circle13 from scratch</p>
     </div>
     
@@ -644,32 +935,32 @@ body::before {
       <!-- N. Bharath - Founder & CEO -->
       <a href="profile-NBharath.html" class="card reveal delay-100 text-center team-card pb-8 block hover:scale-105 transition-transform duration-300">
         <div class="relative inline-block mb-8">
-          <div class="w-40 h-40 mx-auto rounded-full overflow-hidden border-2 border-cyan-500/30 hover:border-cyan-500/60 transition-all duration-300">
+          <div class="w-40 h-40 mx-auto rounded-full overflow-hidden border-2 border-purple-500/30 hover:border-purple-500/60 transition-all duration-300">
             <img src="Assets/Images/N.Bharath.jpg" alt="N. Bharath" class="w-full h-full object-cover">
           </div>
         </div>
-        <div class="team-badge bg-gradient-to-r from-cyan-600 to-pink-600 text-white">
+        <div class="team-badge bg-gradient-to-r from-purple-600 to-pink-500 text-white">
           Founder & CEO
         </div>
         <h3 class="text-2xl font-bold mb-2 mt-8">N. Bharath</h3>
-        <p class="text-cyan-400 font-semibold mb-4">Visionary Leader</p>
+        <p class="text-purple-400 font-semibold mb-4">Visionary Leader</p>
         <p class="text-gray-400 text-sm leading-relaxed mb-4 px-4">
           Passionate builder turning ideas into real products. Leading Circle13 with the belief that volume negates luck.
         </p>
         <div class="flex justify-center gap-2">
-          <span class="px-3 py-1 bg-cyan-900/30 text-cyan-300 rounded-full text-xs">Strategy</span>
-          <span class="px-3 py-1 bg-pink-900/20 text-pink-300 rounded-full text-xs">Leadership</span>
+          <span class="px-3 py-1 bg-purple-900/30 text-purple-300 rounded-full text-xs">Strategy</span>
+          <span class="px-3 py-1 bg-pink-900/20 text-pink-200 rounded-full text-xs">Leadership</span>
         </div>
       </a>
       
       <!-- Akhil Vipin Nair - CTO -->
       <a href="profile-AkhilVipinNair.html" class="card reveal delay-200 text-center team-card pb-8 block hover:scale-105 transition-transform duration-300">
         <div class="relative inline-block mb-8">
-          <div class="w-40 h-40 mx-auto rounded-full overflow-hidden border-2 border-purple-500/30 hover:border-purple-500/60 transition-all duration-300">
+          <div class="w-40 h-40 mx-auto rounded-full overflow-hidden border-2 border-cyan-500/30 hover:border-cyan-500/60 transition-all duration-300">
             <img src="Assets/Images/Akhil_Vipin_Nair.jpeg" alt="Akhil Vipin Nair" class="w-full h-full object-cover">
           </div>
         </div>
-        <div class="team-badge bg-gradient-to-r from-purple-600 to-pink-600 text-white">
+        <div class="team-badge bg-gradient-to-r from-cyan-600 to-pink-500 text-white">
           Chief Technology Officer
         </div>
         <h3 class="text-2xl font-bold mb-2 mt-8">Akhil Vipin Nair</h3>
@@ -678,8 +969,8 @@ body::before {
           Tech-savvy creator blending design, code, and creativity. Building with Flutter, Python, and UI/UX expertise.
         </p>
         <div class="flex justify-center gap-2">
-          <span class="px-3 py-1 bg-purple-900/30 text-purple-300 rounded-full text-xs">UI/UX Design</span>
-          <span class="px-3 py-1 bg-pink-900/20 text-pink-300 rounded-full text-xs">Flutter</span>
+          <span class="px-3 py-1 bg-purple-800/30 text-pink-300 rounded-full text-xs">UI/UX Design</span>
+          <span class="px-3 py-1 bg-pink-900/20 text-pink-200 rounded-full text-xs">Flutter</span>
         </div>
       </a>
     </div>
@@ -689,16 +980,16 @@ body::before {
 <!-- CTA Section -->
 <section id="contact" class="py-24 px-6">
   <div class="max-w-5xl mx-auto text-center">
-    <div class="card reveal founder-card p-12 md:p-16">
-      <div class="text-6xl mb-8">��</div>
+    <div class="card reveal founder-card p-12 md:p-16 pulse-glow">
+      <div class="text-6xl mb-8">🚀</div>
       <h2 class="text-4xl md:text-5xl font-bold mb-6">
-        Join the <span class="gradient-text block mt-2">Innovation Lab</span>
+        Join the <span class="gradient-text text-shimmer block mt-2">Innovation Lab</span>
       </h2>
       <p class="text-xl text-gray-300 mb-4 leading-relaxed">
-        We're hiring <span class="gradient-text font-bold">passionate builders</span> across technical and non-technical roles.
+        We're hiring <span class="gradient-text text-glow font-bold">passionate builders</span> across technical and non-technical roles.
       </p>
       <p class="text-lg text-gray-500 mb-10 italic">
-        As the company grows, we grow. Let's build the future together.
+        As the company grows, <span class="text-purple-400 text-shimmer">we grow</span>. Let's build the future together.
       </p>
       <div class="flex gap-4 justify-center flex-wrap">
         <a href="https://docs.google.com/forms/d/e/1FAIpQLSefIWXFYDFi2U_UZb705-gpgiboIYKBVrQ5X86KLu79aTIQWw/viewform?usp=sharing&ouid=102888907718355026902" target="_blank" class="btn">Apply Now</a>
@@ -712,14 +1003,14 @@ body::before {
 <!-- Footer -->
 <footer class="py-12 px-6 border-t border-gray-800">
   <div class="max-w-7xl mx-auto">
-    <div class="text-center mb-8">
-      <h3 class="text-3xl font-bold gradient-text mb-3">Grow & Grow Together</h3>
+    <div class="text-center mb-8 reveal-fade">
+      <h3 class="text-3xl font-bold gradient-text text-float mb-3">Grow & Grow Together</h3>
       <p class="text-gray-500">Building the future, one experiment at a time.</p>
     </div>
     
     <div class="grid md:grid-cols-3 gap-6 mb-8 text-center">
-      <div>
-        <h4 class="text-cyan-400 font-semibold mb-3 text-sm">Quick Links</h4>
+      <div class="reveal-fade delay-100">
+        <h4 class="text-purple-400 font-semibold mb-3 text-sm text-glow">Quick Links</h4>
         <div class="space-y-2 text-sm">
           <a href="#vision" class="block text-gray-500 hover:text-white transition">Vision</a>
           <a href="#pillars" class="block text-gray-500 hover:text-white transition">Pillars</a>
@@ -727,8 +1018,8 @@ body::before {
         </div>
       </div>
       
-      <div>
-        <h4 class="text-cyan-400 font-semibold mb-3 text-sm">Connect</h4>
+      <div class="reveal-fade delay-200">
+        <h4 class="text-purple-400 font-semibold mb-3 text-sm text-glow">Connect</h4>
         <div class="space-y-2 text-sm">
           <a href="https://discord.gg/jTC4u97w5Z" target="_blank" class="block text-gray-500 hover:text-white transition">Discord Community</a>
           <a href="https://github.com/nbharath1306/Circle-13" target="_blank" class="block text-gray-500 hover:text-white transition">GitHub</a>
@@ -737,9 +1028,9 @@ body::before {
         </div>
       </div>
       
-      <div>
-        <h4 class="text-cyan-400 font-semibold mb-3 text-sm">Philosophy</h4>
-        <p class="text-gray-500 italic text-sm">"Volume negates luck"</p>
+      <div class="reveal-fade delay-300">
+        <h4 class="text-purple-400 font-semibold mb-3 text-sm text-glow">Philosophy</h4>
+        <p class="text-gray-500 italic text-sm text-shimmer">"Volume negates luck"</p>
         <p class="text-xs text-gray-600 mt-2">10 things → 1 big success</p>
       </div>
     </div>
@@ -751,10 +1042,9 @@ body::before {
 </footer>
 
 <script>
-// Custom Cursor
+// Custom Cursor - Main cursor only (no follower)
 const cursor = document.getElementById('cursor');
-const follower = document.getElementById('follower');
-let mouseX = 0, mouseY = 0, cursorX = 0, cursorY = 0, followerX = 0, followerY = 0;
+let mouseX = 0, mouseY = 0, cursorX = 0, cursorY = 0;
 
 if (window.innerWidth > 768) {
   document.addEventListener('mousemove', (e) => {
@@ -765,15 +1055,10 @@ if (window.innerWidth > 768) {
   function animateCursor() {
     cursorX += (mouseX - cursorX) * 0.2;
     cursorY += (mouseY - cursorY) * 0.2;
-    followerX += (mouseX - followerX) * 0.1;
-    followerY += (mouseY - followerY) * 0.1;
     
     cursor.style.left = cursorX + 'px';
     cursor.style.top = cursorY + 'px';
     cursor.style.transform = 'translate(-50%, -50%)';
-    follower.style.left = followerX + 'px';
-    follower.style.top = followerY + 'px';
-    follower.style.transform = 'translate(-50%, -50%)';
     
     requestAnimationFrame(animateCursor);
   }
@@ -786,24 +1071,28 @@ if (window.innerWidth > 768) {
   });
 }
 
-// Navbar - show on landing, hide on scroll
+// Navbar - hide on scroll
 const navbar = document.getElementById('navbar');
 // Show navbar initially on page load
 navbar.classList.add('visible');
 
+let lastScroll = 0;
+
 window.addEventListener('scroll', () => {
-  const scroll = window.pageYOffset;
-  const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+  const currentScroll = window.pageYOffset;
   
-  // Progress bar
-  document.getElementById('progress').style.width = (scroll / height * 100) + '%';
-  
-  // Navbar visibility - hide when scrolling down, show at top
-  if (scroll < 100) {
+  // Navbar visibility - hide when scrolling down, show when scrolling up
+  if (currentScroll <= 0) {
     navbar.classList.add('visible');
-  } else {
+  } else if (currentScroll > lastScroll) {
+    // Scrolling down - hide navbar
     navbar.classList.remove('visible');
+  } else {
+    // Scrolling up - show navbar
+    navbar.classList.add('visible');
   }
+  
+  lastScroll = currentScroll;
 });
 
 // Smooth scroll
@@ -897,6 +1186,35 @@ document.querySelectorAll('.reveal, .reveal-fade').forEach(el => {
 
 // Year
 document.getElementById('year').textContent = new Date().getFullYear();
+
+// Generate Particles
+const particlesContainer = document.getElementById('particles');
+if (particlesContainer && window.innerWidth > 768) {
+  const particleCount = 30;
+  
+  for (let i = 0; i < particleCount; i++) {
+    const particle = document.createElement('div');
+    particle.className = 'particle';
+    
+    // Random horizontal position
+    particle.style.left = Math.random() * 100 + '%';
+    
+    // Random animation delay
+    particle.style.animationDelay = Math.random() * 20 + 's';
+    
+    // Random animation duration (15-25s)
+    particle.style.animationDuration = (15 + Math.random() * 10) + 's';
+    
+    // Random size variation
+    const size = 2 + Math.random() * 4;
+    particle.style.width = size + 'px';
+    particle.style.height = size + 'px';
+    
+    particlesContainer.appendChild(particle);
+  }
+}
+
+// Simple title - no complex JavaScript needed
 
 // Initial reveal for above-fold content
 setTimeout(() => {
