@@ -706,10 +706,8 @@
         import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
         import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
         import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
-        import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
-        import { RGBShiftShader } from 'three/addons/shaders/RGBShiftShader.js';
 
-        // --- VOID ENGINE v3.1: QUANTUM OVERDRIVE (Vibe & Glitch) ---
+        // --- VOID ENGINE v3.0: QUANTUM GALAXY (Sharp & Creative) ---
         try {
             const scene = new THREE.Scene();
             scene.fog = new THREE.FogExp2(0x000000, 0.0015);
@@ -731,21 +729,14 @@
 
             // --- POST PROCESSING ---
             const renderScene = new RenderPass(scene, camera);
-            
-            // 1. Bloom (Glow)
             const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.5, 0.4, 0.85);
             bloomPass.threshold = 0;
-            bloomPass.strength = 2.5;
-            bloomPass.radius = 0.3;
-
-            // 2. RGB Shift (Chromatic Aberration / Glitch Vibe)
-            const rgbShiftPass = new ShaderPass(RGBShiftShader);
-            rgbShiftPass.uniforms['amount'].value = 0.0025; // Subtle base shift
+            bloomPass.strength = 2.5; // Intense, sharp glow
+            bloomPass.radius = 0.3;   // Tighter bloom for sharpness
 
             const composer = new EffectComposer(renderer);
             composer.addPass(renderScene);
             composer.addPass(bloomPass);
-            composer.addPass(rgbShiftPass);
 
             // --- 1. THE QUANTUM CORE (Creative Geometry) ---
             const coreGroup = new THREE.Group();
@@ -906,39 +897,11 @@
             const galaxy = new THREE.Points(galaxyGeometry, galaxyMaterial);
             scene.add(galaxy);
 
-            // --- 3. DATA RAIN (New "Crazy" Element) ---
-            const rainGeo = new THREE.BufferGeometry();
-            const rainCount = 1000;
-            const rainPos = new Float32Array(rainCount * 3);
-            const rainSpeed = new Float32Array(rainCount);
-            
-            for(let i=0; i<rainCount; i++) {
-                rainPos[i*3] = (Math.random() - 0.5) * 30; // Wide X
-                rainPos[i*3+1] = (Math.random() - 0.5) * 30; // Wide Y
-                rainPos[i*3+2] = (Math.random() - 0.5) * 10; // Depth
-                rainSpeed[i] = Math.random() * 0.5 + 0.2;
-            }
-            rainGeo.setAttribute('position', new THREE.BufferAttribute(rainPos, 3));
-            rainGeo.setAttribute('aSpeed', new THREE.BufferAttribute(rainSpeed, 1));
-            
-            const rainMat = new THREE.PointsMaterial({
-                color: 0x00ff41,
-                size: 0.05,
-                transparent: true,
-                opacity: 0.6,
-                blending: THREE.AdditiveBlending
-            });
-            const rain = new THREE.Points(rainGeo, rainMat);
-            scene.add(rain);
-
 
             // --- INTERACTION LOGIC (SHARP) ---
             let mouseX = 0;
             let mouseY = 0;
             let scrollY = 0;
-            let mouseSpeed = 0;
-            let lastMouseX = 0;
-            let lastMouseY = 0;
             
             // We use a raycaster to get world coordinates for the mouse
             const raycaster = new THREE.Raycaster();
@@ -954,13 +917,6 @@
                 // Raw for camera tilt
                 mouseX = (event.clientX - window.innerWidth / 2) * 0.001;
                 mouseY = (event.clientY - window.innerHeight / 2) * 0.001;
-                
-                // Calculate Mouse Speed for Glitch Effect
-                const dx = event.clientX - lastMouseX;
-                const dy = event.clientY - lastMouseY;
-                mouseSpeed = Math.sqrt(dx*dx + dy*dy);
-                lastMouseX = event.clientX;
-                lastMouseY = event.clientY;
             });
 
             window.addEventListener('scroll', () => {
@@ -993,19 +949,7 @@
 
                 bits.rotation.y = -elapsedTime * 0.5;
 
-                // 3. Data Rain Animation
-                const positions = rain.geometry.attributes.position.array;
-                const speeds = rain.geometry.attributes.aSpeed.array;
-                for(let i=0; i<rainCount; i++) {
-                    positions[i*3+1] -= speeds[i]; // Fall down
-                    if(positions[i*3+1] < -15) {
-                        positions[i*3+1] = 15; // Reset to top
-                    }
-                }
-                rain.geometry.attributes.position.needsUpdate = true;
-                rain.rotation.z = 0.2; // Tilt rain
-
-                // 4. Camera Movement (Sharp & Responsive)
+                // 3. Camera Movement (Sharp & Responsive)
                 // We use a very fast lerp or direct mapping for "sharpness"
                 camera.position.x += (mouseX * 5 - camera.position.x) * 0.1; // Faster factor (0.1)
                 camera.position.y += (-mouseY * 5 - camera.position.y) * 0.1;
@@ -1014,12 +958,6 @@
                 camera.position.y += scrollY * 0.01;
                 
                 camera.lookAt(0, scrollY * 0.01, 0);
-                
-                // 5. Dynamic RGB Shift (Vibe)
-                // Shift increases with mouse speed
-                const targetShift = 0.002 + (mouseSpeed * 0.0001);
-                rgbShiftPass.uniforms['amount'].value += (targetShift - rgbShiftPass.uniforms['amount'].value) * 0.1;
-                mouseSpeed *= 0.9; // Decay speed
 
                 composer.render();
                 requestAnimationFrame(animate);
