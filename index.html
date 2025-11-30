@@ -576,13 +576,16 @@
                 }
             }, 5000);
 
-            // --- 4. THREE.JS BACKGROUND (Interactive) ---
+            // --- 4. THREE.JS BACKGROUND (Digital Terrain) ---
             try {
                 const scene = new THREE.Scene();
-                scene.fog = new THREE.FogExp2(0x000000, 0.001);
+                // Dark fog for depth
+                scene.fog = new THREE.FogExp2(0x050505, 0.002);
                 
-                const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-                camera.position.z = 5;
+                const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 100);
+                // Position camera to look over the terrain
+                camera.position.set(0, 1, 3);
+                camera.lookAt(0, 0, 0);
 
                 const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
                 renderer.setSize(window.innerWidth, window.innerHeight);
@@ -590,38 +593,78 @@
                 const container = document.getElementById('webgl-container');
                 if (container) container.appendChild(renderer.domElement);
 
-                // Particles
-                const particlesGeometry = new THREE.BufferGeometry();
-                const count = 4000; // Increased count
-                const positions = new Float32Array(count * 3);
-                const colors = new Float32Array(count * 3);
-                const originalPositions = new Float32Array(count * 3); // Store original for return
+                // --- SHADER MATERIAL ---
+                const vertexShader = `
+                    uniform float uTime;
+                    varying float vElevation;
 
-                for(let i = 0; i < count * 3; i++) {
-                    positions[i] = (Math.random() - 0.5) * 25;
-                    originalPositions[i] = positions[i];
-                    colors[i] = Math.random();
-                }
+                    void main() {
+                        vec4 modelPosition = modelMatrix * vec4(position, 1.0);
+                        
+                        // Create moving terrain effect
+                        float elevation = sin(modelPosition.x * 0.5 + uTime * 0.2) * 0.3;
+                        elevation += sin(modelPosition.y * 0.3 + uTime * 0.1) * 0.3;
+                        
+                        // Add noise detail
+                        elevation += sin(modelPosition.x * 2.0 + uTime * 0.5) * 0.1;
+                        
+                        modelPosition.z += elevation;
+                        
+                        // Pass to fragment
+                        vElevation = elevation;
 
-                particlesGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-                particlesGeometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+                        vec4 viewPosition = viewMatrix * modelPosition;
+                        vec4 projectedPosition = projectionMatrix * viewPosition;
+                        
+                        gl_Position = projectedPosition;
+                        
+                        // Size attenuation
+                        gl_PointSize = 4.0 * (1.0 / -viewPosition.z);
+                    }
+                `;
 
-                const particlesMaterial = new THREE.PointsMaterial({
-                    size: 0.025,
-                    vertexColors: true,
+                const fragmentShader = `
+                    uniform vec3 uColor;
+                    varying float vElevation;
+
+                    void main() {
+                        // Circular particle
+                        float strength = distance(gl_PointCoord, vec2(0.5));
+                        strength = 1.0 - step(0.5, strength);
+                        
+                        // Mix color based on elevation (Green peaks, dark valleys)
+                        vec3 color = mix(vec3(0.0, 0.2, 0.0), uColor, vElevation * 2.0 + 0.5);
+                        
+                        gl_FragColor = vec4(color, strength * 0.8);
+                    }
+                `;
+
+                // Geometry: High density plane
+                const geometry = new THREE.PlaneGeometry(20, 20, 64, 64);
+                
+                // Material
+                const material = new THREE.ShaderMaterial({
+                    vertexShader: vertexShader,
+                    fragmentShader: fragmentShader,
+                    uniforms: {
+                        uTime: { value: 0 },
+                        uColor: { value: new THREE.Color('#00ff41') }
+                    },
                     transparent: true,
-                    opacity: 0.8,
-                    blending: THREE.AdditiveBlending
+                    blending: THREE.AdditiveBlending,
+                    depthWrite: false
                 });
 
-                const particles = new THREE.Points(particlesGeometry, particlesMaterial);
-                scene.add(particles);
+                // Mesh (Points)
+                const terrain = new THREE.Points(geometry, material);
+                terrain.rotation.x = -Math.PI * 0.4; // Tilt to look like a floor
+                scene.add(terrain);
 
                 // Mouse Interaction
                 let mouseX = 0;
                 let mouseY = 0;
-                let targetX = 0;
-                let targetY = 0;
+                let targetRotationX = -Math.PI * 0.4;
+                let targetRotationY = 0;
 
                 window.addEventListener('mousemove', (e) => {
                     mouseX = (e.clientX / window.innerWidth) * 2 - 1;
@@ -629,41 +672,33 @@
                 });
 
                 // Animation Loop
-                let time = 0;
+                const clock = new THREE.Clock();
+
                 function animate() {
-                    requestAnimationFrame(animate);
-                    time += 0.001;
+                    const elapsedTime = clock.getElapsedTime();
 
-                    targetX = mouseX * 0.5;
-                    targetY = mouseY * 0.5;
+                    // Update Shader Uniforms
+                    material.uniforms.uTime.value = elapsedTime;
 
-                    // Gentle rotation
-                    particles.rotation.y += 0.001;
-                    particles.rotation.x += 0.0005;
+                    // Smooth Camera/Terrain Movement
+                    targetRotationY = mouseX * 0.2;
+                    targetRotationX = -Math.PI * 0.4 + (mouseY * 0.1);
 
-                    // Mouse interaction logic
-                    // We'll gently move the whole particle system towards mouse
-                    particles.rotation.x += 0.05 * (targetY - particles.rotation.x);
-                    particles.rotation.y += 0.05 * (targetX - particles.rotation.y);
-
-                    // Wave effect
-                    const positions = particles.geometry.attributes.position.array;
-                    for(let i = 0; i < count; i++) {
-                        const i3 = i * 3;
-                        // Add subtle wave movement
-                        positions[i3 + 1] = originalPositions[i3 + 1] + Math.sin(time + originalPositions[i3]) * 0.1;
-                    }
-                    particles.geometry.attributes.position.needsUpdate = true;
+                    terrain.rotation.y += 0.05 * (targetRotationY - terrain.rotation.y);
+                    terrain.rotation.x += 0.05 * (targetRotationX - terrain.rotation.x);
 
                     renderer.render(scene, camera);
+                    requestAnimationFrame(animate);
                 }
                 animate();
 
+                // Resize Handler
                 window.addEventListener('resize', () => {
                     camera.aspect = window.innerWidth / window.innerHeight;
                     camera.updateProjectionMatrix();
                     renderer.setSize(window.innerWidth, window.innerHeight);
                 });
+
             } catch (e) {
                 console.error("Three.js failed:", e);
             }
