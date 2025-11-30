@@ -97,19 +97,20 @@ Circle 13 is a **premium tech collective** where elite talent converges to trans
 
 ## 🎨 Website Features
 
-- ✨ Modern animated gradient backgrounds
-- 🎭 Premium glassmorphism design
+- 🌌 **Void Engine v2.0 ("Hyperdrive")**: Custom WebGL 3D Universe background
+- ✨ **Cinematic Visuals**: Post-processing bloom, volumetric shaders, and warp effects
+- 🎭 **Signal Theme**: Cyberpunk aesthetic with "Matrix Green" and deep space black
 - 📱 Fully responsive across all devices
-- 🎯 Smooth scroll animations
-- ⚡ Lightning-fast performance
-- 🎨 Professional branding elements
-- 🔄 Interactive hover effects
-- 📊 Real-time scroll progress
+- 🎯 Smooth scroll animations (Lenis + GSAP)
+- ⚡ Lightning-fast performance with automatic optimization
+- 🔄 Interactive magnetic buttons and text scrambling
 
 ---
 
 ## 💻 Tech Stack
 
+![Three.js](https://img.shields.io/badge/Three.js-black?style=flat-square&logo=three.js&logoColor=white)
+![GSAP](https://img.shields.io/badge/GSAP-GreenSock-green?style=flat-square)
 ![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=flat-square&logo=html5&logoColor=white)
 ![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=flat-square&logo=css3&logoColor=white)
 ![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=flat-square&logo=javascript&logoColor=black)

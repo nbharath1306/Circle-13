@@ -12,6 +12,9 @@
     <script src="https://cdn.tailwindcss.com"></script>
     
     <!-- Libraries -->
+    <!-- ES Module Shims for Import Map Support -->
+    <script async src="https://unpkg.com/es-module-shims@1.8.0/dist/es-module-shims.js"></script>
+    
     <!-- Import Map for Three.js Modules -->
     <script type="importmap">
         {
@@ -254,6 +257,7 @@
     </style>
 </head>
 <body>
+    <script>document.documentElement.classList.remove('no-js');</script>
 
     <!-- Grain Overlay -->
     <div class="grain-overlay"></div>
@@ -415,32 +419,40 @@
         <div class="hover-reveal-inner"></div>
     </div>
 
-    <script type="module">
-        import * as THREE from 'three';
-        import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
-        import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
-        import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
-
+    <!-- SCRIPT 1: UI, LOADER, GSAP (Critical Path) -->
+    <script>
         document.addEventListener('DOMContentLoaded', () => {
+            // --- SAFETY: Force Loader Removal on Error ---
+            const loaderScreen = document.querySelector('.loader-screen');
+            setTimeout(() => {
+                if(loaderScreen && loaderScreen.getBoundingClientRect().top === 0) {
+                    console.warn("Loader stuck, forcing removal...");
+                    loaderScreen.style.transition = "transform 1s ease-in-out";
+                    loaderScreen.style.transform = "translateY(-100%)";
+                }
+            }, 8000); // 8s safety net
+
             // --- 1. LENIS SMOOTH SCROLL ---
             let lenis;
             try {
-                lenis = new Lenis({
-                    duration: 1.2,
-                    easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-                    direction: 'vertical',
-                    gestureDirection: 'vertical',
-                    smooth: true,
-                    mouseMultiplier: 1,
-                    smoothTouch: false,
-                    touchMultiplier: 2,
-                });
+                if (typeof Lenis !== 'undefined') {
+                    lenis = new Lenis({
+                        duration: 1.2,
+                        easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+                        direction: 'vertical',
+                        gestureDirection: 'vertical',
+                        smooth: true,
+                        mouseMultiplier: 1,
+                        smoothTouch: false,
+                        touchMultiplier: 2,
+                    });
 
-                function raf(time) {
-                    lenis.raf(time);
+                    function raf(time) {
+                        lenis.raf(time);
+                        requestAnimationFrame(raf);
+                    }
                     requestAnimationFrame(raf);
                 }
-                requestAnimationFrame(raf);
             } catch (e) {
                 console.error("Lenis failed to initialize:", e);
             }
@@ -449,7 +461,7 @@
             if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
                 gsap.registerPlugin(ScrollTrigger);
             } else {
-                console.error("GSAP or ScrollTrigger not loaded");
+                console.warn("GSAP or ScrollTrigger not loaded. Animations will be disabled.");
             }
             
             // --- 2. CUSTOM CURSOR & MAGNETIC BUTTONS ---
@@ -457,61 +469,64 @@
             const cursorOutline = document.querySelector('.cursor-outline');
             const magneticBtns = document.querySelectorAll('.magnetic-btn');
 
-            window.addEventListener('mousemove', (e) => {
-                const posX = e.clientX;
-                const posY = e.clientY;
+            // Only run cursor logic if devices have a mouse (simple check)
+            if (window.matchMedia("(pointer: fine)").matches) {
+                window.addEventListener('mousemove', (e) => {
+                    const posX = e.clientX;
+                    const posY = e.clientY;
 
-                if(cursorDot) {
-                    cursorDot.style.left = `${posX}px`;
-                    cursorDot.style.top = `${posY}px`;
-                }
+                    if(cursorDot) {
+                        cursorDot.style.left = `${posX}px`;
+                        cursorDot.style.top = `${posY}px`;
+                    }
 
-                if(cursorOutline) {
-                    // Outline follows with delay
-                    cursorOutline.animate({
-                        left: `${posX}px`,
-                        top: `${posY}px`
-                    }, { duration: 500, fill: "forwards" });
-                }
-            });
-
-            // Magnetic Effect
-            magneticBtns.forEach(btn => {
-                btn.addEventListener('mousemove', (e) => {
-                    const rect = btn.getBoundingClientRect();
-                    const x = e.clientX - rect.left - rect.width / 2;
-                    const y = e.clientY - rect.top - rect.height / 2;
-                    
-                    gsap.to(btn, {
-                        x: x * 0.3,
-                        y: y * 0.3,
-                        duration: 0.3,
-                        ease: "power2.out"
-                    });
-                    
-                    gsap.to(cursorOutline, {
-                        scale: 1.5,
-                        duration: 0.3
-                    });
+                    if(cursorOutline) {
+                        cursorOutline.animate({
+                            left: `${posX}px`,
+                            top: `${posY}px`
+                        }, { duration: 500, fill: "forwards" });
+                    }
                 });
 
-                btn.addEventListener('mouseleave', () => {
-                    gsap.to(btn, {
-                        x: 0,
-                        y: 0,
-                        duration: 0.5,
-                        ease: "elastic.out(1, 0.3)"
+                // Magnetic Effect
+                if (typeof gsap !== 'undefined') {
+                    magneticBtns.forEach(btn => {
+                        btn.addEventListener('mousemove', (e) => {
+                            const rect = btn.getBoundingClientRect();
+                            const x = e.clientX - rect.left - rect.width / 2;
+                            const y = e.clientY - rect.top - rect.height / 2;
+                            
+                            gsap.to(btn, {
+                                x: x * 0.3,
+                                y: y * 0.3,
+                                duration: 0.3,
+                                ease: "power2.out"
+                            });
+                            
+                            gsap.to(cursorOutline, {
+                                scale: 1.5,
+                                duration: 0.3
+                            });
+                        });
+
+                        btn.addEventListener('mouseleave', () => {
+                            gsap.to(btn, {
+                                x: 0,
+                                y: 0,
+                                duration: 0.5,
+                                ease: "elastic.out(1, 0.3)"
+                            });
+                            
+                            gsap.to(cursorOutline, {
+                                scale: 1,
+                                duration: 0.3
+                            });
+                        });
                     });
-                    
-                    gsap.to(cursorOutline, {
-                        scale: 1,
-                        duration: 0.3
-                    });
-                });
-            });
+                }
+            }
 
             // --- 3. LOADER & TEXT SCRAMBLE ---
-            const loaderScreen = document.querySelector('.loader-screen');
             const loaderCounter = document.querySelector('.loader-counter');
             let loadProgress = 0;
             let siteRevealed = false;
@@ -521,6 +536,8 @@
             function scrambleText(element) {
                 let iteration = 0;
                 const originalText = element.dataset.value;
+                if (!originalText) return;
+                
                 let interval = setInterval(() => {
                     element.innerText = originalText
                         .split("")
@@ -543,6 +560,19 @@
             function revealSite() {
                 if (siteRevealed) return;
                 siteRevealed = true;
+
+                // Fallback if GSAP is missing
+                if (typeof gsap === 'undefined') {
+                    if(loaderScreen) {
+                        loaderScreen.style.transition = 'transform 1s ease-in-out';
+                        loaderScreen.style.transform = 'translateY(-100%)';
+                    }
+                    document.querySelectorAll('.reveal-hero, .reveal-text').forEach(el => {
+                        el.style.opacity = '1';
+                        el.style.transform = 'none';
+                    });
+                    return;
+                }
 
                 const tl = gsap.timeline();
                 
@@ -589,261 +619,12 @@
                 }
             }, 5000);
 
-            // --- 4. THREE.JS UNIVERSE (The Void Engine) ---
-            try {
-                const scene = new THREE.Scene();
-                scene.fog = new THREE.FogExp2(0x000000, 0.001);
-                
-                const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-                camera.position.z = 5;
-                camera.position.y = 2;
-
-                const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: false }); // Antialias off for post-processing perf
-                renderer.setSize(window.innerWidth, window.innerHeight);
-                // OPTIMIZATION: Cap pixel ratio at 1 for post-processing scenes to prevent GPU hang
-                renderer.setPixelRatio(1); 
-                renderer.toneMapping = THREE.ReinhardToneMapping;
-                
-                const container = document.getElementById('webgl-container');
-                if (container) {
-                    container.innerHTML = '';
-                    container.appendChild(renderer.domElement);
-                }
-
-                // --- POST PROCESSING (BLOOM) ---
-                const renderScene = new RenderPass(scene, camera);
-                
-                // OPTIMIZATION: Half-resolution bloom for performance
-                const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth / 2, window.innerHeight / 2), 1.5, 0.4, 0.85);
-                bloomPass.threshold = 0;
-                bloomPass.strength = 1.2; // High bloom for neon look
-                bloomPass.radius = 0.5;
-
-                const composer = new EffectComposer(renderer);
-                composer.addPass(renderScene);
-                composer.addPass(bloomPass);
-
-                // --- UNIVERSE COMPONENTS ---
-
-                // 1. The Core (Black Hole / Singularity)
-                const coreGeometry = new THREE.SphereGeometry(1, 32, 32);
-                const coreMaterial = new THREE.MeshBasicMaterial({ color: 0x000000 });
-                const core = new THREE.Mesh(coreGeometry, coreMaterial);
-                scene.add(core);
-
-                // Accretion Disk (Glowing Ring)
-                const diskGeometry = new THREE.RingGeometry(1.2, 3, 64);
-                const diskMaterial = new THREE.MeshBasicMaterial({ 
-                    color: 0x00ff41, 
-                    side: THREE.DoubleSide,
-                    transparent: true,
-                    opacity: 0.5
-                });
-                const disk = new THREE.Mesh(diskGeometry, diskMaterial);
-                disk.rotation.x = Math.PI / 2;
-                scene.add(disk);
-
-
-                // 2. The Starfield (Background)
-                const starGeometry = new THREE.BufferGeometry();
-                const starCount = 2000; // Reduced from 5000
-                const starPos = new Float32Array(starCount * 3);
-                for(let i=0; i<starCount*3; i++) {
-                    starPos[i] = (Math.random() - 0.5) * 100; // Wide spread
-                }
-                starGeometry.setAttribute('position', new THREE.BufferAttribute(starPos, 3));
-                const starMaterial = new THREE.PointsMaterial({
-                    size: 0.1,
-                    color: 0xffffff,
-                    transparent: true,
-                    opacity: 0.8
-                });
-                const starField = new THREE.Points(starGeometry, starMaterial);
-                scene.add(starField);
-
-
-                // 3. The Nebula System (Volumetric Clouds via Particles)
-                const nebulaParticles = 10000; // Reduced from 20000
-                const nebulaGeo = new THREE.BufferGeometry();
-                const nebulaPos = new Float32Array(nebulaParticles * 3);
-                const nebulaColors = new Float32Array(nebulaParticles * 3);
-                const nebulaScales = new Float32Array(nebulaParticles);
-                const nebulaRandomness = new Float32Array(nebulaParticles * 3);
-
-                const color1 = new THREE.Color('#00ff41'); // Signal Green
-                const color2 = new THREE.Color('#00f3ff'); // Cyber Blue
-                const color3 = new THREE.Color('#bc13fe'); // Deep Purple
-
-                for(let i=0; i<nebulaParticles; i++) {
-                    const i3 = i*3;
-                    const radius = Math.random() * 15 + 2; // Start outside core
-                    const spinAngle = radius * 0.5;
-                    const branchAngle = (i % 3) / 3 * Math.PI * 2; // 3 Arms
-
-                    const randomX = Math.pow(Math.random(), 3) * (Math.random() < 0.5 ? 1 : -1) * 2;
-                    const randomY = Math.pow(Math.random(), 3) * (Math.random() < 0.5 ? 1 : -1) * 2;
-                    const randomZ = Math.pow(Math.random(), 3) * (Math.random() < 0.5 ? 1 : -1) * 2;
-
-                    nebulaPos[i3] = Math.cos(branchAngle + spinAngle) * radius + randomX;
-                    nebulaPos[i3+1] = randomY * (Math.random() * 2); // Vertical spread
-                    nebulaPos[i3+2] = Math.sin(branchAngle + spinAngle) * radius + randomZ;
-
-                    // Colors
-                    const mixedColor = color1.clone();
-                    if(i % 3 === 1) mixedColor.lerp(color2, Math.random());
-                    if(i % 3 === 2) mixedColor.lerp(color3, Math.random());
-                    
-                    nebulaColors[i3] = mixedColor.r;
-                    nebulaColors[i3+1] = mixedColor.g;
-                    nebulaColors[i3+2] = mixedColor.b;
-
-                    nebulaScales[i] = Math.random();
-                    
-                    nebulaRandomness[i3] = Math.random();
-                    nebulaRandomness[i3+1] = Math.random();
-                    nebulaRandomness[i3+2] = Math.random();
-                }
-
-                nebulaGeo.setAttribute('position', new THREE.BufferAttribute(nebulaPos, 3));
-                nebulaGeo.setAttribute('color', new THREE.BufferAttribute(nebulaColors, 3));
-                nebulaGeo.setAttribute('aScale', new THREE.BufferAttribute(nebulaScales, 1));
-                nebulaGeo.setAttribute('aRandomness', new THREE.BufferAttribute(nebulaRandomness, 3));
-
-                const nebulaMaterial = new THREE.ShaderMaterial({
-                    depthWrite: false,
-                    blending: THREE.AdditiveBlending,
-                    vertexColors: true,
-                    uniforms: {
-                        uTime: { value: 0 },
-                        uSize: { value: 25 * renderer.getPixelRatio() },
-                        uMouse: { value: new THREE.Vector2(0, 0) }
-                    },
-                    vertexShader: `
-                        uniform float uTime;
-                        uniform float uSize;
-                        uniform vec2 uMouse;
-                        attribute float aScale;
-                        attribute vec3 aRandomness;
-                        varying vec3 vColor;
-
-                        void main() {
-                            vec4 modelPosition = modelMatrix * vec4(position, 1.0);
-                            
-                            // Rotate entire galaxy
-                            float angle = uTime * 0.05;
-                            float s = sin(angle);
-                            float c = cos(angle);
-                            
-                            float x = modelPosition.x;
-                            float z = modelPosition.z;
-                            modelPosition.x = x * c - z * s;
-                            modelPosition.z = x * s + z * c;
-
-                            // Wave/Pulse Effect
-                            float distToCenter = length(modelPosition.xz);
-                            float wave = sin(uTime * 2.0 - distToCenter * 0.5) * 0.5;
-                            modelPosition.y += wave;
-
-                            // Mouse Interaction (Repulsion/Attraction)
-                            // Simple tilt based on mouse
-                            modelPosition.x += uMouse.x * 2.0;
-                            modelPosition.y += uMouse.y * 2.0;
-
-                            vec4 viewPosition = viewMatrix * modelPosition;
-                            vec4 projectedPosition = projectionMatrix * viewPosition;
-                            
-                            gl_Position = projectedPosition;
-                            
-                            gl_PointSize = uSize * aScale;
-                            gl_PointSize *= (1.0 / -viewPosition.z);
-                            
-                            vColor = color;
-                        }
-                    `,
-                    fragmentShader: `
-                        varying vec3 vColor;
-
-                        void main() {
-                            float strength = distance(gl_PointCoord, vec2(0.5));
-                            strength = 1.0 - step(0.5, strength);
-                            strength = pow(strength, 3.0);
-
-                            vec3 finalColor = mix(vec3(0.0), vColor, strength);
-                            gl_FragColor = vec4(finalColor, 1.0);
-                        }
-                    `
-                });
-
-                const nebula = new THREE.Points(nebulaGeo, nebulaMaterial);
-                scene.add(nebula);
-
-
-                // --- INTERACTION & ANIMATION ---
-                
-                let mouseX = 0;
-                let mouseY = 0;
-                let targetX = 0;
-                let targetY = 0;
-                let scrollY = 0;
-
-                const windowHalfX = window.innerWidth / 2;
-                const windowHalfY = window.innerHeight / 2;
-
-                window.addEventListener('mousemove', (event) => {
-                    mouseX = (event.clientX - windowHalfX) * 0.0001;
-                    mouseY = (event.clientY - windowHalfY) * 0.0001;
-                });
-
-                window.addEventListener('scroll', () => {
-                    scrollY = window.scrollY;
-                });
-
-                const clock = new THREE.Clock();
-
-                function animate() {
-                    const elapsedTime = clock.getElapsedTime();
-
-                    // Update Uniforms
-                    nebulaMaterial.uniforms.uTime.value = elapsedTime;
-                    nebulaMaterial.uniforms.uMouse.value.x = THREE.MathUtils.lerp(nebulaMaterial.uniforms.uMouse.value.x, mouseX, 0.1);
-                    nebulaMaterial.uniforms.uMouse.value.y = THREE.MathUtils.lerp(nebulaMaterial.uniforms.uMouse.value.y, mouseY, 0.1);
-
-                    // Camera Movement (The "Fly Through")
-                    // Camera orbits slowly
-                    camera.position.x = Math.cos(elapsedTime * 0.1) * 10;
-                    camera.position.z = Math.sin(elapsedTime * 0.1) * 10;
-                    
-                    // Scroll affects height and zoom
-                    camera.position.y = 2 + scrollY * 0.005;
-                    camera.lookAt(0, 0, 0);
-
-                    // Starfield Warp (Stretch stars based on scroll speed - simplified here as rotation)
-                    starField.rotation.y = elapsedTime * 0.05;
-
-                    // Render with Bloom
-                    composer.render();
-                    requestAnimationFrame(animate);
-                }
-                animate();
-
-                window.addEventListener('resize', () => {
-                    camera.aspect = window.innerWidth / window.innerHeight;
-                    camera.updateProjectionMatrix();
-                    renderer.setSize(window.innerWidth, window.innerHeight);
-                    composer.setSize(window.innerWidth, window.innerHeight);
-                    nebulaMaterial.uniforms.uSize.value = 25 * renderer.getPixelRatio();
-                });
-
-            } catch (e) {
-                console.error("Three.js failed:", e);
-            }
-
             // --- 5. SCROLL ANIMATIONS ---
             
             // Manifesto Text Reveal
-            const splitTypes = document.querySelectorAll('.reveal-paragraph');
-            splitTypes.forEach((char,i) => {
-                if (typeof SplitType !== 'undefined') {
+            if (typeof SplitType !== 'undefined' && typeof gsap !== 'undefined') {
+                const splitTypes = document.querySelectorAll('.reveal-paragraph');
+                splitTypes.forEach((char,i) => {
                     const text = new SplitType(char, { types: 'words' });
                     
                     gsap.from(text.words, {
@@ -857,23 +638,25 @@
                         opacity: 0.1,
                         stagger: 0.1
                     });
-                }
-            });
+                });
+            }
 
             // Horizontal Scroll for Work Section
-            let sections = gsap.utils.toArray(".gallery-item");
-            if (sections.length > 0) {
-                gsap.to(sections, {
-                    xPercent: -100 * (sections.length - 1),
-                    ease: "none",
-                    scrollTrigger: {
-                        trigger: ".gallery-container",
-                        pin: true,
-                        scrub: 1,
-                        snap: 1 / (sections.length - 1),
-                        end: () => "+=" + document.querySelector(".gallery-container").offsetWidth
-                    }
-                });
+            if (typeof gsap !== 'undefined') {
+                let sections = gsap.utils.toArray(".gallery-item");
+                if (sections.length > 0) {
+                    gsap.to(sections, {
+                        xPercent: -100 * (sections.length - 1),
+                        ease: "none",
+                        scrollTrigger: {
+                            trigger: ".gallery-container",
+                            pin: true,
+                            scrub: 1,
+                            snap: 1 / (sections.length - 1),
+                            end: () => "+=" + document.querySelector(".gallery-container").offsetWidth
+                        }
+                    });
+                }
             }
 
             // --- 6. TEAM HOVER REVEAL ---
@@ -881,7 +664,7 @@
             const revealContainer = document.querySelector('.hover-reveal');
             const revealInner = document.querySelector('.hover-reveal-inner');
 
-            if (revealContainer && revealInner) {
+            if (revealContainer && revealInner && typeof gsap !== 'undefined') {
                 teamItems.forEach(item => {
                     item.addEventListener('mouseenter', (e) => {
                         const imgUrl = item.getAttribute('data-img');
@@ -915,6 +698,311 @@
                 });
             }
         });
+    </script>
+
+    <!-- SCRIPT 2: THREE.JS UNIVERSE (Module) -->
+    <script type="module">
+        import * as THREE from 'three';
+        import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+        import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+        import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+
+        // --- 4. THREE.JS UNIVERSE (The Void Engine V2 - "Hyperdrive") ---
+        try {
+            const scene = new THREE.Scene();
+            // Deep space fog
+            scene.fog = new THREE.FogExp2(0x000000, 0.0005);
+            
+            const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 2000);
+            camera.position.z = 30;
+            camera.position.y = 10;
+
+            const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: false });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5)); // Cap at 1.5 for balance
+            renderer.toneMapping = THREE.ACESFilmicToneMapping;
+            renderer.toneMappingExposure = 1.2;
+            
+            const container = document.getElementById('webgl-container');
+            if (container) {
+                container.innerHTML = '';
+                container.appendChild(renderer.domElement);
+            }
+
+            // --- POST PROCESSING (BLOOM) ---
+            const renderScene = new RenderPass(scene, camera);
+            
+            const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.5, 0.4, 0.85);
+            bloomPass.threshold = 0.1;
+            bloomPass.strength = 1.5; // Intense bloom
+            bloomPass.radius = 0.8;
+
+            const composer = new EffectComposer(renderer);
+            composer.addPass(renderScene);
+            composer.addPass(bloomPass);
+
+            // --- UNIVERSE COMPONENTS ---
+
+            // 1. The Singularity (Black Hole)
+            // Event Horizon
+            const blackHoleGeo = new THREE.SphereGeometry(4, 64, 64);
+            const blackHoleMat = new THREE.MeshBasicMaterial({ color: 0x000000 });
+            const blackHole = new THREE.Mesh(blackHoleGeo, blackHoleMat);
+            scene.add(blackHole);
+
+            // Accretion Disk (Volumetric Glow)
+            const diskGeo = new THREE.RingGeometry(4.2, 12, 128, 32);
+            const diskMat = new THREE.ShaderMaterial({
+                uniforms: {
+                    uTime: { value: 0 },
+                    uColor1: { value: new THREE.Color('#00ff41') }, // Signal Green
+                    uColor2: { value: new THREE.Color('#ffffff') }, // White hot
+                },
+                vertexShader: `
+                    varying vec2 vUv;
+                    varying vec3 vPos;
+                    void main() {
+                        vUv = uv;
+                        vPos = position;
+                        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+                    }
+                `,
+                fragmentShader: `
+                    uniform float uTime;
+                    uniform vec3 uColor1;
+                    uniform vec3 uColor2;
+                    varying vec2 vUv;
+                    varying vec3 vPos;
+
+                    // Simplex noise function (simplified)
+                    float random (in vec2 st) {
+                        return fract(sin(dot(st.xy, vec2(12.9898,78.233))) * 43758.5453123);
+                    }
+
+                    float noise (in vec2 st) {
+                        vec2 i = floor(st);
+                        vec2 f = fract(st);
+                        float a = random(i);
+                        float b = random(i + vec2(1.0, 0.0));
+                        float c = random(i + vec2(0.0, 1.0));
+                        float d = random(i + vec2(1.0, 1.0));
+                        vec2 u = f * f * (3.0 - 2.0 * f);
+                        return mix(a, b, u.x) + (c - a)* u.y * (1.0 - u.x) + (d - b) * u.x * u.y;
+                    }
+
+                    void main() {
+                        // Radial gradient
+                        float dist = distance(vUv, vec2(0.5));
+                        float ring = smoothstep(0.0, 0.5, dist) * smoothstep(1.0, 0.5, dist);
+                        
+                        // Rotating noise
+                        float angle = atan(vPos.y, vPos.x);
+                        float n = noise(vec2(angle * 5.0 + uTime * 2.0, dist * 10.0 - uTime));
+                        
+                        vec3 color = mix(uColor1, uColor2, n * ring);
+                        float alpha = ring * (0.5 + 0.5 * n);
+                        
+                        gl_FragColor = vec4(color, alpha);
+                    }
+                `,
+                side: THREE.DoubleSide,
+                transparent: true,
+                blending: THREE.AdditiveBlending,
+                depthWrite: false
+            });
+            const disk = new THREE.Mesh(diskGeo, diskMat);
+            disk.rotation.x = Math.PI / 2.5; // Tilted view
+            scene.add(disk);
+
+
+            // 2. The Galaxy (Spiral System)
+            const galaxyParticles = 20000;
+            const galaxyGeo = new THREE.BufferGeometry();
+            const galaxyPos = new Float32Array(galaxyParticles * 3);
+            const galaxyColors = new Float32Array(galaxyParticles * 3);
+            const galaxyScales = new Float32Array(galaxyParticles);
+            const galaxyRandomness = new Float32Array(galaxyParticles * 3);
+
+            const insideColor = new THREE.Color('#ffffff');
+            const outsideColor = new THREE.Color('#00ff41');
+
+            for(let i=0; i<galaxyParticles; i++) {
+                const i3 = i*3;
+                const radius = Math.random() * 50 + 5; // Spread out
+                const spinAngle = radius * 0.8; // Spiral tightness
+                const branchAngle = (i % 3) / 3 * Math.PI * 2; // 3 Arms
+
+                const randomX = Math.pow(Math.random(), 3) * (Math.random() < 0.5 ? 1 : -1) * 2;
+                const randomY = Math.pow(Math.random(), 3) * (Math.random() < 0.5 ? 1 : -1) * 2;
+                const randomZ = Math.pow(Math.random(), 3) * (Math.random() < 0.5 ? 1 : -1) * 2;
+
+                galaxyPos[i3] = Math.cos(branchAngle + spinAngle) * radius + randomX;
+                galaxyPos[i3+1] = randomY * (Math.random() * 5); // Vertical thickness
+                galaxyPos[i3+2] = Math.sin(branchAngle + spinAngle) * radius + randomZ;
+
+                // Color mixing based on radius
+                const mixedColor = insideColor.clone();
+                mixedColor.lerp(outsideColor, radius / 50);
+                
+                galaxyColors[i3] = mixedColor.r;
+                galaxyColors[i3+1] = mixedColor.g;
+                galaxyColors[i3+2] = mixedColor.b;
+
+                galaxyScales[i] = Math.random();
+            }
+
+            galaxyGeo.setAttribute('position', new THREE.BufferAttribute(galaxyPos, 3));
+            galaxyGeo.setAttribute('color', new THREE.BufferAttribute(galaxyColors, 3));
+            galaxyGeo.setAttribute('aScale', new THREE.BufferAttribute(galaxyScales, 1));
+
+            const galaxyMaterial = new THREE.ShaderMaterial({
+                depthWrite: false,
+                blending: THREE.AdditiveBlending,
+                vertexColors: true,
+                uniforms: {
+                    uTime: { value: 0 },
+                    uSize: { value: 30 * renderer.getPixelRatio() },
+                    uScrollSpeed: { value: 0 }
+                },
+                vertexShader: `
+                    uniform float uTime;
+                    uniform float uSize;
+                    uniform float uScrollSpeed;
+                    attribute float aScale;
+                    varying vec3 vColor;
+
+                    void main() {
+                        vec4 modelPosition = modelMatrix * vec4(position, 1.0);
+                        
+                        // Rotate galaxy
+                        float angle = uTime * 0.1;
+                        float x = modelPosition.x;
+                        float z = modelPosition.z;
+                        modelPosition.x = x * cos(angle) - z * sin(angle);
+                        modelPosition.z = x * sin(angle) + z * cos(angle);
+
+                        // Warp effect based on scroll speed
+                        modelPosition.z += uScrollSpeed * aScale * 2.0;
+
+                        vec4 viewPosition = viewMatrix * modelPosition;
+                        vec4 projectedPosition = projectionMatrix * viewPosition;
+                        
+                        gl_Position = projectedPosition;
+                        
+                        gl_PointSize = uSize * aScale;
+                        gl_PointSize *= (1.0 / -viewPosition.z);
+                        
+                        vColor = color;
+                    }
+                `,
+                fragmentShader: `
+                    varying vec3 vColor;
+
+                    void main() {
+                        // Soft particle glow
+                        float strength = distance(gl_PointCoord, vec2(0.5));
+                        strength = 1.0 - strength;
+                        strength = pow(strength, 5.0);
+
+                        vec3 finalColor = mix(vec3(0.0), vColor, strength);
+                        gl_FragColor = vec4(finalColor, 1.0);
+                    }
+                `
+            });
+
+            const galaxy = new THREE.Points(galaxyGeo, galaxyMaterial);
+            scene.add(galaxy);
+
+
+            // 3. Warp Stars (High speed streaks)
+            const warpGeo = new THREE.BufferGeometry();
+            const warpCount = 1000;
+            const warpPos = new Float32Array(warpCount * 3);
+            for(let i=0; i<warpCount*3; i++) {
+                warpPos[i] = (Math.random() - 0.5) * 400; // Huge area
+            }
+            warpGeo.setAttribute('position', new THREE.BufferAttribute(warpPos, 3));
+            const warpMat = new THREE.PointsMaterial({
+                color: 0xffffff,
+                size: 0.2,
+                transparent: true,
+                opacity: 0.5
+            });
+            const warpStars = new THREE.Points(warpGeo, warpMat);
+            scene.add(warpStars);
+
+
+            // --- INTERACTION & ANIMATION ---
+            
+            let mouseX = 0;
+            let mouseY = 0;
+            let scrollY = 0;
+            let lastScrollY = 0;
+            let scrollSpeed = 0;
+
+            const windowHalfX = window.innerWidth / 2;
+            const windowHalfY = window.innerHeight / 2;
+
+            window.addEventListener('mousemove', (event) => {
+                mouseX = (event.clientX - windowHalfX) * 0.0001;
+                mouseY = (event.clientY - windowHalfY) * 0.0001;
+            });
+
+            window.addEventListener('scroll', () => {
+                scrollY = window.scrollY;
+                scrollSpeed = (scrollY - lastScrollY) * 0.1;
+                lastScrollY = scrollY;
+            });
+
+            const clock = new THREE.Clock();
+
+            function animate() {
+                const elapsedTime = clock.getElapsedTime();
+
+                // Update Uniforms
+                diskMat.uniforms.uTime.value = elapsedTime;
+                galaxyMaterial.uniforms.uTime.value = elapsedTime;
+                
+                // Smooth scroll speed decay
+                scrollSpeed *= 0.95;
+                galaxyMaterial.uniforms.uScrollSpeed.value = scrollSpeed;
+
+                // Camera Movement - The "Fly Through"
+                // Base position
+                const baseZ = 30;
+                const zoomFactor = scrollY * 0.02; // Zoom in as we scroll
+                
+                camera.position.z = baseZ - zoomFactor;
+                camera.position.y = 10 - (scrollY * 0.005);
+                
+                // Mouse parallax
+                camera.position.x += (mouseX * 10 - camera.position.x) * 0.05;
+                camera.position.y += (-mouseY * 10 - camera.position.y) * 0.05;
+                
+                camera.lookAt(0, 0, 0);
+
+                // Warp Stars Effect
+                warpStars.rotation.z += 0.002;
+                // Stretch stars based on speed (simulated by scaling container)
+                warpStars.scale.z = 1 + Math.abs(scrollSpeed) * 5;
+
+                // Render with Bloom
+                composer.render();
+                requestAnimationFrame(animate);
+            }
+            animate();
+
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+                composer.setSize(window.innerWidth, window.innerHeight);
+                galaxyMaterial.uniforms.uSize.value = 30 * renderer.getPixelRatio();
+            });
+
+        } catch (e) {
+            console.error("Three.js failed:", e);
+        }
     </script>
 </body>
 </html>
