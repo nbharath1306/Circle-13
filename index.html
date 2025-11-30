@@ -707,14 +707,14 @@
         import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
         import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 
-        // --- VOID ENGINE v3.0: QUANTUM GALAXY (Sharp & Creative) ---
+        // --- VOID ENGINE v4.0: COSMOS ALIVE (Living Universe) ---
         try {
             const scene = new THREE.Scene();
-            scene.fog = new THREE.FogExp2(0x000000, 0.0015);
+            scene.fog = new THREE.FogExp2(0x000000, 0.001);
             
             const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-            camera.position.z = 6;
-            camera.position.y = 0;
+            camera.position.z = 8;
+            camera.position.y = 3;
 
             const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: false });
             renderer.setSize(window.innerWidth, window.innerHeight);
@@ -731,194 +731,244 @@
             const renderScene = new RenderPass(scene, camera);
             const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.5, 0.4, 0.85);
             bloomPass.threshold = 0;
-            bloomPass.strength = 2.5; // Intense, sharp glow
-            bloomPass.radius = 0.3;   // Tighter bloom for sharpness
+            bloomPass.strength = 1.8; 
+            bloomPass.radius = 0.5;
 
             const composer = new EffectComposer(renderer);
             composer.addPass(renderScene);
             composer.addPass(bloomPass);
 
-            // --- 1. THE QUANTUM CORE (Creative Geometry) ---
-            const coreGroup = new THREE.Group();
-            scene.add(coreGroup);
-
-            // Inner Energy Source (Icosahedron)
-            const geometryInner = new THREE.IcosahedronGeometry(0.8, 0);
-            const materialInner = new THREE.MeshBasicMaterial({ color: 0xffffff, wireframe: true });
-            const coreInner = new THREE.Mesh(geometryInner, materialInner);
-            coreGroup.add(coreInner);
-
-            // Middle Tech Layer (Octahedron)
-            const geometryMid = new THREE.OctahedronGeometry(1.4, 0);
-            const materialMid = new THREE.MeshBasicMaterial({ color: 0x00ff41, wireframe: true, transparent: true, opacity: 0.5 });
-            const coreMid = new THREE.Mesh(geometryMid, materialMid);
-            coreGroup.add(coreMid);
-
-            // Outer Containment Ring (Torus)
-            const geometryOuter = new THREE.TorusGeometry(2.2, 0.02, 16, 100);
-            const materialOuter = new THREE.MeshBasicMaterial({ color: 0x00f3ff, transparent: true, opacity: 0.8 });
-            const coreRing = new THREE.Mesh(geometryOuter, materialOuter);
-            coreRing.rotation.x = Math.PI / 2;
-            coreGroup.add(coreRing);
-            
-            // Floating Data Bits around core
-            const bitsGeo = new THREE.BufferGeometry();
-            const bitsCount = 50;
-            const bitsPos = new Float32Array(bitsCount * 3);
-            for(let i=0; i<bitsCount*3; i++) {
-                bitsPos[i] = (Math.random() - 0.5) * 3;
-            }
-            bitsGeo.setAttribute('position', new THREE.BufferAttribute(bitsPos, 3));
-            const bitsMat = new THREE.PointsMaterial({ color: 0xbc13fe, size: 0.05 });
-            const bits = new THREE.Points(bitsGeo, bitsMat);
-            coreGroup.add(bits);
-
-
-            // --- 2. THE SPIRAL GALAXY (Universe in a Website) ---
-            const galaxyGeometry = new THREE.BufferGeometry();
-            const galaxyCount = 25000; // High density
-            const galaxyPos = new Float32Array(galaxyCount * 3);
-            const galaxyColors = new Float32Array(galaxyCount * 3);
-            const galaxyScales = new Float32Array(galaxyCount);
-            const galaxyRandomness = new Float32Array(galaxyCount * 3);
-
-            const colorInside = new THREE.Color('#ff6030'); // Hot Core
-            const colorOutside = new THREE.Color('#1b3984'); // Cold Space
-
-            for(let i = 0; i < galaxyCount; i++) {
-                const i3 = i * 3;
-
-                // Spiral Math
-                const radius = Math.random() * 15 + 1; // Distance from center
-                const spinAngle = radius * 0.8; // How much it curls
-                const branches = 3;
-                const branchAngle = (i % branches) / branches * Math.PI * 2;
-
-                const randomX = Math.pow(Math.random(), 3) * (Math.random() < 0.5 ? 1 : -1);
-                const randomY = Math.pow(Math.random(), 3) * (Math.random() < 0.5 ? 1 : -1);
-                const randomZ = Math.pow(Math.random(), 3) * (Math.random() < 0.5 ? 1 : -1);
-
-                galaxyPos[i3] = Math.cos(branchAngle + spinAngle) * radius + randomX;
-                galaxyPos[i3+1] = randomY * (Math.random() * 2); // Flat galaxy
-                galaxyPos[i3+2] = Math.sin(branchAngle + spinAngle) * radius + randomZ;
-
-                // Color mixing
-                const mixedColor = colorInside.clone();
-                mixedColor.lerp(colorOutside, radius / 15);
-                
-                // Add some "Signal Green" glitches
-                if(Math.random() < 0.05) {
-                    mixedColor.set('#00ff41');
-                }
-
-                galaxyColors[i3] = mixedColor.r;
-                galaxyColors[i3+1] = mixedColor.g;
-                galaxyColors[i3+2] = mixedColor.b;
-
-                galaxyScales[i] = Math.random();
-                galaxyRandomness[i3] = Math.random();
-                galaxyRandomness[i3+1] = Math.random();
-                galaxyRandomness[i3+2] = Math.random();
-            }
-
-            galaxyGeometry.setAttribute('position', new THREE.BufferAttribute(galaxyPos, 3));
-            galaxyGeometry.setAttribute('color', new THREE.BufferAttribute(galaxyColors, 3));
-            galaxyGeometry.setAttribute('aScale', new THREE.BufferAttribute(galaxyScales, 1));
-            galaxyGeometry.setAttribute('aRandomness', new THREE.BufferAttribute(galaxyRandomness, 3));
-
-            const galaxyMaterial = new THREE.ShaderMaterial({
-                depthWrite: false,
-                blending: THREE.AdditiveBlending,
-                vertexColors: true,
+            // --- 1. THE LIVING SUN (Shader Based) ---
+            const sunGeometry = new THREE.SphereGeometry(1.2, 64, 64);
+            const sunMaterial = new THREE.ShaderMaterial({
                 uniforms: {
                     uTime: { value: 0 },
-                    uSize: { value: 20 * renderer.getPixelRatio() },
-                    uMouse: { value: new THREE.Vector3(0, 0, 0) },
-                    uHoverState: { value: 0 }
+                    uColorA: { value: new THREE.Color('#00ff41') },
+                    uColorB: { value: new THREE.Color('#ffffff') }
                 },
                 vertexShader: `
+                    varying vec2 vUv;
+                    varying vec3 vNormal;
+                    varying vec3 vPos;
                     uniform float uTime;
-                    uniform float uSize;
-                    uniform vec3 uMouse;
-                    uniform float uHoverState;
-                    attribute float aScale;
-                    attribute vec3 aRandomness;
-                    varying vec3 vColor;
+
+                    // Simple noise function
+                    float random(vec3 scale, float seed) {
+                        return fract(sin(dot(gl_Position.xyz + seed, scale)) * 43758.5453 + seed);
+                    }
 
                     void main() {
-                        vec4 modelPosition = modelMatrix * vec4(position, 1.0);
+                        vUv = uv;
+                        vNormal = normal;
+                        vec3 pos = position;
                         
-                        // 1. Constant Rotation
-                        float angle = uTime * 0.1;
-                        float s = sin(angle);
-                        float c = cos(angle);
-                        float x = modelPosition.x;
-                        float z = modelPosition.z;
-                        modelPosition.x = x * c - z * s;
-                        modelPosition.z = x * s + z * c;
+                        // Pulse/Boil effect
+                        float noise = sin(pos.x * 5.0 + uTime) * sin(pos.y * 5.0 + uTime) * sin(pos.z * 5.0 + uTime);
+                        pos += normal * noise * 0.05;
 
-                        // 2. SHARP INTERACTION: Repulsion Field
-                        // If particle is close to mouse ray, push it away instantly
-                        float dist = distance(modelPosition.xy, uMouse.xy * 10.0); // Scale mouse to world
-                        float repulsion = 1.0 - smoothstep(0.0, 3.0, dist);
-                        
-                        vec3 dir = normalize(modelPosition.xyz - vec3(uMouse.xy * 10.0, 0.0));
-                        modelPosition.xyz += dir * repulsion * 2.0 * uHoverState; // Push out
-
-                        // 3. Vertical Wave
-                        modelPosition.y += sin(uTime + modelPosition.x) * 0.2;
-
-                        vec4 viewPosition = viewMatrix * modelPosition;
-                        gl_Position = projectionMatrix * viewPosition;
-                        
-                        gl_PointSize = uSize * aScale;
-                        gl_PointSize *= (1.0 / -viewPosition.z);
-                        
-                        // Twinkle
-                        gl_PointSize *= (1.0 + sin(uTime * 10.0 + aRandomness.x * 100.0) * 0.5);
-                        
-                        vColor = color;
-                        // Brighten on interaction
-                        vColor += vec3(repulsion * uHoverState); 
+                        vPos = pos;
+                        gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
                     }
                 `,
                 fragmentShader: `
-                    varying vec3 vColor;
+                    varying vec2 vUv;
+                    varying vec3 vNormal;
+                    varying vec3 vPos;
+                    uniform float uTime;
+                    uniform vec3 uColorA;
+                    uniform vec3 uColorB;
+
                     void main() {
-                        float strength = distance(gl_PointCoord, vec2(0.5));
-                        strength = 1.0 - step(0.5, strength);
-                        strength = pow(strength, 3.0);
-                        vec3 finalColor = mix(vec3(0.0), vColor, strength);
-                        gl_FragColor = vec4(finalColor, 1.0);
+                        // Fresnel glow
+                        vec3 viewDirection = normalize(cameraPosition - vPos);
+                        float fresnel = dot(viewDirection, vNormal);
+                        fresnel = clamp(1.0 - fresnel, 0.0, 1.0);
+                        fresnel = pow(fresnel, 2.0);
+
+                        // Dynamic color mixing
+                        float noise = sin(vPos.x * 10.0 + uTime * 2.0);
+                        vec3 color = mix(uColorA, uColorB, noise * 0.5 + 0.5);
+                        
+                        // Add fresnel
+                        color += vec3(fresnel * 1.5);
+
+                        gl_FragColor = vec4(color, 1.0);
                     }
                 `
             });
+            const sun = new THREE.Mesh(sunGeometry, sunMaterial);
+            scene.add(sun);
 
-            const galaxy = new THREE.Points(galaxyGeometry, galaxyMaterial);
+            // Sun Glow Sprite
+            const spriteMat = new THREE.SpriteMaterial({
+                map: new THREE.TextureLoader().load('https://assets.codepen.io/127738/dotTexture.png'), // Fallback or procedural
+                color: 0x00ff41,
+                transparent: true,
+                opacity: 0.3,
+                blending: THREE.AdditiveBlending
+            });
+            const sunGlow = new THREE.Sprite(spriteMat);
+            sunGlow.scale.set(6, 6, 1);
+            scene.add(sunGlow);
+
+
+            // --- 2. ORBITING PLANETS ---
+            const planets = [];
+            const planetData = [
+                { r: 3.5, s: 0.2, speed: 0.5, color: 0x00f3ff },
+                { r: 5.5, s: 0.4, speed: 0.3, color: 0xbc13fe },
+                { r: 8.0, s: 0.3, speed: 0.2, color: 0xffffff }
+            ];
+
+            planetData.forEach(data => {
+                const geo = new THREE.SphereGeometry(data.s, 32, 32);
+                const mat = new THREE.MeshBasicMaterial({ color: data.color });
+                const mesh = new THREE.Mesh(geo, mat);
+                
+                // Orbit Ring
+                const ringGeo = new THREE.RingGeometry(data.r - 0.02, data.r + 0.02, 64);
+                const ringMat = new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide, transparent: true, opacity: 0.1 });
+                const ring = new THREE.Mesh(ringGeo, ringMat);
+                ring.rotation.x = Math.PI / 2;
+                scene.add(ring);
+
+                scene.add(mesh);
+                planets.push({ mesh, ...data, angle: Math.random() * Math.PI * 2 });
+            });
+
+
+            // --- 3. ASTEROID BELT (Instanced Mesh) ---
+            const asteroidCount = 800;
+            const asteroidGeo = new THREE.DodecahedronGeometry(0.1, 0);
+            const asteroidMat = new THREE.MeshBasicMaterial({ color: 0x888888 });
+            const asteroidBelt = new THREE.InstancedMesh(asteroidGeo, asteroidMat, asteroidCount);
+            
+            const dummy = new THREE.Object3D();
+            for(let i=0; i<asteroidCount; i++) {
+                const angle = Math.random() * Math.PI * 2;
+                const radius = 6.5 + (Math.random() - 0.5) * 1.5; // Between planets
+                const y = (Math.random() - 0.5) * 0.5;
+                
+                dummy.position.set(
+                    Math.cos(angle) * radius,
+                    y,
+                    Math.sin(angle) * radius
+                );
+                dummy.rotation.set(Math.random()*Math.PI, Math.random()*Math.PI, Math.random()*Math.PI);
+                const scale = Math.random() * 0.5 + 0.5;
+                dummy.scale.set(scale, scale, scale);
+                
+                dummy.updateMatrix();
+                asteroidBelt.setMatrixAt(i, dummy.matrix);
+            }
+            scene.add(asteroidBelt);
+
+
+            // --- 4. LIVING GALAXY (Flow Field Particles) ---
+            const particlesCount = 10000;
+            const posArray = new Float32Array(particlesCount * 3);
+            const randomArray = new Float32Array(particlesCount * 3);
+            
+            for(let i=0; i<particlesCount; i++) {
+                posArray[i*3] = (Math.random() - 0.5) * 50;
+                posArray[i*3+1] = (Math.random() - 0.5) * 20;
+                posArray[i*3+2] = (Math.random() - 0.5) * 50;
+                
+                randomArray[i*3] = Math.random();
+                randomArray[i*3+1] = Math.random();
+                randomArray[i*3+2] = Math.random();
+            }
+            
+            const galaxyGeo = new THREE.BufferGeometry();
+            galaxyGeo.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+            galaxyGeo.setAttribute('aRandom', new THREE.BufferAttribute(randomArray, 3));
+            
+            const galaxyMat = new THREE.ShaderMaterial({
+                uniforms: {
+                    uTime: { value: 0 },
+                    uMouse: { value: new THREE.Vector3() }
+                },
+                vertexShader: `
+                    uniform float uTime;
+                    uniform vec3 uMouse;
+                    attribute vec3 aRandom;
+                    varying float vAlpha;
+                    
+                    void main() {
+                        vec3 pos = position;
+                        
+                        // Flow Field Animation
+                        // Simple wave based on position and time
+                        float time = uTime * 0.2;
+                        pos.x += sin(pos.z * 0.1 + time) * 0.1;
+                        pos.y += cos(pos.x * 0.1 + time) * 0.1;
+                        pos.z += sin(pos.y * 0.1 + time) * 0.1;
+                        
+                        // Mouse Repulsion
+                        float dist = distance(pos, uMouse * 20.0);
+                        float repulsion = max(0.0, 5.0 - dist);
+                        vec3 dir = normalize(pos - uMouse * 20.0);
+                        pos += dir * repulsion;
+
+                        vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
+                        gl_Position = projectionMatrix * mvPosition;
+                        
+                        gl_PointSize = (2.0 + aRandom.x * 3.0) * (10.0 / -mvPosition.z);
+                        vAlpha = 0.5 + 0.5 * sin(uTime + aRandom.y * 10.0); // Twinkle
+                    }
+                `,
+                fragmentShader: `
+                    varying float vAlpha;
+                    void main() {
+                        float strength = distance(gl_PointCoord, vec2(0.5));
+                        strength = 1.0 - step(0.5, strength);
+                        gl_FragColor = vec4(1.0, 1.0, 1.0, vAlpha * strength);
+                    }
+                `,
+                transparent: true,
+                blending: THREE.AdditiveBlending,
+                depthWrite: false
+            });
+            const galaxy = new THREE.Points(galaxyGeo, galaxyMat);
             scene.add(galaxy);
 
 
-            // --- INTERACTION LOGIC (SHARP) ---
-            let mouseX = 0;
-            let mouseY = 0;
-            let scrollY = 0;
-            
-            // We use a raycaster to get world coordinates for the mouse
-            const raycaster = new THREE.Raycaster();
-            const mouseVector = new THREE.Vector2();
-            const plane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
-            const worldMouse = new THREE.Vector3();
+            // --- 5. SHOOTING STARS ---
+            const shootingStars = [];
+            const shootingStarGeo = new THREE.BufferGeometry();
+            const linePos = new Float32Array(6); // 2 points * 3 coords
+            shootingStarGeo.setAttribute('position', new THREE.BufferAttribute(linePos, 3));
+            const shootingStarMat = new THREE.LineBasicMaterial({ color: 0x00ff41, transparent: true, opacity: 0.8 });
 
-            window.addEventListener('mousemove', (event) => {
-                // Normalized coordinates
-                mouseVector.x = (event.clientX / window.innerWidth) * 2 - 1;
-                mouseVector.y = -(event.clientY / window.innerHeight) * 2 + 1;
+            function spawnShootingStar() {
+                const star = new THREE.Line(shootingStarGeo.clone(), shootingStarMat.clone());
                 
-                // Raw for camera tilt
-                mouseX = (event.clientX - window.innerWidth / 2) * 0.001;
-                mouseY = (event.clientY - window.innerHeight / 2) * 0.001;
-            });
+                // Random start pos
+                const x = (Math.random() - 0.5) * 40;
+                const y = (Math.random() - 0.5) * 20;
+                const z = (Math.random() - 0.5) * 40;
+                
+                star.userData = {
+                    velocity: new THREE.Vector3((Math.random()-0.5), (Math.random()-0.5), (Math.random()-0.5)).normalize().multiplyScalar(0.5),
+                    life: 1.0,
+                    pos: new THREE.Vector3(x, y, z)
+                };
+                
+                scene.add(star);
+                shootingStars.push(star);
+            }
 
+
+            // --- INTERACTION ---
+            let mouseX = 0, mouseY = 0;
+            let targetX = 0, targetY = 0;
+            let scrollY = 0;
+
+            window.addEventListener('mousemove', (e) => {
+                mouseX = (e.clientX - window.innerWidth / 2) * 0.001;
+                mouseY = (e.clientY - window.innerHeight / 2) * 0.001;
+            });
+            
             window.addEventListener('scroll', () => {
                 scrollY = window.scrollY;
             });
@@ -927,37 +977,63 @@
 
             function animate() {
                 const elapsedTime = clock.getElapsedTime();
+                
+                // Smooth Camera
+                targetX += (mouseX - targetX) * 0.05;
+                targetY += (mouseY - targetY) * 0.05;
+                
+                camera.position.x = Math.sin(elapsedTime * 0.1) * 8 + targetX * 5;
+                camera.position.z = Math.cos(elapsedTime * 0.1) * 8;
+                camera.position.y = 3 + targetY * 5 + scrollY * 0.01;
+                camera.lookAt(0, 0, 0);
 
-                // 1. Get World Mouse Position for Shader
-                raycaster.setFromCamera(mouseVector, camera);
-                raycaster.ray.intersectPlane(plane, worldMouse);
-                
-                // Update Shader Uniforms - DIRECT MAPPING (No Lerp = Sharp)
-                galaxyMaterial.uniforms.uTime.value = elapsedTime;
-                galaxyMaterial.uniforms.uMouse.value.copy(worldMouse);
-                galaxyMaterial.uniforms.uHoverState.value = 1.0; // Always active
+                // Update Sun
+                sunMaterial.uniforms.uTime.value = elapsedTime;
 
-                // 2. Core Animation (Techy Rotation)
-                coreInner.rotation.y = elapsedTime * 2;
-                coreInner.rotation.z = elapsedTime * 1.5;
-                
-                coreMid.rotation.x = -elapsedTime;
-                coreMid.rotation.y = elapsedTime * 0.5;
-                
-                coreRing.rotation.z = elapsedTime * 0.2;
-                coreRing.rotation.x = Math.PI / 2 + Math.sin(elapsedTime) * 0.2;
+                // Update Planets
+                planets.forEach(p => {
+                    p.angle += p.speed * 0.01;
+                    p.mesh.position.x = Math.cos(p.angle) * p.r;
+                    p.mesh.position.z = Math.sin(p.angle) * p.r;
+                    p.mesh.rotation.y += 0.02;
+                });
 
-                bits.rotation.y = -elapsedTime * 0.5;
+                // Rotate Asteroid Belt
+                asteroidBelt.rotation.y += 0.002;
 
-                // 3. Camera Movement (Sharp & Responsive)
-                // We use a very fast lerp or direct mapping for "sharpness"
-                camera.position.x += (mouseX * 5 - camera.position.x) * 0.1; // Faster factor (0.1)
-                camera.position.y += (-mouseY * 5 - camera.position.y) * 0.1;
+                // Update Galaxy
+                galaxyMat.uniforms.uTime.value = elapsedTime;
+                galaxyMat.uniforms.uMouse.value.set(targetX, targetY, 0);
+
+                // Update Shooting Stars
+                if(Math.random() < 0.02) spawnShootingStar();
                 
-                // Scroll Effect (Fly Up)
-                camera.position.y += scrollY * 0.01;
-                
-                camera.lookAt(0, scrollY * 0.01, 0);
+                for(let i = shootingStars.length - 1; i >= 0; i--) {
+                    const s = shootingStars[i];
+                    s.userData.life -= 0.02;
+                    
+                    if(s.userData.life <= 0) {
+                        scene.remove(s);
+                        shootingStars.splice(i, 1);
+                        continue;
+                    }
+                    
+                    s.userData.pos.add(s.userData.velocity);
+                    s.material.opacity = s.userData.life;
+                    
+                    // Update line geometry
+                    const positions = s.geometry.attributes.position.array;
+                    positions[0] = s.userData.pos.x;
+                    positions[1] = s.userData.pos.y;
+                    positions[2] = s.userData.pos.z;
+                    
+                    // Tail
+                    positions[3] = s.userData.pos.x - s.userData.velocity.x * 2;
+                    positions[4] = s.userData.pos.y - s.userData.velocity.y * 2;
+                    positions[5] = s.userData.pos.z - s.userData.velocity.z * 2;
+                    
+                    s.geometry.attributes.position.needsUpdate = true;
+                }
 
                 composer.render();
                 requestAnimationFrame(animate);
@@ -969,7 +1045,6 @@
                 camera.updateProjectionMatrix();
                 renderer.setSize(window.innerWidth, window.innerHeight);
                 composer.setSize(window.innerWidth, window.innerHeight);
-                galaxyMaterial.uniforms.uSize.value = 20 * renderer.getPixelRatio();
             });
 
         } catch (e) {
