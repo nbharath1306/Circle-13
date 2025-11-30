@@ -707,14 +707,14 @@
         import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
         import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 
-        // --- VOID ENGINE v3.5: ASTROPHYSICS (Science & Physics) ---
+        // --- VOID ENGINE v3.0: QUANTUM GALAXY (Sharp & Creative) ---
         try {
             const scene = new THREE.Scene();
             scene.fog = new THREE.FogExp2(0x000000, 0.0015);
             
             const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-            camera.position.z = 7;
-            camera.position.y = 2;
+            camera.position.z = 6;
+            camera.position.y = 0;
 
             const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: false });
             renderer.setSize(window.innerWidth, window.innerHeight);
@@ -731,110 +731,86 @@
             const renderScene = new RenderPass(scene, camera);
             const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.5, 0.4, 0.85);
             bloomPass.threshold = 0;
-            bloomPass.strength = 2.0;
-            bloomPass.radius = 0.4;
+            bloomPass.strength = 2.5; // Intense, sharp glow
+            bloomPass.radius = 0.3;   // Tighter bloom for sharpness
 
             const composer = new EffectComposer(renderer);
             composer.addPass(renderScene);
             composer.addPass(bloomPass);
 
-            // --- 1. THE SINGULARITY (Event Horizon) ---
+            // --- 1. THE QUANTUM CORE (Creative Geometry) ---
             const coreGroup = new THREE.Group();
             scene.add(coreGroup);
 
-            // Event Horizon (Black Sphere)
-            const horizonGeo = new THREE.SphereGeometry(1.0, 64, 64);
-            const horizonMat = new THREE.MeshBasicMaterial({ color: 0x000000 });
-            const horizon = new THREE.Mesh(horizonGeo, horizonMat);
-            coreGroup.add(horizon);
+            // Inner Energy Source (Icosahedron)
+            const geometryInner = new THREE.IcosahedronGeometry(0.8, 0);
+            const materialInner = new THREE.MeshBasicMaterial({ color: 0xffffff, wireframe: true });
+            const coreInner = new THREE.Mesh(geometryInner, materialInner);
+            coreGroup.add(coreInner);
 
-            // Photon Ring (Lensing Effect Geometry)
-            const photonRingGeo = new THREE.RingGeometry(1.0, 1.1, 128);
-            const photonRingMat = new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide, transparent: true, opacity: 0.8 });
-            const photonRing = new THREE.Mesh(photonRingGeo, photonRingMat);
-            photonRing.lookAt(camera.position); // Always face camera
-            coreGroup.add(photonRing);
+            // Middle Tech Layer (Octahedron)
+            const geometryMid = new THREE.OctahedronGeometry(1.4, 0);
+            const materialMid = new THREE.MeshBasicMaterial({ color: 0x00ff41, wireframe: true, transparent: true, opacity: 0.5 });
+            const coreMid = new THREE.Mesh(geometryMid, materialMid);
+            coreGroup.add(coreMid);
 
-            // Accretion Disk (Physics Based)
-            const diskGeo = new THREE.RingGeometry(1.2, 4.0, 128, 32);
-            // Custom shader for accretion disk to simulate Doppler beaming
-            const diskMat = new THREE.ShaderMaterial({
-                uniforms: {
-                    uTime: { value: 0 },
-                    uColor: { value: new THREE.Color('#00ff41') }
-                },
-                vertexShader: `
-                    varying vec2 vUv;
-                    varying vec3 vPos;
-                    void main() {
-                        vUv = uv;
-                        vPos = position;
-                        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-                    }
-                `,
-                fragmentShader: `
-                    uniform float uTime;
-                    uniform vec3 uColor;
-                    varying vec2 vUv;
-                    varying vec3 vPos;
-
-                    void main() {
-                        // Rotating texture effect
-                        float angle = atan(vPos.y, vPos.x);
-                        float radius = length(vPos.xy);
-                        
-                        // Keplerian speed: faster inside
-                        float speed = 5.0 / radius;
-                        float offset = angle + uTime * speed;
-                        
-                        float noise = sin(offset * 10.0) * 0.5 + 0.5;
-                        float alpha = smoothstep(0.0, 1.0, noise);
-                        
-                        // Doppler Beaming: One side brighter (approaching), one dimmer (receding)
-                        // Assuming rotation is counter-clockwise
-                        float doppler = sin(angle); 
-                        float beaming = 0.5 + 0.5 * doppler; // 0 to 1
-                        
-                        vec3 finalColor = uColor * (0.5 + beaming); // Brighter on left/right depending on view
-                        
-                        gl_FragColor = vec4(finalColor, alpha * 0.6);
-                    }
-                `,
-                side: THREE.DoubleSide,
-                transparent: true,
-                depthWrite: false,
-                blending: THREE.AdditiveBlending
-            });
-            const disk = new THREE.Mesh(diskGeo, diskMat);
-            disk.rotation.x = Math.PI / 2;
-            coreGroup.add(disk);
+            // Outer Containment Ring (Torus)
+            const geometryOuter = new THREE.TorusGeometry(2.2, 0.02, 16, 100);
+            const materialOuter = new THREE.MeshBasicMaterial({ color: 0x00f3ff, transparent: true, opacity: 0.8 });
+            const coreRing = new THREE.Mesh(geometryOuter, materialOuter);
+            coreRing.rotation.x = Math.PI / 2;
+            coreGroup.add(coreRing);
+            
+            // Floating Data Bits around core
+            const bitsGeo = new THREE.BufferGeometry();
+            const bitsCount = 50;
+            const bitsPos = new Float32Array(bitsCount * 3);
+            for(let i=0; i<bitsCount*3; i++) {
+                bitsPos[i] = (Math.random() - 0.5) * 3;
+            }
+            bitsGeo.setAttribute('position', new THREE.BufferAttribute(bitsPos, 3));
+            const bitsMat = new THREE.PointsMaterial({ color: 0xbc13fe, size: 0.05 });
+            const bits = new THREE.Points(bitsGeo, bitsMat);
+            coreGroup.add(bits);
 
 
-            // --- 2. GALAXY PHYSICS SIMULATION ---
+            // --- 2. THE SPIRAL GALAXY (Universe in a Website) ---
             const galaxyGeometry = new THREE.BufferGeometry();
-            const galaxyCount = 30000;
+            const galaxyCount = 25000; // High density
             const galaxyPos = new Float32Array(galaxyCount * 3);
             const galaxyColors = new Float32Array(galaxyCount * 3);
             const galaxyScales = new Float32Array(galaxyCount);
             const galaxyRandomness = new Float32Array(galaxyCount * 3);
 
-            const colorHot = new THREE.Color('#ffffff');
-            const colorCold = new THREE.Color('#00ff41');
+            const colorInside = new THREE.Color('#ff6030'); // Hot Core
+            const colorOutside = new THREE.Color('#1b3984'); // Cold Space
 
             for(let i = 0; i < galaxyCount; i++) {
                 const i3 = i * 3;
-                const radius = Math.random() * 20 + 1.5; // Start outside event horizon
-                const angle = Math.random() * Math.PI * 2;
+
+                // Spiral Math
+                const radius = Math.random() * 15 + 1; // Distance from center
+                const spinAngle = radius * 0.8; // How much it curls
+                const branches = 3;
+                const branchAngle = (i % branches) / branches * Math.PI * 2;
+
+                const randomX = Math.pow(Math.random(), 3) * (Math.random() < 0.5 ? 1 : -1);
+                const randomY = Math.pow(Math.random(), 3) * (Math.random() < 0.5 ? 1 : -1);
+                const randomZ = Math.pow(Math.random(), 3) * (Math.random() < 0.5 ? 1 : -1);
+
+                galaxyPos[i3] = Math.cos(branchAngle + spinAngle) * radius + randomX;
+                galaxyPos[i3+1] = randomY * (Math.random() * 2); // Flat galaxy
+                galaxyPos[i3+2] = Math.sin(branchAngle + spinAngle) * radius + randomZ;
+
+                // Color mixing
+                const mixedColor = colorInside.clone();
+                mixedColor.lerp(colorOutside, radius / 15);
                 
-                // Flat disk with slight bulge
-                const spread = (Math.random() - 0.5) * (radius * 0.1); 
+                // Add some "Signal Green" glitches
+                if(Math.random() < 0.05) {
+                    mixedColor.set('#00ff41');
+                }
 
-                galaxyPos[i3] = Math.cos(angle) * radius;
-                galaxyPos[i3+1] = spread;
-                galaxyPos[i3+2] = Math.sin(angle) * radius;
-
-                // Color based on temperature (radius)
-                const mixedColor = colorHot.clone().lerp(colorCold, radius / 20);
                 galaxyColors[i3] = mixedColor.r;
                 galaxyColors[i3+1] = mixedColor.g;
                 galaxyColors[i3+2] = mixedColor.b;
@@ -858,28 +834,22 @@
                     uTime: { value: 0 },
                     uSize: { value: 20 * renderer.getPixelRatio() },
                     uMouse: { value: new THREE.Vector3(0, 0, 0) },
-                    uCameraPos: { value: new THREE.Vector3() }
+                    uHoverState: { value: 0 }
                 },
                 vertexShader: `
                     uniform float uTime;
                     uniform float uSize;
                     uniform vec3 uMouse;
-                    uniform vec3 uCameraPos;
+                    uniform float uHoverState;
                     attribute float aScale;
                     attribute vec3 aRandomness;
                     varying vec3 vColor;
 
                     void main() {
                         vec4 modelPosition = modelMatrix * vec4(position, 1.0);
-                        float r = length(modelPosition.xz);
-
-                        // 1. KEPLERIAN ORBITAL MECHANICS
-                        // v = sqrt(GM/r). Angular velocity w = v/r = sqrt(GM)/r^1.5
-                        // We simplify for visuals: w ~ 1/r
-                        float speed = 3.0 / (r + 0.1); 
-                        float angle = uTime * speed * 0.2;
                         
-                        // Apply rotation matrix
+                        // 1. Constant Rotation
+                        float angle = uTime * 0.1;
                         float s = sin(angle);
                         float c = cos(angle);
                         float x = modelPosition.x;
@@ -887,23 +857,16 @@
                         modelPosition.x = x * c - z * s;
                         modelPosition.z = x * s + z * c;
 
-                        // 2. MOUSE GRAVITY WELL (Physics)
-                        // F = G*M / dist^2
-                        float distToMouse = distance(modelPosition.xz, uMouse.xy * 15.0);
-                        float gravityForce = 5.0 / (distToMouse * distToMouse + 0.5);
-                        gravityForce = min(gravityForce, 3.0); // Clamp singularity
+                        // 2. SHARP INTERACTION: Repulsion Field
+                        // If particle is close to mouse ray, push it away instantly
+                        float dist = distance(modelPosition.xy, uMouse.xy * 10.0); // Scale mouse to world
+                        float repulsion = 1.0 - smoothstep(0.0, 3.0, dist);
                         
-                        vec3 dirToMouse = normalize(vec3(uMouse.x * 15.0, 0.0, uMouse.y * 15.0) - modelPosition.xyz);
-                        modelPosition.xyz += dirToMouse * gravityForce;
+                        vec3 dir = normalize(modelPosition.xyz - vec3(uMouse.xy * 10.0, 0.0));
+                        modelPosition.xyz += dir * repulsion * 2.0 * uHoverState; // Push out
 
-                        // 3. RELATIVISTIC DOPPLER SHIFT
-                        // Calculate velocity vector (tangent to orbit)
-                        // Tangent of (x, z) is (-z, x)
-                        vec3 velocity = vec3(-modelPosition.z, 0.0, modelPosition.x) * speed;
-                        vec3 viewDir = normalize(uCameraPos - modelPosition.xyz);
-                        
-                        // Dot product determines if moving towards (+) or away (-)
-                        float doppler = dot(normalize(velocity), viewDir);
+                        // 3. Vertical Wave
+                        modelPosition.y += sin(uTime + modelPosition.x) * 0.2;
 
                         vec4 viewPosition = viewMatrix * modelPosition;
                         gl_Position = projectionMatrix * viewPosition;
@@ -911,16 +874,12 @@
                         gl_PointSize = uSize * aScale;
                         gl_PointSize *= (1.0 / -viewPosition.z);
                         
-                        // Apply Doppler Color Shift
-                        // Blue shift (approaching) = +doppler
-                        // Red shift (receding) = -doppler
-                        vec3 baseColor = color;
-                        vec3 blue = vec3(0.0, 0.8, 1.0);
-                        vec3 red = vec3(1.0, 0.2, 0.2);
+                        // Twinkle
+                        gl_PointSize *= (1.0 + sin(uTime * 10.0 + aRandomness.x * 100.0) * 0.5);
                         
-                        vColor = baseColor;
-                        vColor = mix(vColor, blue, max(0.0, doppler * 0.6));
-                        vColor = mix(vColor, red, max(0.0, -doppler * 0.6));
+                        vColor = color;
+                        // Brighten on interaction
+                        vColor += vec3(repulsion * uHoverState); 
                     }
                 `,
                 fragmentShader: `
@@ -939,21 +898,23 @@
             scene.add(galaxy);
 
 
-            // --- INTERACTION ---
+            // --- INTERACTION LOGIC (SHARP) ---
             let mouseX = 0;
             let mouseY = 0;
             let scrollY = 0;
             
-            // Raycaster for accurate mouse plane intersection
+            // We use a raycaster to get world coordinates for the mouse
             const raycaster = new THREE.Raycaster();
             const mouseVector = new THREE.Vector2();
-            const plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0); // Horizontal plane
+            const plane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
             const worldMouse = new THREE.Vector3();
 
             window.addEventListener('mousemove', (event) => {
+                // Normalized coordinates
                 mouseVector.x = (event.clientX / window.innerWidth) * 2 - 1;
                 mouseVector.y = -(event.clientY / window.innerHeight) * 2 + 1;
                 
+                // Raw for camera tilt
                 mouseX = (event.clientX - window.innerWidth / 2) * 0.001;
                 mouseY = (event.clientY - window.innerHeight / 2) * 0.001;
             });
@@ -967,21 +928,36 @@
             function animate() {
                 const elapsedTime = clock.getElapsedTime();
 
-                // Update Camera
-                camera.position.x += (mouseX * 10 - camera.position.x) * 0.05;
-                camera.position.y += (-mouseY * 5 + 2 - camera.position.y) * 0.05;
-                camera.position.y += scrollY * 0.005; // Scroll fly up
-                camera.lookAt(0, 0, 0);
-
-                // Update Photon Ring (Always face camera)
-                photonRing.lookAt(camera.position);
-
-                // Update Uniforms
-                diskMat.uniforms.uTime.value = elapsedTime;
+                // 1. Get World Mouse Position for Shader
+                raycaster.setFromCamera(mouseVector, camera);
+                raycaster.ray.intersectPlane(plane, worldMouse);
                 
+                // Update Shader Uniforms - DIRECT MAPPING (No Lerp = Sharp)
                 galaxyMaterial.uniforms.uTime.value = elapsedTime;
-                galaxyMaterial.uniforms.uMouse.value.set(mouseX, -mouseY, 0); // Approximate for now
-                galaxyMaterial.uniforms.uCameraPos.value.copy(camera.position);
+                galaxyMaterial.uniforms.uMouse.value.copy(worldMouse);
+                galaxyMaterial.uniforms.uHoverState.value = 1.0; // Always active
+
+                // 2. Core Animation (Techy Rotation)
+                coreInner.rotation.y = elapsedTime * 2;
+                coreInner.rotation.z = elapsedTime * 1.5;
+                
+                coreMid.rotation.x = -elapsedTime;
+                coreMid.rotation.y = elapsedTime * 0.5;
+                
+                coreRing.rotation.z = elapsedTime * 0.2;
+                coreRing.rotation.x = Math.PI / 2 + Math.sin(elapsedTime) * 0.2;
+
+                bits.rotation.y = -elapsedTime * 0.5;
+
+                // 3. Camera Movement (Sharp & Responsive)
+                // We use a very fast lerp or direct mapping for "sharpness"
+                camera.position.x += (mouseX * 5 - camera.position.x) * 0.1; // Faster factor (0.1)
+                camera.position.y += (-mouseY * 5 - camera.position.y) * 0.1;
+                
+                // Scroll Effect (Fly Up)
+                camera.position.y += scrollY * 0.01;
+                
+                camera.lookAt(0, scrollY * 0.01, 0);
 
                 composer.render();
                 requestAnimationFrame(animate);
