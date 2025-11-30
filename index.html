@@ -707,7 +707,7 @@
         import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
         import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 
-        // --- VOID ENGINE v1.8: SINGULARITY (Restored & Enhanced) ---
+        // --- 4. THREE.JS UNIVERSE (The Void Engine v1.5 - "Alive") ---
         try {
             const scene = new THREE.Scene();
             scene.fog = new THREE.FogExp2(0x000000, 0.001);
@@ -718,7 +718,7 @@
 
             const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: false });
             renderer.setSize(window.innerWidth, window.innerHeight);
-            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); // Better quality for "Alive" feel
             renderer.toneMapping = THREE.ReinhardToneMapping;
             
             const container = document.getElementById('webgl-container');
@@ -727,11 +727,12 @@
                 container.appendChild(renderer.domElement);
             }
 
-            // --- POST PROCESSING ---
+            // --- POST PROCESSING (BLOOM) ---
             const renderScene = new RenderPass(scene, camera);
+            
             const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.5, 0.4, 0.85);
             bloomPass.threshold = 0;
-            bloomPass.strength = 1.8; // High energy
+            bloomPass.strength = 1.5; // Increased bloom for "energy"
             bloomPass.radius = 0.5;
 
             const composer = new EffectComposer(renderer);
@@ -740,44 +741,42 @@
 
             // --- UNIVERSE COMPONENTS ---
 
-            // 1. The Core (Black Hole)
-            const coreGroup = new THREE.Group(); // Group to move the whole black hole system
-            scene.add(coreGroup);
-
+            // 1. The Core (Black Hole / Singularity) - "Breathing"
             const coreGeometry = new THREE.SphereGeometry(1, 64, 64);
             const coreMaterial = new THREE.MeshBasicMaterial({ color: 0x000000 });
             const core = new THREE.Mesh(coreGeometry, coreMaterial);
-            coreGroup.add(core);
+            scene.add(core);
 
-            // Accretion Disk
-            const diskGeometry = new THREE.RingGeometry(1.2, 4.0, 128);
+            // Accretion Disk (Glowing Ring) - "Flowing"
+            const diskGeometry = new THREE.RingGeometry(1.2, 3.5, 128); // Larger, smoother
             const diskMaterial = new THREE.MeshBasicMaterial({ 
                 color: 0x00ff41, 
                 side: THREE.DoubleSide,
                 transparent: true,
-                opacity: 0.5,
-                wireframe: true
+                opacity: 0.4,
+                wireframe: true // Tech feel
             });
             const disk = new THREE.Mesh(diskGeometry, diskMaterial);
             disk.rotation.x = Math.PI / 2;
-            coreGroup.add(disk);
+            scene.add(disk);
 
-            // Inner Energy Ring
+            // Inner Energy Ring (New)
             const innerDiskGeo = new THREE.RingGeometry(1.05, 1.3, 64);
-            const innerDiskMat = new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide, transparent: true, opacity: 0.9 });
+            const innerDiskMat = new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide, transparent: true, opacity: 0.8 });
             const innerDisk = new THREE.Mesh(innerDiskGeo, innerDiskMat);
             innerDisk.rotation.x = Math.PI / 2;
-            coreGroup.add(innerDisk);
+            scene.add(innerDisk);
 
 
-            // 2. The Starfield (Background)
+            // 2. The Starfield (Background) - "Warp Capable"
             const starGeometry = new THREE.BufferGeometry();
-            const starCount = 4000;
+            const starCount = 3000;
             const starPos = new Float32Array(starCount * 3);
             const starSizes = new Float32Array(starCount);
             
             for(let i=0; i<starCount*3; i++) {
-                starPos[i] = (Math.random() - 0.5) * 200;
+                starPos[i] = (Math.random() - 0.5) * 150;
+                if (i % 3 === 1) starPos[i] *= 0.5; // Flatten slightly
             }
             for(let i=0; i<starCount; i++) {
                 starSizes[i] = Math.random();
@@ -797,12 +796,12 @@
                     attribute float aSize;
                     void main() {
                         vec3 pos = position;
-                        // Warp effect
-                        pos.y += pos.y * uScrollSpeed * 3.0; 
+                        // Warp effect based on scroll
+                        pos.y += pos.y * uScrollSpeed * 2.0; 
                         
                         vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
                         gl_Position = projectionMatrix * mvPosition;
-                        gl_PointSize = aSize * (30.0 / -mvPosition.z);
+                        gl_PointSize = aSize * (20.0 / -mvPosition.z);
                     }
                 `,
                 fragmentShader: `
@@ -820,27 +819,27 @@
             scene.add(starField);
 
 
-            // 3. The Nebula System (Interactive)
-            const nebulaParticles = 20000; // Increased count
+            // 3. The Nebula System (Volumetric Clouds) - "Interactive"
+            const nebulaParticles = 15000;
             const nebulaGeo = new THREE.BufferGeometry();
             const nebulaPos = new Float32Array(nebulaParticles * 3);
             const nebulaColors = new Float32Array(nebulaParticles * 3);
             const nebulaScales = new Float32Array(nebulaParticles);
             const nebulaRandomness = new Float32Array(nebulaParticles * 3);
 
-            const color1 = new THREE.Color('#00ff41');
-            const color2 = new THREE.Color('#00f3ff');
-            const color3 = new THREE.Color('#bc13fe');
+            const color1 = new THREE.Color('#00ff41'); // Signal Green
+            const color2 = new THREE.Color('#00f3ff'); // Cyber Blue
+            const color3 = new THREE.Color('#bc13fe'); // Deep Purple
 
             for(let i=0; i<nebulaParticles; i++) {
                 const i3 = i*3;
-                const radius = Math.random() * 20 + 3; 
+                const radius = Math.random() * 15 + 3; 
                 const spinAngle = radius * 0.5;
                 const branchAngle = (i % 3) / 3 * Math.PI * 2;
 
-                const randomX = Math.pow(Math.random(), 3) * (Math.random() < 0.5 ? 1 : -1) * 3;
-                const randomY = Math.pow(Math.random(), 3) * (Math.random() < 0.5 ? 1 : -1) * 3;
-                const randomZ = Math.pow(Math.random(), 3) * (Math.random() < 0.5 ? 1 : -1) * 3;
+                const randomX = Math.pow(Math.random(), 3) * (Math.random() < 0.5 ? 1 : -1) * 2;
+                const randomY = Math.pow(Math.random(), 3) * (Math.random() < 0.5 ? 1 : -1) * 2;
+                const randomZ = Math.pow(Math.random(), 3) * (Math.random() < 0.5 ? 1 : -1) * 2;
 
                 nebulaPos[i3] = Math.cos(branchAngle + spinAngle) * radius + randomX;
                 nebulaPos[i3+1] = randomY * (Math.random() * 2);
@@ -872,17 +871,15 @@
                 vertexColors: true,
                 uniforms: {
                     uTime: { value: 0 },
-                    uSize: { value: 30 * renderer.getPixelRatio() },
+                    uSize: { value: 25 * renderer.getPixelRatio() },
                     uMouse: { value: new THREE.Vector2(0, 0) },
-                    uMouseVel: { value: 0 },
-                    uClickPulse: { value: 0 }
+                    uMouseVel: { value: 0 }
                 },
                 vertexShader: `
                     uniform float uTime;
                     uniform float uSize;
                     uniform vec2 uMouse;
                     uniform float uMouseVel;
-                    uniform float uClickPulse;
                     attribute float aScale;
                     attribute vec3 aRandomness;
                     varying vec3 vColor;
@@ -890,42 +887,43 @@
                     void main() {
                         vec4 modelPosition = modelMatrix * vec4(position, 1.0);
                         
-                        // 1. Galaxy Rotation
+                        // Rotate entire galaxy
                         float angle = uTime * 0.05;
                         float s = sin(angle);
                         float c = cos(angle);
+                        
                         float x = modelPosition.x;
                         float z = modelPosition.z;
                         modelPosition.x = x * c - z * s;
                         modelPosition.z = x * s + z * c;
 
-                        // 2. Mouse Interaction (Tilt & Ripple)
-                        float mouseDist = distance(uMouse, modelPosition.xy * 0.05);
-                        float ripple = sin(mouseDist * 15.0 - uTime * 8.0) * uMouseVel * 0.5;
-                        
-                        modelPosition.x += uMouse.x * 5.0; // Stronger Tilt
-                        modelPosition.y += uMouse.y * 5.0 + ripple;
+                        // Wave/Pulse Effect
+                        float distToCenter = length(modelPosition.xz);
+                        float wave = sin(uTime * 2.0 - distToCenter * 0.5) * 0.5;
+                        modelPosition.y += wave;
 
-                        // 3. Click Pulse (Explosion)
-                        float pulse = sin(mouseDist * 5.0 - uClickPulse * 10.0) * uClickPulse * 5.0;
-                        modelPosition.y += pulse;
-                        modelPosition.x += pulse * 0.5;
+                        // INTERACTIVE RIPPLE
+                        // Calculate distance to "mouse ray" (approximated by screen space projection)
+                        // We simply distort based on mouse position to create a "tilt" + "turbulence"
+                        
+                        float mouseDist = distance(uMouse, modelPosition.xy * 0.1);
+                        float ripple = sin(mouseDist * 10.0 - uTime * 5.0) * uMouseVel;
+                        
+                        modelPosition.x += uMouse.x * 3.0; // Tilt
+                        modelPosition.y += uMouse.y * 3.0 + ripple; // Tilt + Ripple
 
                         vec4 viewPosition = viewMatrix * modelPosition;
-                        gl_Position = projectionMatrix * viewPosition;
+                        vec4 projectedPosition = projectionMatrix * viewPosition;
+                        
+                        gl_Position = projectedPosition;
                         
                         gl_PointSize = uSize * aScale;
                         gl_PointSize *= (1.0 / -viewPosition.z);
                         
                         // Twinkle
-                        gl_PointSize *= (1.0 + sin(uTime * 10.0 + aRandomness.x * 100.0) * 0.5);
+                        gl_PointSize *= (1.0 + sin(uTime * 5.0 + aRandomness.x * 100.0) * 0.3);
                         
                         vColor = color;
-                        
-                        // Brighten on pulse
-                        if(uClickPulse > 0.01) {
-                            vColor += vec3(uClickPulse);
-                        }
                     }
                 `,
                 fragmentShader: `
@@ -946,16 +944,19 @@
             scene.add(nebula);
 
 
-            // --- MOUSE TRAIL ---
+            // --- MOUSE TRAIL (New) ---
             const trailGeo = new THREE.BufferGeometry();
-            const trailCount = 100; // Longer trail
+            const trailCount = 50;
             const trailPos = new Float32Array(trailCount * 3);
             const trailAlpha = new Float32Array(trailCount);
             
             for(let i=0; i<trailCount; i++) {
-                trailPos[i*3] = 0; trailPos[i*3+1] = 0; trailPos[i*3+2] = 0;
+                trailPos[i*3] = 0;
+                trailPos[i*3+1] = 0;
+                trailPos[i*3+2] = 0;
                 trailAlpha[i] = 0;
             }
+            
             trailGeo.setAttribute('position', new THREE.BufferAttribute(trailPos, 3));
             trailGeo.setAttribute('alpha', new THREE.BufferAttribute(trailAlpha, 1));
             
@@ -968,7 +969,7 @@
                         vAlpha = alpha;
                         vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
                         gl_Position = projectionMatrix * mvPosition;
-                        gl_PointSize = 15.0 * (1.0 / -mvPosition.z);
+                        gl_PointSize = 10.0 * (1.0 / -mvPosition.z);
                     }
                 `,
                 fragmentShader: `
@@ -984,41 +985,52 @@
                 blending: THREE.AdditiveBlending,
                 depthWrite: false
             });
+            
             const trail = new THREE.Points(trailGeo, trailMat);
             scene.add(trail);
+            
+            // Trail Logic
+            let trailIndex = 0;
+            const trailPositions = [];
 
 
-            // --- INTERACTION ---
-            let mouseX = 0, mouseY = 0;
-            let targetX = 0, targetY = 0;
-            let scrollY = 0, lastScrollY = 0, scrollSpeed = 0;
+            // --- INTERACTION & ANIMATION ---
+            
+            let mouseX = 0;
+            let mouseY = 0;
+            let targetX = 0;
+            let targetY = 0;
+            let scrollY = 0;
+            let lastScrollY = 0;
+            let scrollSpeed = 0;
             let mouseVel = 0;
-            let clickPulse = 0;
 
             const windowHalfX = window.innerWidth / 2;
             const windowHalfY = window.innerHeight / 2;
+
+            // Raycaster for trail
             const raycaster = new THREE.Raycaster();
             const mouseVector = new THREE.Vector2();
-            const plane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
+            const plane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0); // Plane at Z=0
 
             window.addEventListener('mousemove', (event) => {
                 const newMouseX = (event.clientX - windowHalfX) * 0.0001;
                 const newMouseY = (event.clientY - windowHalfY) * 0.0001;
-                mouseVel = Math.sqrt(Math.pow(newMouseX - mouseX, 2) + Math.pow(newMouseY - mouseY, 2)) * 200;
+                
+                // Calculate velocity
+                mouseVel = Math.sqrt(Math.pow(newMouseX - mouseX, 2) + Math.pow(newMouseY - mouseY, 2)) * 100;
+                
                 mouseX = newMouseX;
                 mouseY = newMouseY;
-                
+
+                // Raycast for trail
                 mouseVector.x = (event.clientX / window.innerWidth) * 2 - 1;
                 mouseVector.y = -(event.clientY / window.innerHeight) * 2 + 1;
             });
 
-            window.addEventListener('mousedown', () => {
-                clickPulse = 1.0; // Trigger pulse
-            });
-
             window.addEventListener('scroll', () => {
                 scrollY = window.scrollY;
-                scrollSpeed = (scrollY - lastScrollY) * 0.02;
+                scrollSpeed = (scrollY - lastScrollY) * 0.01;
                 lastScrollY = scrollY;
             });
 
@@ -1026,59 +1038,68 @@
 
             function animate() {
                 const elapsedTime = clock.getElapsedTime();
-                
-                // Smooths
+                const deltaTime = clock.getDelta();
+
+                // Smooth Mouse
                 targetX = THREE.MathUtils.lerp(targetX, mouseX, 0.1);
                 targetY = THREE.MathUtils.lerp(targetY, mouseY, 0.1);
+                
+                // Decay velocities
                 mouseVel *= 0.95;
                 scrollSpeed *= 0.95;
-                clickPulse *= 0.95; // Fade pulse
 
-                // Uniforms
+                // Update Uniforms
                 nebulaMaterial.uniforms.uTime.value = elapsedTime;
-                nebulaMaterial.uniforms.uMouse.value.set(targetX, targetY);
+                nebulaMaterial.uniforms.uMouse.value.x = targetX;
+                nebulaMaterial.uniforms.uMouse.value.y = targetY;
                 nebulaMaterial.uniforms.uMouseVel.value = mouseVel;
-                nebulaMaterial.uniforms.uClickPulse.value = clickPulse;
                 
                 starMaterial.uniforms.uTime.value = elapsedTime;
                 starMaterial.uniforms.uScrollSpeed.value = scrollSpeed;
 
-                // Core Animation
-                const pulse = 1 + Math.sin(elapsedTime * 3) * 0.05 + clickPulse * 0.2;
+                // Core Breathing
+                const pulse = 1 + Math.sin(elapsedTime * 2) * 0.05;
                 core.scale.set(pulse, pulse, pulse);
                 
-                disk.rotation.z -= 0.005 + clickPulse * 0.1;
-                disk.rotation.x = Math.PI / 2 + Math.sin(elapsedTime) * 0.2 + targetY; // Disk tilts with mouse
-                disk.rotation.y = targetX; // Disk rotates with mouse
-                
-                innerDisk.rotation.z += 0.02 + clickPulse * 0.2;
+                // Disk Rotation & Flow
+                disk.rotation.z -= 0.002;
+                disk.rotation.x = Math.PI / 2 + Math.sin(elapsedTime) * 0.1; // Wobble
+                innerDisk.rotation.z += 0.01;
 
-                // Move Core Group with Mouse (Parallax)
-                coreGroup.position.x = targetX * 10;
-                coreGroup.position.y = targetY * 10;
-
-                // Camera
-                camera.position.y = 2 + scrollY * 0.005;
+                // Camera Movement
+                camera.position.x = Math.cos(elapsedTime * 0.1) * 10 + targetX * 5; // Add parallax
+                camera.position.z = Math.sin(elapsedTime * 0.1) * 10;
+                camera.position.y = 2 + scrollY * 0.005 + targetY * 5; // Add parallax
                 camera.lookAt(0, 0, 0);
 
-                // Trail
+                // Starfield Warp
+                starField.rotation.y = elapsedTime * 0.05;
+
+                // Update Trail
                 raycaster.setFromCamera(mouseVector, camera);
                 const intersectPoint = new THREE.Vector3();
                 raycaster.ray.intersectPlane(plane, intersectPoint);
                 
                 if(intersectPoint) {
+                    // Shift array
                     for(let i = trailCount - 1; i > 0; i--) {
                         trailPos[i*3] = trailPos[(i-1)*3];
                         trailPos[i*3+1] = trailPos[(i-1)*3+1];
                         trailPos[i*3+2] = trailPos[(i-1)*3+2];
-                        trailAlpha[i] = trailAlpha[i-1] * 0.92;
+                        trailAlpha[i] = trailAlpha[i-1] * 0.9; // Fade out
                     }
-                    trailPos[0] = intersectPoint.x; trailPos[1] = intersectPoint.y; trailPos[2] = intersectPoint.z;
+                    
+                    // New point
+                    trailPos[0] = intersectPoint.x;
+                    trailPos[1] = intersectPoint.y;
+                    trailPos[2] = intersectPoint.z;
                     trailAlpha[0] = 1.0;
+                    
                     trailGeo.attributes.position.needsUpdate = true;
                     trailGeo.attributes.alpha.needsUpdate = true;
                 }
 
+                // Render
                 composer.render();
                 requestAnimationFrame(animate);
             }
@@ -1089,7 +1110,7 @@
                 camera.updateProjectionMatrix();
                 renderer.setSize(window.innerWidth, window.innerHeight);
                 composer.setSize(window.innerWidth, window.innerHeight);
-                nebulaMaterial.uniforms.uSize.value = 30 * renderer.getPixelRatio();
+                nebulaMaterial.uniforms.uSize.value = 25 * renderer.getPixelRatio();
                 bloomPass.resolution.set(window.innerWidth, window.innerHeight);
             });
 
