@@ -1,517 +1,609 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="no-js">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Circle13 | The Signal</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syncopate:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind -->
     <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="https://unpkg.com/@studio-freight/lenis@1.0.29/dist/lenis.min.js"></script>
     <script src="https://unpkg.com/split-type"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syncopate:wght@400;700&display=swap" rel="stylesheet">
-    
+
     <style>
         :root {
-            --glitch-color-1: #00ff00;
-            --glitch-color-2: #ff00ff;
+            --bg-color: #050505;
+            --text-color: #e0e0e0;
+            --accent-color: #00ff41; /* Matrix Green / Signal Green */
+            --secondary-accent: #ff003c; /* Cyberpunk Red */
         }
 
         body {
             margin: 0;
             padding: 0;
-            background-color: #000;
-            color: #fff;
-            font-family: 'Space Mono', monospace;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Inter', sans-serif;
             overflow-x: hidden;
-            cursor: crosshair;
+            cursor: none; /* Custom cursor */
         }
 
-        canvas {
+        /* Typography */
+        .font-display { font-family: 'Syncopate', sans-serif; }
+        .font-mono { font-family: 'Space Mono', monospace; }
+
+        /* Custom Cursor */
+        .cursor-dot,
+        .cursor-outline {
             position: fixed;
             top: 0;
             left: 0;
-            z-index: -1;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            z-index: 9999;
+            pointer-events: none;
+        }
+        .cursor-dot {
+            width: 8px;
+            height: 8px;
+            background-color: white;
+        }
+        .cursor-outline {
+            width: 40px;
+            height: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            transition: width 0.2s, height 0.2s, background-color 0.2s;
+        }
+        body:hover .cursor-outline {
+            opacity: 1;
         }
 
-        .font-display {
-            font-family: 'Syncopate', sans-serif;
-        }
-
-        /* Glitch Effect */
-        .glitch {
-            position: relative;
-        }
-        .glitch::before,
-        .glitch::after {
-            content: attr(data-text);
-            position: absolute;
+        /* Canvas Background */
+        #webgl-container {
+            position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-        }
-        .glitch::before {
-            left: 2px;
-            text-shadow: -1px 0 var(--glitch-color-1);
-            clip: rect(44px, 450px, 56px, 0);
-            animation: glitch-anim-1 5s infinite linear alternate-reverse;
-        }
-        .glitch::after {
-            left: -2px;
-            text-shadow: -1px 0 var(--glitch-color-2);
-            clip: rect(44px, 450px, 56px, 0);
-            animation: glitch-anim-2 5s infinite linear alternate-reverse;
-        }
-
-        @keyframes glitch-anim-1 {
-            0% { clip: rect(30px, 9999px, 10px, 0); }
-            20% { clip: rect(80px, 9999px, 90px, 0); }
-            40% { clip: rect(10px, 9999px, 50px, 0); }
-            60% { clip: rect(60px, 9999px, 20px, 0); }
-            80% { clip: rect(20px, 9999px, 70px, 0); }
-            100% { clip: rect(90px, 9999px, 30px, 0); }
-        }
-        @keyframes glitch-anim-2 {
-            0% { clip: rect(10px, 9999px, 80px, 0); }
-            20% { clip: rect(50px, 9999px, 20px, 0); }
-            40% { clip: rect(90px, 9999px, 10px, 0); }
-            60% { clip: rect(30px, 9999px, 60px, 0); }
-            80% { clip: rect(70px, 9999px, 40px, 0); }
-            100% { clip: rect(20px, 9999px, 90px, 0); }
-        }
-
-        /* Scrollbar */
-        ::-webkit-scrollbar {
-            width: 5px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #000;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #333;
+            z-index: -1;
+            opacity: 0.6;
         }
 
         /* Loader */
-        #loader {
+        .loader-screen {
             position: fixed;
             inset: 0;
             background: #000;
-            z-index: 9999;
+            z-index: 10000;
             display: flex;
             justify-content: center;
             align-items: center;
             flex-direction: column;
         }
-        .loader-bar {
-            width: 200px;
-            height: 2px;
-            background: #333;
-            margin-top: 20px;
+        .loader-text {
+            font-family: 'Syncopate', sans-serif;
+            font-size: 4vw;
+            font-weight: 700;
+            color: transparent;
+            -webkit-text-stroke: 1px white;
+            opacity: 0.5;
+        }
+        .loader-counter {
+            font-family: 'Space Mono', monospace;
+            font-size: 1.5rem;
+            margin-top: 1rem;
+            color: var(--accent-color);
+        }
+
+        /* Navigation */
+        .nav-link {
             position: relative;
             overflow: hidden;
         }
-        .loader-progress {
+        .nav-link::after {
+            content: '';
             position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 1px;
+            background: white;
+            transform: scaleX(0);
+            transform-origin: right;
+            transition: transform 0.5s cubic-bezier(0.19, 1, 0.22, 1);
+        }
+        .nav-link:hover::after {
+            transform: scaleX(1);
+            transform-origin: left;
+        }
+
+        /* Hero Section */
+        .hero-title {
+            font-size: 12vw;
+            line-height: 0.85;
+            text-transform: uppercase;
+            mix-blend-mode: difference;
+        }
+        
+        /* Marquee */
+        .marquee-container {
+            overflow: hidden;
+            white-space: nowrap;
+            padding: 2rem 0;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .marquee-content {
+            display: inline-block;
+            animation: marquee 20s linear infinite;
+        }
+        @keyframes marquee {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        /* Team Section - Hover Reveal */
+        .team-list-item {
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            transition: padding 0.3s ease, background-color 0.3s ease;
+        }
+        .team-list-item:hover {
+            padding-left: 2rem;
+            background-color: rgba(255,255,255,0.05);
+        }
+        .team-list-item:hover .team-role {
+            color: var(--accent-color);
+        }
+        
+        /* Floating Image Reveal */
+        .hover-reveal {
+            position: fixed;
+            width: 300px;
+            height: 400px;
             top: 0;
             left: 0;
-            height: 100%;
-            width: 0%;
-            background: #fff;
-            transition: width 0.2s;
-        }
-
-        /* Random Floating Elements */
-        .floater {
-            position: absolute;
             pointer-events: none;
-            opacity: 0.3;
-            font-size: 10px;
-            color: #00ff00;
-        }
-
-        .story-text {
             opacity: 0;
-            transform: translateY(20px);
+            z-index: 50;
+            transform: translate(-50%, -50%) scale(0.8);
+            transition: opacity 0.3s, transform 0.3s;
+            mix-blend-mode: normal;
+            overflow: hidden;
+        }
+        .hover-reveal-inner {
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center top; /* Focus on faces */
         }
 
-        .team-card {
-            transition: all 0.3s;
-            /* Removed filters for maximum visibility */
+        /* Project Gallery - Horizontal Scroll */
+        .gallery-wrapper {
+            overflow: hidden;
+            width: 100%;
         }
-        .team-card:hover {
-            transform: scale(1.05) rotate(2deg);
-            z-index: 10;
-            box-shadow: 0 0 30px rgba(255, 255, 255, 0.2);
+        .gallery-container {
+            display: flex;
+            width: 400%; /* 4 slides */
+            height: 100vh;
         }
+        .gallery-item {
+            width: 100vw;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            border-right: 1px solid rgba(255,255,255,0.1);
+        }
+        .gallery-number {
+            position: absolute;
+            top: 10%;
+            left: 5%;
+            font-size: 10rem;
+            font-family: 'Syncopate', sans-serif;
+            opacity: 0.1;
+            -webkit-text-stroke: 2px white;
+            color: transparent;
+        }
+
+        /* Footer */
+        .footer-cta {
+            font-size: 8vw;
+            line-height: 1;
+            transition: color 0.3s;
+        }
+        .footer-cta:hover {
+            color: var(--accent-color);
+            -webkit-text-stroke: 0px;
+        }
+
+        /* Utility */
+        .char { display: inline-block; }
+        .word { display: inline-block; white-space: nowrap; }
     </style>
 </head>
 <body>
 
+    <!-- Custom Cursor -->
+    <div class="cursor-dot"></div>
+    <div class="cursor-outline"></div>
+
     <!-- Loader -->
-    <div id="loader">
-        <div class="text-2xl font-display glitch" data-text="INITIALIZING...">INITIALIZING...</div>
-        <div class="loader-bar">
-            <div class="loader-progress" id="progress"></div>
-        </div>
-        <div class="mt-4 text-xs text-gray-500 font-mono" id="loader-text">Loading Assets...</div>
+    <div class="loader-screen">
+        <div class="loader-text">THE SIGNAL</div>
+        <div class="loader-counter">0%</div>
     </div>
 
-    <!-- Audio Element (Optional, user needs to interact) -->
-    <!-- <audio id="bgm" loop>
-        <source src="path/to/ambient.mp3" type="audio/mpeg">
-    </audio> -->
+    <!-- WebGL Background -->
+    <div id="webgl-container"></div>
 
-    <!-- Navigation (Minimal) -->
-    <nav class="fixed top-0 left-0 w-full p-6 flex justify-between items-center z-50 mix-blend-difference">
-        <div class="text-xl font-bold tracking-tighter">C-13</div>
-        <div class="flex gap-6 text-xs md:text-sm">
-            <a href="#manifesto" class="hover:line-through decoration-white">MANIFESTO</a>
-            <a href="#architects" class="hover:line-through decoration-white">ARCHITECTS</a>
-            <a href="#uplink" class="hover:line-through decoration-white">UPLINK</a>
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full p-8 flex justify-between items-center z-50 mix-blend-difference text-white">
+        <div class="text-xl font-display font-bold tracking-tighter">C-13</div>
+        <div class="hidden md:flex gap-10 font-mono text-sm">
+            <a href="#manifesto" class="nav-link">MANIFESTO</a>
+            <a href="#architects" class="nav-link">ARCHITECTS</a>
+            <a href="#work" class="nav-link">WORK</a>
+            <a href="#contact" class="nav-link">UPLINK</a>
         </div>
+        <div class="md:hidden text-sm font-mono">MENU</div>
     </nav>
 
-    <!-- Content Container -->
-    <main class="relative z-10">
-        
-        <!-- Section 1: The Void -->
-        <section class="h-screen flex flex-col justify-center items-center text-center px-4 relative">
-            <div class="absolute top-1/4 left-10 text-xs text-gray-500 writing-vertical hidden md:block">
-                COORDINATES: UNKNOWN<br>
-                STATUS: DRIFTING
-            </div>
+    <div id="smooth-wrapper">
+        <div id="smooth-content">
 
-            <h1 class="text-6xl md:text-9xl font-display font-bold mb-4 glitch" data-text="CIRCLE 13">CIRCLE 13</h1>
-            <p class="text-lg md:text-2xl max-w-2xl mx-auto story-text" id="intro-text">
-                We are the signal in the noise.
-            </p>
-            
-            <div class="absolute bottom-10 animate-bounce">
-                ↓ DESCEND ↓
-            </div>
-        </section>
-
-        <!-- Section 2: The Philosophy (Story) -->
-        <section id="manifesto" class="min-h-screen flex items-center px-6 md:px-20 py-20 relative overflow-hidden">
-            <div class="max-w-4xl relative z-10">
-                <div class="text-xs text-green-500 mb-4 font-mono">> SYSTEM_LOG: PHILOSOPHY.TXT</div>
-                
-                <p class="text-3xl md:text-5xl leading-tight mb-12 story-text">
-                    They told us to wait for luck.<br>
-                    <span class="text-gray-500">We told them...</span>
-                </p>
-
-                <h2 class="text-5xl md:text-8xl font-display font-bold text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-500 mb-8 story-text glitch" data-text="VOLUME NEGATES LUCK">
-                    VOLUME<br>NEGATES<br>LUCK.
-                </h2>
-
-                <p class="text-xl md:text-2xl text-gray-300 max-w-2xl story-text border-l-2 border-white pl-6">
-                    We don't build one thing. We build <span class="text-white font-bold">everything</span>.
-                    An innovation lab. A micro-startup factory. An engine of chaos and creation.
-                    If we launch 10 ships, one will reach the stars.
-                </p>
-            </div>
-
-            <!-- Random decorative elements -->
-            <div class="absolute right-10 top-1/3 text-right text-xs text-gray-600 font-mono hidden md:block">
-                01001001<br>01101110<br>01101110<br>01101111<br>01110110<br>01100001<br>01110100<br>01100101
-            </div>
-        </section>
-
-        <!-- Section 3: The Architects (Team) -->
-        <section id="architects" class="min-h-screen py-20 px-6 relative">
-            <div class="text-center mb-20">
-                <h2 class="text-4xl md:text-6xl font-display font-bold mb-4">THE ARCHITECTS</h2>
-                <p class="text-sm text-gray-400 font-mono">>> IDENTIFYING CREW MEMBERS...</p>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-7xl mx-auto">
-                
-                <!-- Card 1 -->
-                <a href="profile-NBharath.html" class="team-card group relative bg-transparent border border-gray-700 p-4 h-[400px] flex flex-col justify-end overflow-hidden">
-                    <img src="./Assets/Images/N.Bharath.jpg" class="absolute inset-0 w-full h-full object-cover object-top opacity-100 transition-transform duration-500 group-hover:scale-110 z-0" alt="N. Bharath">
-                    <!-- Gradient removed for visibility -->
-                    <div class="relative z-10 transform translate-y-4 group-hover:translate-y-0 transition-transform bg-black/50 p-2 backdrop-blur-sm rounded">
-                        <div class="text-xs text-green-400 mb-1">>> COMMANDER</div>
-                        <h3 class="text-2xl font-bold uppercase text-white">N. Bharath</h3>
-                        <p class="text-sm text-gray-200">Founder & CEO</p>
-                    </div>
-                </a>
-
-                <!-- Card 2 -->
-                <a href="profile-AkhilVipinNair.html" class="team-card group relative bg-transparent border border-gray-700 p-4 h-[400px] flex flex-col justify-end overflow-hidden mt-10 md:mt-0">
-                    <img src="./Assets/Images/Akhil_Vipin_Nair.jpeg" class="absolute inset-0 w-full h-full object-cover object-top opacity-100 transition-transform duration-500 group-hover:scale-110 z-0" alt="Akhil Vipin Nair">
-                    <!-- Gradient removed for visibility -->
-                    <div class="relative z-10 transform translate-y-4 group-hover:translate-y-0 transition-transform bg-black/50 p-2 backdrop-blur-sm rounded">
-                        <div class="text-xs text-blue-400 mb-1">>> TECH_LEAD</div>
-                        <h3 class="text-2xl font-bold uppercase text-white">Akhil Vipin Nair</h3>
-                        <p class="text-sm text-gray-200">CTO</p>
-                    </div>
-                </a>
-
-                <!-- Card 3 -->
-                <a href="profile-AryanRRathore.html" class="team-card group relative bg-transparent border border-gray-700 p-4 h-[400px] flex flex-col justify-end overflow-hidden mt-0 md:mt-10">
-                    <img src="./Assets/Images/Aryan_R_Rathore.jpeg" class="absolute inset-0 w-full h-full object-cover opacity-100 transition-transform duration-500 group-hover:scale-110 z-0" alt="Aryan R Rathore" style="object-position: center 20%;">
-                    <!-- Gradient removed for visibility -->
-                    <div class="relative z-10 transform translate-y-4 group-hover:translate-y-0 transition-transform bg-black/50 p-2 backdrop-blur-sm rounded">
-                        <div class="text-xs text-red-400 mb-1">>> OPS_CHIEF</div>
-                        <h3 class="text-2xl font-bold uppercase text-white">Aryan R Rathore</h3>
-                        <p class="text-sm text-gray-200">COO</p>
-                    </div>
-                </a>
-
-                <!-- Card 4 -->
-                <a href="profile-BharathM.html" class="team-card group relative bg-transparent border border-gray-700 p-4 h-[400px] flex flex-col justify-end overflow-hidden mt-10 md:mt-20">
-                    <img src="./Assets/Images/Bharath_M.jpeg" class="absolute inset-0 w-full h-full object-cover object-top opacity-100 transition-transform duration-500 group-hover:scale-110 z-0" alt="Bharath M">
-                    <!-- Gradient removed for visibility -->
-                    <div class="relative z-10 transform translate-y-4 group-hover:translate-y-0 transition-transform bg-black/50 p-2 backdrop-blur-sm rounded">
-                        <div class="text-xs text-purple-400 mb-1">>> SIGNAL_OFFICER</div>
-                        <h3 class="text-2xl font-bold uppercase text-white">Bharath M</h3>
-                        <p class="text-sm text-gray-200">CMO</p>
-                    </div>
-                </a>
-
-            </div>
-        </section>
-
-        <!-- Section 4: The Manifest (Projects) -->
-        <section class="py-20 px-6 relative">
-            <div class="max-w-6xl mx-auto">
-                <div class="flex items-end justify-between mb-12 border-b border-gray-800 pb-4">
-                    <h2 class="text-4xl md:text-6xl font-display font-bold">THE MANIFEST</h2>
-                    <div class="text-right hidden md:block">
-                        <div class="text-xs text-gray-500">ACTIVE_PROJECTS: 10+</div>
-                        <div class="text-xs text-gray-500">SUCCESS_RATE: LOADING...</div>
-                    </div>
+            <!-- Hero Section -->
+            <section class="h-screen flex flex-col justify-center px-6 md:px-20 relative">
+                <div class="font-mono text-xs md:text-sm text-gray-500 mb-4 overflow-hidden">
+                    <div class="reveal-text">EST. 2025 // GLOBAL TRANSMISSION</div>
                 </div>
+                <h1 class="hero-title font-display font-bold text-white">
+                    <div class="overflow-hidden"><span class="reveal-hero inline-block">WE ARE</span></div>
+                    <div class="overflow-hidden"><span class="reveal-hero inline-block text-transparent" style="-webkit-text-stroke: 2px white;">THE SIGNAL</span></div>
+                    <div class="overflow-hidden"><span class="reveal-hero inline-block">IN THE NOISE</span></div>
+                </h1>
+                
+                <div class="absolute bottom-10 right-10 md:right-20 text-right font-mono text-xs md:text-sm text-gray-400">
+                    SCROLL TO DECRYPT<br>
+                    ↓
+                </div>
+            </section>
 
-                <div class="space-y-4">
-                    <!-- Project Item -->
-                    <div class="group border-b border-gray-800 py-8 hover:bg-white/5 transition-colors cursor-pointer relative overflow-hidden">
-                        <div class="flex flex-col md:flex-row md:items-center justify-between relative z-10 px-4">
-                            <div class="text-4xl md:text-6xl font-bold text-gray-700 group-hover:text-white transition-colors duration-300">01</div>
-                            <div class="flex-1 md:px-10">
-                                <h3 class="text-2xl md:text-4xl font-bold mb-2">AI AUTOMATION</h3>
-                                <p class="text-sm text-gray-400 font-mono">>> OPTIMIZING WORKFLOWS // NEURAL NETWORKS</p>
-                            </div>
-                            <div class="mt-4 md:mt-0 text-xs border border-gray-600 rounded-full px-3 py-1">STATUS: ACTIVE</div>
-                        </div>
-                    </div>
-
-                    <!-- Project Item -->
-                    <div class="group border-b border-gray-800 py-8 hover:bg-white/5 transition-colors cursor-pointer relative overflow-hidden">
-                        <div class="flex flex-col md:flex-row md:items-center justify-between relative z-10 px-4">
-                            <div class="text-4xl md:text-6xl font-bold text-gray-700 group-hover:text-white transition-colors duration-300">02</div>
-                            <div class="flex-1 md:px-10">
-                                <h3 class="text-2xl md:text-4xl font-bold mb-2">TECH SUMMIT</h3>
-                                <p class="text-sm text-gray-400 font-mono">>> COMMUNITY GATHERING // KNOWLEDGE TRANSFER</p>
-                            </div>
-                            <div class="mt-4 md:mt-0 text-xs border border-gray-600 rounded-full px-3 py-1">STATUS: DEPLOYED</div>
-                        </div>
-                    </div>
-
-                    <!-- Project Item -->
-                    <div class="group border-b border-gray-800 py-8 hover:bg-white/5 transition-colors cursor-pointer relative overflow-hidden">
-                        <div class="flex flex-col md:flex-row md:items-center justify-between relative z-10 px-4">
-                            <div class="text-4xl md:text-6xl font-bold text-gray-700 group-hover:text-white transition-colors duration-300">03</div>
-                            <div class="flex-1 md:px-10">
-                                <h3 class="text-2xl md:text-4xl font-bold mb-2">MICRO-STARTUPS</h3>
-                                <p class="text-sm text-gray-400 font-mono">>> RAPID PROTOTYPING // MARKET TESTING</p>
-                            </div>
-                            <div class="mt-4 md:mt-0 text-xs border border-gray-600 rounded-full px-3 py-1">STATUS: CLASSIFIED</div>
-                        </div>
-                    </div>
+            <!-- Marquee -->
+            <div class="marquee-container bg-white text-black font-display text-4xl md:text-6xl font-bold">
+                <div class="marquee-content">
+                    INNOVATION LAB — MICRO-STARTUPS — AI AUTOMATION — CHAOS ENGINE — VOLUME NEGATES LUCK — INNOVATION LAB — MICRO-STARTUPS — AI AUTOMATION — CHAOS ENGINE — VOLUME NEGATES LUCK —
                 </div>
             </div>
-        </section>
 
-        <!-- Section 5: Uplink (Contact) -->
-        <section id="uplink" class="h-screen flex flex-col justify-center items-center text-center px-6 relative">
-            <div class="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20"></div>
-            
-            <h2 class="text-5xl md:text-8xl font-display font-bold mb-8 glitch" data-text="ESTABLISH UPLINK">ESTABLISH UPLINK</h2>
-            
-            <p class="text-xl text-gray-400 mb-12 max-w-xl mx-auto">
-                Are you ready to build the future? The Circle is open.
-            </p>
+            <!-- Manifesto Section -->
+            <section id="manifesto" class="min-h-screen flex items-center justify-center px-6 md:px-20 py-32">
+                <div class="max-w-5xl">
+                    <p class="text-2xl md:text-5xl leading-tight font-light text-gray-400 reveal-paragraph">
+                        They told us to wait for luck. We told them <span class="text-white font-display">VOLUME NEGATES LUCK</span>. 
+                        We don't build one thing. We build <span class="text-white">everything</span>. 
+                        An engine of chaos and creation. If we launch 10 ships, one will reach the stars.
+                    </p>
+                </div>
+            </section>
 
-            <div class="flex flex-col md:flex-row gap-6 z-10">
-                <a href="https://docs.google.com/forms/d/e/1FAIpQLSefIWXFYDFi2U_UZb705-gpgiboIYKBVrQ5X86KLu79aTIQWw/viewform?usp=sharing&ouid=102888907718355026902" target="_blank" class="px-8 py-4 bg-white text-black font-bold hover:bg-green-400 hover:scale-110 transition-all duration-300 clip-path-button">
-                    INITIATE APPLICATION
+            <!-- Team Section (Hover Reveal) -->
+            <section id="architects" class="py-32 px-6 md:px-20 relative">
+                <div class="flex flex-col md:flex-row justify-between items-end mb-20 border-b border-gray-800 pb-10">
+                    <h2 class="text-5xl md:text-7xl font-display font-bold">THE ARCHITECTS</h2>
+                    <div class="font-mono text-sm text-gray-500 mt-4 md:mt-0">CREW_MANIFEST_V1.0</div>
+                </div>
+
+                <div class="team-list flex flex-col">
+                    <!-- Member 1 -->
+                    <div class="team-list-item py-10 flex flex-col md:flex-row justify-between items-center cursor-pointer group" data-img="./Assets/Images/N.Bharath.jpg">
+                        <div class="text-3xl md:text-5xl font-display font-bold group-hover:translate-x-4 transition-transform duration-300">N. BHARATH</div>
+                        <div class="font-mono text-sm md:text-xl text-gray-500 team-role mt-2 md:mt-0">FOUNDER & CEO // COMMANDER</div>
+                    </div>
+
+                    <!-- Member 2 -->
+                    <div class="team-list-item py-10 flex flex-col md:flex-row justify-between items-center cursor-pointer group" data-img="./Assets/Images/Akhil_Vipin_Nair.jpeg">
+                        <div class="text-3xl md:text-5xl font-display font-bold group-hover:translate-x-4 transition-transform duration-300">AKHIL VIPIN NAIR</div>
+                        <div class="font-mono text-sm md:text-xl text-gray-500 team-role mt-2 md:mt-0">CTO // TECH LEAD</div>
+                    </div>
+
+                    <!-- Member 3 -->
+                    <div class="team-list-item py-10 flex flex-col md:flex-row justify-between items-center cursor-pointer group" data-img="./Assets/Images/Aryan_R_Rathore.jpeg">
+                        <div class="text-3xl md:text-5xl font-display font-bold group-hover:translate-x-4 transition-transform duration-300">ARYAN R RATHORE</div>
+                        <div class="font-mono text-sm md:text-xl text-gray-500 team-role mt-2 md:mt-0">COO // OPS CHIEF</div>
+                    </div>
+
+                    <!-- Member 4 -->
+                    <div class="team-list-item py-10 flex flex-col md:flex-row justify-between items-center cursor-pointer group" data-img="./Assets/Images/Bharath_M.jpeg">
+                        <div class="text-3xl md:text-5xl font-display font-bold group-hover:translate-x-4 transition-transform duration-300">BHARATH M</div>
+                        <div class="font-mono text-sm md:text-xl text-gray-500 team-role mt-2 md:mt-0">CMO // SIGNAL OFFICER</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Work Section (Horizontal Scroll) -->
+            <section id="work" class="gallery-wrapper bg-white text-black">
+                <div class="gallery-container">
+                    <!-- Slide 1 -->
+                    <div class="gallery-item flex-col text-center px-10">
+                        <div class="gallery-number">01</div>
+                        <h3 class="text-6xl md:text-8xl font-display font-bold mb-6">AI AUTO</h3>
+                        <p class="font-mono text-xl max-w-xl">Optimizing workflows through neural networks and intelligent agents.</p>
+                        <div class="mt-8 px-6 py-2 border border-black rounded-full font-mono text-sm">STATUS: ACTIVE</div>
+                    </div>
+                    <!-- Slide 2 -->
+                    <div class="gallery-item flex-col text-center px-10 bg-gray-100">
+                        <div class="gallery-number">02</div>
+                        <h3 class="text-6xl md:text-8xl font-display font-bold mb-6">SUMMIT</h3>
+                        <p class="font-mono text-xl max-w-xl">Global community gathering for knowledge transfer and networking.</p>
+                        <div class="mt-8 px-6 py-2 border border-black rounded-full font-mono text-sm">STATUS: DEPLOYED</div>
+                    </div>
+                    <!-- Slide 3 -->
+                    <div class="gallery-item flex-col text-center px-10">
+                        <div class="gallery-number">03</div>
+                        <h3 class="text-6xl md:text-8xl font-display font-bold mb-6">MICRO</h3>
+                        <p class="font-mono text-xl max-w-xl">Rapid prototyping engine for market testing new ideas.</p>
+                        <div class="mt-8 px-6 py-2 border border-black rounded-full font-mono text-sm">STATUS: CLASSIFIED</div>
+                    </div>
+                    <!-- Slide 4 -->
+                    <div class="gallery-item flex-col text-center px-10 bg-black text-white">
+                        <div class="gallery-number text-white opacity-20">04</div>
+                        <h3 class="text-6xl md:text-8xl font-display font-bold mb-6">NEXT?</h3>
+                        <p class="font-mono text-xl max-w-xl">The future is unwritten. Join us to write it.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Footer / Contact -->
+            <section id="contact" class="min-h-screen flex flex-col justify-center items-center text-center px-6 relative">
+                <div class="font-mono text-green-500 mb-8">>> END OF TRANSMISSION</div>
+                
+                <a href="https://docs.google.com/forms/d/e/1FAIpQLSefIWXFYDFi2U_UZb705-gpgiboIYKBVrQ5X86KLu79aTIQWw/viewform?usp=sharing&ouid=102888907718355026902" target="_blank" class="footer-cta font-display font-bold mb-4 block">
+                    INITIATE<br>UPLINK
                 </a>
-                <a href="https://discord.gg/jTC4u97w5Z" target="_blank" class="px-8 py-4 border border-white text-white font-bold hover:bg-white hover:text-black hover:scale-110 transition-all duration-300 clip-path-button">
-                    JOIN FREQUENCY (DISCORD)
-                </a>
-            </div>
 
-            <footer class="absolute bottom-10 w-full text-center text-xs text-gray-600 font-mono">
-                © 2025 CIRCLE 13 // END OF TRANSMISSION
-            </footer>
-        </section>
+                <div class="flex gap-8 mt-12 font-mono text-sm md:text-base">
+                    <a href="https://discord.gg/jTC4u97w5Z" target="_blank" class="hover:text-green-500 transition-colors">[DISCORD FREQUENCY]</a>
+                    <a href="#" class="hover:text-green-500 transition-colors">[LINKEDIN]</a>
+                    <a href="#" class="hover:text-green-500 transition-colors">[TWITTER]</a>
+                </div>
 
-    </main>
+                <div class="absolute bottom-10 text-gray-600 font-mono text-xs">
+                    © 2025 CIRCLE 13. ALL RIGHTS RESERVED.
+                </div>
+            </section>
+
+        </div>
+    </div>
+
+    <!-- Hover Reveal Image Container -->
+    <div class="hover-reveal">
+        <div class="hover-reveal-inner"></div>
+    </div>
 
     <script>
-        // --- THREE.JS BACKGROUND ---
-        const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        const renderer = new THREE.WebGLRenderer({ alpha: true });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        document.body.appendChild(renderer.domElement);
+        // --- 1. LENIS SMOOTH SCROLL ---
+        const lenis = new Lenis({
+            duration: 1.2,
+            easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+            direction: 'vertical',
+            gestureDirection: 'vertical',
+            smooth: true,
+            mouseMultiplier: 1,
+            smoothTouch: false,
+            touchMultiplier: 2,
+        });
 
-        // Particles
-        const geometry = new THREE.BufferGeometry();
-        const particlesCount = 2000;
-        const posArray = new Float32Array(particlesCount * 3);
+        function raf(time) {
+            lenis.raf(time);
+            requestAnimationFrame(raf);
+        }
+        requestAnimationFrame(raf);
 
-        for(let i = 0; i < particlesCount * 3; i++) {
-            posArray[i] = (Math.random() - 0.5) * 15; // Spread
+        // Connect GSAP ScrollTrigger to Lenis
+        gsap.registerPlugin(ScrollTrigger);
+        
+        // --- 2. CUSTOM CURSOR ---
+        const cursorDot = document.querySelector('.cursor-dot');
+        const cursorOutline = document.querySelector('.cursor-outline');
+
+        window.addEventListener('mousemove', (e) => {
+            const posX = e.clientX;
+            const posY = e.clientY;
+
+            cursorDot.style.left = `${posX}px`;
+            cursorDot.style.top = `${posY}px`;
+
+            // Outline follows with delay
+            cursorOutline.animate({
+                left: `${posX}px`,
+                top: `${posY}px`
+            }, { duration: 500, fill: "forwards" });
+        });
+
+        // --- 3. LOADER ---
+        const loaderScreen = document.querySelector('.loader-screen');
+        const loaderCounter = document.querySelector('.loader-counter');
+        let loadProgress = 0;
+
+        const loadInterval = setInterval(() => {
+            loadProgress += Math.floor(Math.random() * 5) + 1;
+            if (loadProgress > 100) loadProgress = 100;
+            loaderCounter.textContent = `${loadProgress}%`;
+
+            if (loadProgress === 100) {
+                clearInterval(loadInterval);
+                revealSite();
+            }
+        }, 50);
+
+        function revealSite() {
+            const tl = gsap.timeline();
+            
+            tl.to(loaderScreen, {
+                yPercent: -100,
+                duration: 1.2,
+                ease: "power4.inOut",
+                delay: 0.2
+            })
+            .from('.reveal-hero', {
+                y: 150,
+                opacity: 0,
+                duration: 1.5,
+                stagger: 0.1,
+                ease: "power4.out"
+            }, "-=0.5")
+            .from('.reveal-text', {
+                y: 20,
+                opacity: 0,
+                duration: 1,
+                ease: "power2.out"
+            }, "-=1");
         }
 
-        geometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
-        const material = new THREE.PointsMaterial({
-            size: 0.005,
-            color: 0xffffff,
+        // --- 4. THREE.JS BACKGROUND (Noise/Fog) ---
+        const scene = new THREE.Scene();
+        scene.fog = new THREE.FogExp2(0x000000, 0.001);
+        
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.z = 5;
+
+        const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        document.getElementById('webgl-container').appendChild(renderer.domElement);
+
+        // Create a complex particle system
+        const particlesGeometry = new THREE.BufferGeometry();
+        const count = 3000;
+        const positions = new Float32Array(count * 3);
+        const colors = new Float32Array(count * 3);
+
+        for(let i = 0; i < count * 3; i++) {
+            positions[i] = (Math.random() - 0.5) * 20; // Spread
+            colors[i] = Math.random();
+        }
+
+        particlesGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        particlesGeometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+        const particlesMaterial = new THREE.PointsMaterial({
+            size: 0.02,
+            vertexColors: true,
+            transparent: true,
+            opacity: 0.8,
+            blending: THREE.AdditiveBlending
         });
 
-        const particlesMesh = new THREE.Points(geometry, material);
-        scene.add(particlesMesh);
+        const particles = new THREE.Points(particlesGeometry, particlesMaterial);
+        scene.add(particles);
 
-        camera.position.z = 2;
-
-        // Mouse interaction
-        let mouseX = 0;
-        let mouseY = 0;
-        let targetX = 0;
-        let targetY = 0;
-
-        const windowHalfX = window.innerWidth / 2;
-        const windowHalfY = window.innerHeight / 2;
-
-        document.addEventListener('mousemove', (event) => {
-            mouseX = (event.clientX - windowHalfX);
-            mouseY = (event.clientY - windowHalfY);
-        });
-
-        const clock = new THREE.Clock();
-
+        // Animation Loop
+        let time = 0;
         function animate() {
-            targetX = mouseX * 0.001;
-            targetY = mouseY * 0.001;
+            requestAnimationFrame(animate);
+            time += 0.001;
 
-            const elapsedTime = clock.getElapsedTime();
+            particles.rotation.y = time * 0.5;
+            particles.rotation.x = time * 0.2;
 
-            // Rotate entire system slowly
-            particlesMesh.rotation.y = .1 * elapsedTime;
-            particlesMesh.rotation.x += .05 * (targetY - particlesMesh.rotation.x);
-            particlesMesh.rotation.y += .05 * (targetX - particlesMesh.rotation.y);
-
-            // Warp effect on scroll
-            const scrollY = window.scrollY;
-            camera.position.z = 2 - (scrollY * 0.001); 
+            // Gentle wave effect
+            const positions = particles.geometry.attributes.position.array;
+            for(let i = 0; i < count; i++) {
+                const i3 = i * 3;
+                // positions[i3 + 1] += Math.sin(time + positions[i3]) * 0.002;
+            }
+            particles.geometry.attributes.position.needsUpdate = true;
 
             renderer.render(scene, camera);
-            requestAnimationFrame(animate);
         }
         animate();
 
-        // Resize handler
         window.addEventListener('resize', () => {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
         });
 
-
-        // --- GSAP ANIMATIONS ---
-        gsap.registerPlugin(ScrollTrigger);
-
-        // Loader Logic
-        const progress = document.getElementById('progress');
-        const loader = document.getElementById('loader');
-        let loadVal = 0;
+        // --- 5. SCROLL ANIMATIONS ---
         
-        const loadInterval = setInterval(() => {
-            loadVal += Math.random() * 10;
-            if (loadVal >= 100) {
-                loadVal = 100;
-                clearInterval(loadInterval);
-                
-                gsap.to(loader, {
-                    yPercent: -100,
-                    duration: 1,
-                    ease: "power4.inOut",
-                    delay: 0.5
-                });
-                
-                // Start Intro Animations
-                initAnimations();
-            }
-            progress.style.width = loadVal + '%';
-        }, 100);
-
-        function initAnimations() {
-            // Intro Text
-            gsap.to('#intro-text', {
-                opacity: 1,
-                y: 0,
-                duration: 1.5,
-                delay: 1,
-                ease: "power3.out"
+        // Manifesto Text Reveal
+        const splitTypes = document.querySelectorAll('.reveal-paragraph');
+        splitTypes.forEach((char,i) => {
+            const text = new SplitType(char, { types: 'words' });
+            
+            gsap.from(text.words, {
+                scrollTrigger: {
+                    trigger: char,
+                    start: 'top 80%',
+                    end: 'top 20%',
+                    scrub: true,
+                    markers: false
+                },
+                opacity: 0.1,
+                stagger: 0.1
             });
+        });
 
-            // Story Text Reveal on Scroll
-            gsap.utils.toArray('.story-text').forEach(text => {
-                gsap.to(text, {
-                    scrollTrigger: {
-                        trigger: text,
-                        start: "top 80%",
-                        toggleActions: "play none none reverse"
-                    },
+        // Horizontal Scroll for Work Section
+        let sections = gsap.utils.toArray(".gallery-item");
+        gsap.to(sections, {
+            xPercent: -100 * (sections.length - 1),
+            ease: "none",
+            scrollTrigger: {
+                trigger: ".gallery-container",
+                pin: true,
+                scrub: 1,
+                snap: 1 / (sections.length - 1),
+                end: () => "+=" + document.querySelector(".gallery-container").offsetWidth
+            }
+        });
+
+        // --- 6. TEAM HOVER REVEAL ---
+        const teamItems = document.querySelectorAll('.team-list-item');
+        const revealContainer = document.querySelector('.hover-reveal');
+        const revealInner = document.querySelector('.hover-reveal-inner');
+
+        teamItems.forEach(item => {
+            item.addEventListener('mouseenter', (e) => {
+                const imgUrl = item.getAttribute('data-img');
+                revealInner.style.backgroundImage = `url(${imgUrl})`;
+                
+                gsap.to(revealContainer, {
                     opacity: 1,
-                    y: 0,
-                    duration: 1,
+                    scale: 1,
+                    duration: 0.3,
                     ease: "power2.out"
                 });
             });
 
-            // Team Cards Stagger
-            gsap.from('.team-card', {
-                scrollTrigger: {
-                    trigger: '#architects',
-                    start: "top 70%"
-                },
-                y: 100,
-                opacity: 0,
-                duration: 1,
-                stagger: 0.2,
-                ease: "power3.out"
+            item.addEventListener('mouseleave', () => {
+                gsap.to(revealContainer, {
+                    opacity: 0,
+                    scale: 0.8,
+                    duration: 0.3,
+                    ease: "power2.out"
+                });
             });
-        }
 
-        // --- RANDOM FLOATING ELEMENTS ---
-        const main = document.querySelector('main');
-        const words = ['SYSTEM', 'NODE', 'ERROR', '404', 'SIGNAL', 'LOST', 'FOUND', '13', 'CIRCLE', 'VOID'];
-        
-        for (let i = 0; i < 20; i++) {
-            const el = document.createElement('div');
-            el.classList.add('floater');
-            el.innerText = words[Math.floor(Math.random() * words.length)];
-            el.style.left = Math.random() * 100 + 'vw';
-            el.style.top = Math.random() * 300 + 'vh'; // Spread across height
-            el.style.fontSize = (Math.random() * 20 + 10) + 'px';
-            main.appendChild(el);
-
-            // Animate floaters
-            gsap.to(el, {
-                y: -100,
-                duration: Math.random() * 5 + 5,
-                repeat: -1,
-                yoyo: true,
-                ease: "sine.inOut"
+            item.addEventListener('mousemove', (e) => {
+                gsap.to(revealContainer, {
+                    x: e.clientX,
+                    y: e.clientY,
+                    duration: 0.5,
+                    ease: "power2.out"
+                });
             });
-        }
+        });
 
     </script>
 </body>
