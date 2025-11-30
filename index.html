@@ -576,99 +576,188 @@
                 }
             }, 5000);
 
-            // --- 4. THREE.JS BACKGROUND (Digital Terrain) ---
+            // --- 4. THREE.JS BACKGROUND (The Living Signal) ---
             try {
                 const scene = new THREE.Scene();
-                // Dark fog for depth
-                scene.fog = new THREE.FogExp2(0x050505, 0.002);
+                scene.fog = new THREE.FogExp2(0x000000, 0.002);
                 
                 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 100);
-                // Position camera to look over the terrain
-                camera.position.set(0, 1, 3);
-                camera.lookAt(0, 0, 0);
+                camera.position.z = 4;
+                camera.position.y = 1;
 
                 const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
                 renderer.setSize(window.innerWidth, window.innerHeight);
                 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-                const container = document.getElementById('webgl-container');
-                if (container) container.appendChild(renderer.domElement);
-
-                // --- SHADER MATERIAL ---
-                const vertexShader = `
-                    uniform float uTime;
-                    varying float vElevation;
-
-                    void main() {
-                        vec4 modelPosition = modelMatrix * vec4(position, 1.0);
-                        
-                        // Create moving terrain effect
-                        float elevation = sin(modelPosition.x * 0.5 + uTime * 0.2) * 0.3;
-                        elevation += sin(modelPosition.y * 0.3 + uTime * 0.1) * 0.3;
-                        
-                        // Add noise detail
-                        elevation += sin(modelPosition.x * 2.0 + uTime * 0.5) * 0.1;
-                        
-                        modelPosition.z += elevation;
-                        
-                        // Pass to fragment
-                        vElevation = elevation;
-
-                        vec4 viewPosition = viewMatrix * modelPosition;
-                        vec4 projectedPosition = projectionMatrix * viewPosition;
-                        
-                        gl_Position = projectedPosition;
-                        
-                        // Size attenuation
-                        gl_PointSize = 4.0 * (1.0 / -viewPosition.z);
-                    }
-                `;
-
-                const fragmentShader = `
-                    uniform vec3 uColor;
-                    varying float vElevation;
-
-                    void main() {
-                        // Circular particle
-                        float strength = distance(gl_PointCoord, vec2(0.5));
-                        strength = 1.0 - step(0.5, strength);
-                        
-                        // Mix color based on elevation (Green peaks, dark valleys)
-                        vec3 color = mix(vec3(0.0, 0.2, 0.0), uColor, vElevation * 2.0 + 0.5);
-                        
-                        gl_FragColor = vec4(color, strength * 0.8);
-                    }
-                `;
-
-                // Geometry: High density plane
-                const geometry = new THREE.PlaneGeometry(20, 20, 64, 64);
                 
-                // Material
-                const material = new THREE.ShaderMaterial({
-                    vertexShader: vertexShader,
-                    fragmentShader: fragmentShader,
-                    uniforms: {
-                        uTime: { value: 0 },
-                        uColor: { value: new THREE.Color('#00ff41') }
-                    },
-                    transparent: true,
-                    blending: THREE.AdditiveBlending,
-                    depthWrite: false
-                });
+                const container = document.getElementById('webgl-container');
+                if (container) {
+                    container.innerHTML = ''; // Clear previous
+                    container.appendChild(renderer.domElement);
+                }
 
-                // Mesh (Points)
-                const terrain = new THREE.Points(geometry, material);
-                terrain.rotation.x = -Math.PI * 0.4; // Tilt to look like a floor
-                scene.add(terrain);
+                // --- GALAXY GENERATOR ---
+                const parameters = {
+                    count: 20000,
+                    size: 0.015,
+                    radius: 6,
+                    branches: 4,
+                    spin: 1.2,
+                    randomness: 0.5,
+                    randomnessPower: 3,
+                    insideColor: '#ffffff',
+                    outsideColor: '#00ff41' // Signal Green
+                };
+
+                let geometry = null;
+                let material = null;
+                let points = null;
+
+                const generateGalaxy = () => {
+                    if(points !== null) {
+                        geometry.dispose();
+                        material.dispose();
+                        scene.remove(points);
+                    }
+
+                    geometry = new THREE.BufferGeometry();
+                    const positions = new Float32Array(parameters.count * 3);
+                    const colors = new Float32Array(parameters.count * 3);
+                    const scales = new Float32Array(parameters.count * 1);
+                    const randomness = new Float32Array(parameters.count * 3);
+
+                    const colorInside = new THREE.Color(parameters.insideColor);
+                    const colorOutside = new THREE.Color(parameters.outsideColor);
+
+                    for(let i = 0; i < parameters.count; i++) {
+                        const i3 = i * 3;
+
+                        // Position
+                        const radius = Math.random() * parameters.radius;
+                        const spinAngle = radius * parameters.spin;
+                        const branchAngle = (i % parameters.branches) / parameters.branches * Math.PI * 2;
+
+                        const randomX = Math.pow(Math.random(), parameters.randomnessPower) * (Math.random() < 0.5 ? 1 : -1) * parameters.randomness * radius;
+                        const randomY = Math.pow(Math.random(), parameters.randomnessPower) * (Math.random() < 0.5 ? 1 : -1) * parameters.randomness * radius;
+                        const randomZ = Math.pow(Math.random(), parameters.randomnessPower) * (Math.random() < 0.5 ? 1 : -1) * parameters.randomness * radius;
+
+                        positions[i3    ] = Math.cos(branchAngle + spinAngle) * radius + randomX;
+                        positions[i3 + 1] = randomY; // Flattened galaxy
+                        positions[i3 + 2] = Math.sin(branchAngle + spinAngle) * radius + randomZ;
+
+                        // Randomness for shader animation
+                        randomness[i3] = Math.random();
+                        randomness[i3+1] = Math.random();
+                        randomness[i3+2] = Math.random();
+
+                        // Color
+                        const mixedColor = colorInside.clone();
+                        mixedColor.lerp(colorOutside, radius / parameters.radius);
+                        
+                        colors[i3    ] = mixedColor.r;
+                        colors[i3 + 1] = mixedColor.g;
+                        colors[i3 + 2] = mixedColor.b;
+
+                        // Scale
+                        scales[i] = Math.random();
+                    }
+
+                    geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+                    geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+                    geometry.setAttribute('aScale', new THREE.BufferAttribute(scales, 1));
+                    geometry.setAttribute('aRandomness', new THREE.BufferAttribute(randomness, 3));
+
+                    // --- SHADER MATERIAL ---
+                    material = new THREE.ShaderMaterial({
+                        depthWrite: false,
+                        blending: THREE.AdditiveBlending,
+                        vertexColors: true,
+                        uniforms: {
+                            uTime: { value: 0 },
+                            uSize: { value: 20 * renderer.getPixelRatio() },
+                            uMouse: { value: new THREE.Vector2(0, 0) } // Added mouse uniform
+                        },
+                        vertexShader: `
+                            uniform float uTime;
+                            uniform float uSize;
+                            uniform vec2 uMouse;
+                            attribute float aScale;
+                            attribute vec3 aRandomness;
+                            varying vec3 vColor;
+
+                            void main() {
+                                vec4 modelPosition = modelMatrix * vec4(position, 1.0);
+                                
+                                // Rotate entire galaxy slowly
+                                float angle = uTime * 0.1;
+                                float s = sin(angle);
+                                float c = cos(angle);
+                                
+                                // Simple rotation matrix around Y
+                                float x = modelPosition.x;
+                                float z = modelPosition.z;
+                                modelPosition.x = x * c - z * s;
+                                modelPosition.z = x * s + z * c;
+
+                                // "Breathing" effect - particles float up/down
+                                modelPosition.y += sin(uTime + modelPosition.x * 2.0) * 0.1;
+                                modelPosition.y += aRandomness.y * sin(uTime * 2.0) * 0.1;
+
+                                // Mouse Interaction (Warp)
+                                // Calculate distance to mouse ray (simplified as distance from center for now, 
+                                // but we can use the tilt from JS to simulate looking around)
+                                
+                                vec4 viewPosition = viewMatrix * modelPosition;
+                                vec4 projectedPosition = projectionMatrix * viewPosition;
+                                
+                                gl_Position = projectedPosition;
+                                
+                                // Size attenuation
+                                gl_PointSize = uSize * aScale;
+                                gl_PointSize *= (1.0 / -viewPosition.z);
+                                
+                                vColor = color;
+                            }
+                        `,
+                        fragmentShader: `
+                            varying vec3 vColor;
+
+                            void main() {
+                                // Circular particle
+                                float strength = distance(gl_PointCoord, vec2(0.5));
+                                strength = 1.0 - step(0.5, strength);
+                                strength = pow(strength, 3.0);
+
+                                vec3 finalColor = mix(vec3(0.0), vColor, strength);
+                                
+                                gl_FragColor = vec4(finalColor, 1.0);
+                            }
+                        `
+                    });
+
+                    points = new THREE.Points(geometry, material);
+                    scene.add(points);
+                };
+
+                generateGalaxy();
 
                 // Mouse Interaction
                 let mouseX = 0;
                 let mouseY = 0;
-                let targetRotationX = -Math.PI * 0.4;
-                let targetRotationY = 0;
+                let targetX = 0;
+                let targetY = 0;
 
-                window.addEventListener('mousemove', (e) => {
-                    mouseX = (e.clientX / window.innerWidth) * 2 - 1;
-                    mouseY = -(e.clientY / window.innerHeight) * 2 + 1;
+                const windowHalfX = window.innerWidth / 2;
+                const windowHalfY = window.innerHeight / 2;
+
+                window.addEventListener('mousemove', (event) => {
+                    mouseX = (event.clientX - windowHalfX);
+                    mouseY = (event.clientY - windowHalfY);
+                });
+
+                // Scroll Interaction
+                let scrollY = 0;
+                window.addEventListener('scroll', () => {
+                    scrollY = window.scrollY;
                 });
 
                 // Animation Loop
@@ -677,26 +766,36 @@
                 function animate() {
                     const elapsedTime = clock.getElapsedTime();
 
-                    // Update Shader Uniforms
+                    // Update Shader
                     material.uniforms.uTime.value = elapsedTime;
 
-                    // Smooth Camera/Terrain Movement
-                    targetRotationY = mouseX * 0.2;
-                    targetRotationX = -Math.PI * 0.4 + (mouseY * 0.1);
+                    // Smooth Camera Movement
+                    targetX = mouseX * 0.001;
+                    targetY = mouseY * 0.001;
 
-                    terrain.rotation.y += 0.05 * (targetRotationY - terrain.rotation.y);
-                    terrain.rotation.x += 0.05 * (targetRotationX - terrain.rotation.x);
+                    // Orbit logic
+                    points.rotation.x += 0.05 * (targetY - points.rotation.x);
+                    points.rotation.y += 0.05 * (targetX - points.rotation.y);
+
+                    // Scroll Effect: Fly through the galaxy
+                    // As we scroll down, camera moves slightly
+                    camera.position.y = 1 - (scrollY * 0.001);
+                    camera.position.z = 4 + (scrollY * 0.002);
+                    
+                    // Look at center
+                    camera.lookAt(0, 0, 0);
 
                     renderer.render(scene, camera);
                     requestAnimationFrame(animate);
                 }
                 animate();
 
-                // Resize Handler
+                // Resize
                 window.addEventListener('resize', () => {
                     camera.aspect = window.innerWidth / window.innerHeight;
                     camera.updateProjectionMatrix();
                     renderer.setSize(window.innerWidth, window.innerHeight);
+                    material.uniforms.uSize.value = 20 * renderer.getPixelRatio();
                 });
 
             } catch (e) {
