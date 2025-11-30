@@ -706,15 +706,15 @@
         import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
         import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
         import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
-        import { FilmPass } from 'three/addons/postprocessing/FilmPass.js';
 
-        // --- VOID ENGINE v5.0: CINEMATIC SIGNAL (Storytelling & Immersion) ---
+        // --- VOID ENGINE v3.0: QUANTUM GALAXY (Sharp & Creative) ---
         try {
             const scene = new THREE.Scene();
             scene.fog = new THREE.FogExp2(0x000000, 0.0015);
             
             const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-            camera.position.set(0, 0, 6);
+            camera.position.z = 6;
+            camera.position.y = 0;
 
             const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: false });
             renderer.setSize(window.innerWidth, window.innerHeight);
@@ -727,22 +727,16 @@
                 container.appendChild(renderer.domElement);
             }
 
-            // --- POST PROCESSING (Cinematic Look) ---
+            // --- POST PROCESSING ---
             const renderScene = new RenderPass(scene, camera);
-            
-            // 1. Bloom (Glow)
             const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.5, 0.4, 0.85);
             bloomPass.threshold = 0;
-            bloomPass.strength = 2.0;
-            bloomPass.radius = 0.5;
-
-            // 2. Film Grain (Analog Signal Vibe)
-            const filmPass = new FilmPass(0.35, 0.025, 648, false);
+            bloomPass.strength = 2.5; // Intense, sharp glow
+            bloomPass.radius = 0.3;   // Tighter bloom for sharpness
 
             const composer = new EffectComposer(renderer);
             composer.addPass(renderScene);
             composer.addPass(bloomPass);
-            composer.addPass(filmPass);
 
             // --- 1. THE QUANTUM CORE (Creative Geometry) ---
             const coreGroup = new THREE.Group();
@@ -769,10 +763,10 @@
             
             // Floating Data Bits around core
             const bitsGeo = new THREE.BufferGeometry();
-            const bitsCount = 100; // Increased density
+            const bitsCount = 50;
             const bitsPos = new Float32Array(bitsCount * 3);
             for(let i=0; i<bitsCount*3; i++) {
-                bitsPos[i] = (Math.random() - 0.5) * 5;
+                bitsPos[i] = (Math.random() - 0.5) * 3;
             }
             bitsGeo.setAttribute('position', new THREE.BufferAttribute(bitsPos, 3));
             const bitsMat = new THREE.PointsMaterial({ color: 0xbc13fe, size: 0.05 });
@@ -782,19 +776,21 @@
 
             // --- 2. THE SPIRAL GALAXY (Universe in a Website) ---
             const galaxyGeometry = new THREE.BufferGeometry();
-            const galaxyCount = 30000; 
+            const galaxyCount = 25000; // High density
             const galaxyPos = new Float32Array(galaxyCount * 3);
             const galaxyColors = new Float32Array(galaxyCount * 3);
             const galaxyScales = new Float32Array(galaxyCount);
             const galaxyRandomness = new Float32Array(galaxyCount * 3);
 
-            const colorInside = new THREE.Color('#ff6030'); 
-            const colorOutside = new THREE.Color('#1b3984'); 
+            const colorInside = new THREE.Color('#ff6030'); // Hot Core
+            const colorOutside = new THREE.Color('#1b3984'); // Cold Space
 
             for(let i = 0; i < galaxyCount; i++) {
                 const i3 = i * 3;
-                const radius = Math.random() * 15 + 1; 
-                const spinAngle = radius * 0.8; 
+
+                // Spiral Math
+                const radius = Math.random() * 15 + 1; // Distance from center
+                const spinAngle = radius * 0.8; // How much it curls
                 const branches = 3;
                 const branchAngle = (i % branches) / branches * Math.PI * 2;
 
@@ -803,12 +799,14 @@
                 const randomZ = Math.pow(Math.random(), 3) * (Math.random() < 0.5 ? 1 : -1);
 
                 galaxyPos[i3] = Math.cos(branchAngle + spinAngle) * radius + randomX;
-                galaxyPos[i3+1] = randomY * (Math.random() * 2); 
+                galaxyPos[i3+1] = randomY * (Math.random() * 2); // Flat galaxy
                 galaxyPos[i3+2] = Math.sin(branchAngle + spinAngle) * radius + randomZ;
 
+                // Color mixing
                 const mixedColor = colorInside.clone();
                 mixedColor.lerp(colorOutside, radius / 15);
                 
+                // Add some "Signal Green" glitches
                 if(Math.random() < 0.05) {
                     mixedColor.set('#00ff41');
                 }
@@ -860,11 +858,12 @@
                         modelPosition.z = x * s + z * c;
 
                         // 2. SHARP INTERACTION: Repulsion Field
-                        float dist = distance(modelPosition.xy, uMouse.xy * 10.0); 
+                        // If particle is close to mouse ray, push it away instantly
+                        float dist = distance(modelPosition.xy, uMouse.xy * 10.0); // Scale mouse to world
                         float repulsion = 1.0 - smoothstep(0.0, 3.0, dist);
                         
                         vec3 dir = normalize(modelPosition.xyz - vec3(uMouse.xy * 10.0, 0.0));
-                        modelPosition.xyz += dir * repulsion * 2.0 * uHoverState; 
+                        modelPosition.xyz += dir * repulsion * 2.0 * uHoverState; // Push out
 
                         // 3. Vertical Wave
                         modelPosition.y += sin(uTime + modelPosition.x) * 0.2;
@@ -879,6 +878,7 @@
                         gl_PointSize *= (1.0 + sin(uTime * 10.0 + aRandomness.x * 100.0) * 0.5);
                         
                         vColor = color;
+                        // Brighten on interaction
                         vColor += vec3(repulsion * uHoverState); 
                     }
                 `,
@@ -898,29 +898,29 @@
             scene.add(galaxy);
 
 
-            // --- INTERACTION & CINEMATIC SCROLL ---
+            // --- INTERACTION LOGIC (SHARP) ---
             let mouseX = 0;
             let mouseY = 0;
             let scrollY = 0;
-            let scrollPercent = 0;
             
+            // We use a raycaster to get world coordinates for the mouse
             const raycaster = new THREE.Raycaster();
             const mouseVector = new THREE.Vector2();
             const plane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
             const worldMouse = new THREE.Vector3();
 
             window.addEventListener('mousemove', (event) => {
+                // Normalized coordinates
                 mouseVector.x = (event.clientX / window.innerWidth) * 2 - 1;
                 mouseVector.y = -(event.clientY / window.innerHeight) * 2 + 1;
                 
+                // Raw for camera tilt
                 mouseX = (event.clientX - window.innerWidth / 2) * 0.001;
                 mouseY = (event.clientY - window.innerHeight / 2) * 0.001;
             });
 
             window.addEventListener('scroll', () => {
                 scrollY = window.scrollY;
-                const docHeight = document.body.scrollHeight - window.innerHeight;
-                scrollPercent = scrollY / docHeight;
             });
 
             const clock = new THREE.Clock();
@@ -928,66 +928,36 @@
             function animate() {
                 const elapsedTime = clock.getElapsedTime();
 
-                // 1. Mouse Interaction
+                // 1. Get World Mouse Position for Shader
                 raycaster.setFromCamera(mouseVector, camera);
                 raycaster.ray.intersectPlane(plane, worldMouse);
                 
+                // Update Shader Uniforms - DIRECT MAPPING (No Lerp = Sharp)
                 galaxyMaterial.uniforms.uTime.value = elapsedTime;
                 galaxyMaterial.uniforms.uMouse.value.copy(worldMouse);
-                galaxyMaterial.uniforms.uHoverState.value = 1.0; 
+                galaxyMaterial.uniforms.uHoverState.value = 1.0; // Always active
 
-                // 2. Core Animation
+                // 2. Core Animation (Techy Rotation)
                 coreInner.rotation.y = elapsedTime * 2;
                 coreInner.rotation.z = elapsedTime * 1.5;
+                
                 coreMid.rotation.x = -elapsedTime;
                 coreMid.rotation.y = elapsedTime * 0.5;
+                
                 coreRing.rotation.z = elapsedTime * 0.2;
                 coreRing.rotation.x = Math.PI / 2 + Math.sin(elapsedTime) * 0.2;
+
                 bits.rotation.y = -elapsedTime * 0.5;
 
-                // 3. CINEMATIC CAMERA JOURNEY (Storytelling)
-                // Base position
-                let targetX = 0;
-                let targetY = 0;
-                let targetZ = 6;
-                let lookAtY = 0;
-
-                // Scroll Logic:
-                // 0% (Hero): Looking at Core (z=6)
-                // 25% (Manifesto): Fly closer, tilt down (z=4, y=1)
-                // 50% (Team): Dive into galaxy (z=2, y=-1)
-                // 75% (Work): Pan across (x=2, z=3)
-                // 100% (Contact): Zoom out to void (z=10)
-
-                if (scrollPercent < 0.25) {
-                    // Hero -> Manifesto
-                    const t = scrollPercent / 0.25;
-                    targetZ = 6 - (2 * t); // 6 -> 4
-                    targetY = 0 + (1 * t); // 0 -> 1
-                } else if (scrollPercent < 0.5) {
-                    // Manifesto -> Team
-                    const t = (scrollPercent - 0.25) / 0.25;
-                    targetZ = 4 - (2 * t); // 4 -> 2
-                    targetY = 1 - (2 * t); // 1 -> -1
-                } else if (scrollPercent < 0.75) {
-                    // Team -> Work
-                    const t = (scrollPercent - 0.5) / 0.25;
-                    targetZ = 2 + (1 * t); // 2 -> 3
-                    targetY = -1 + (1 * t); // -1 -> 0
-                    targetX = 0 + (2 * t); // 0 -> 2
-                } else {
-                    // Work -> Contact
-                    const t = (scrollPercent - 0.75) / 0.25;
-                    targetZ = 3 + (7 * t); // 3 -> 10
-                    targetX = 2 - (2 * t); // 2 -> 0
-                }
-
-                // Smooth Camera Transition (Lerp)
-                camera.position.x += (targetX + mouseX * 2 - camera.position.x) * 0.05;
-                camera.position.y += (targetY - mouseY * 2 - camera.position.y) * 0.05;
-                camera.position.z += (targetZ - camera.position.z) * 0.05;
+                // 3. Camera Movement (Sharp & Responsive)
+                // We use a very fast lerp or direct mapping for "sharpness"
+                camera.position.x += (mouseX * 5 - camera.position.x) * 0.1; // Faster factor (0.1)
+                camera.position.y += (-mouseY * 5 - camera.position.y) * 0.1;
                 
-                camera.lookAt(0, 0, 0);
+                // Scroll Effect (Fly Up)
+                camera.position.y += scrollY * 0.01;
+                
+                camera.lookAt(0, scrollY * 0.01, 0);
 
                 composer.render();
                 requestAnimationFrame(animate);
