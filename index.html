@@ -254,78 +254,10 @@
         /* Utility */
         .char { display: inline-block; }
         .word { display: inline-block; white-space: nowrap; }
-
-        /* HUD Overlay */
-        .hud-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 10;
-            font-family: 'Space Mono', monospace;
-            color: var(--accent-color);
-            padding: 2rem;
-            box-sizing: border-box;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            mix-blend-mode: difference;
-            opacity: 0.7;
-        }
-        .hud-top, .hud-bottom {
-            display: flex;
-            justify-content: space-between;
-            width: 100%;
-        }
-        .hud-item {
-            background: rgba(0, 0, 0, 0.2);
-            padding: 0.5rem 1rem;
-            border-left: 2px solid var(--accent-color);
-            backdrop-filter: blur(2px);
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-        .hud-value {
-            font-weight: bold;
-            color: white;
-            margin-left: 0.5rem;
-        }
-        .hud-reticle {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 300px;
-            height: 300px;
-            border: 1px dashed rgba(0, 255, 65, 0.2);
-            border-radius: 50%;
-            pointer-events: none;
-            animation: reticleSpin 20s linear infinite;
-        }
-        @keyframes reticleSpin {
-            0% { transform: translate(-50%, -50%) rotate(0deg); }
-            100% { transform: translate(-50%, -50%) rotate(360deg); }
-        }
     </style>
 </head>
 <body>
     <script>document.documentElement.classList.remove('no-js');</script>
-
-    <!-- HUD Overlay -->
-    <div class="hud-overlay">
-        <div class="hud-top">
-            <div class="hud-item">SINGULARITY: <span class="hud-value" id="hud-sys">ACTIVE</span></div>
-            <div class="hud-item">MASS: <span class="hud-value" id="hud-mass">4.2M SOL</span></div>
-        </div>
-        <div class="hud-reticle"></div>
-        <div class="hud-bottom">
-            <div class="hud-item">SCHWARZSCHILD RADIUS: <span class="hud-value" id="hud-radius">2.4 AU</span></div>
-            <div class="hud-item">RELATIVISTIC VELOCITY: <span class="hud-value" id="hud-velocity">0.00 c</span></div>
-        </div>
-    </div>
 
     <!-- Grain Overlay -->
     <div class="grain-overlay"></div>
@@ -775,14 +707,14 @@
         import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
         import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 
-        // --- VOID ENGINE v4.0: QUANTUM SINGULARITY (Interactive Physics) ---
+        // --- VOID ENGINE v3.5: ASTROPHYSICS (Science & Physics) ---
         try {
             const scene = new THREE.Scene();
-            scene.fog = new THREE.FogExp2(0x000000, 0.002);
+            scene.fog = new THREE.FogExp2(0x000000, 0.0015);
             
             const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-            camera.position.z = 8;
-            camera.position.y = 3;
+            camera.position.z = 7;
+            camera.position.y = 2;
 
             const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: false });
             renderer.setSize(window.innerWidth, window.innerHeight);
@@ -799,8 +731,8 @@
             const renderScene = new RenderPass(scene, camera);
             const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.5, 0.4, 0.85);
             bloomPass.threshold = 0;
-            bloomPass.strength = 2.2;
-            bloomPass.radius = 0.5;
+            bloomPass.strength = 2.0;
+            bloomPass.radius = 0.4;
 
             const composer = new EffectComposer(renderer);
             composer.addPass(renderScene);
@@ -811,45 +743,33 @@
             scene.add(coreGroup);
 
             // Event Horizon (Black Sphere)
-            const horizonGeo = new THREE.SphereGeometry(1.2, 64, 64);
+            const horizonGeo = new THREE.SphereGeometry(1.0, 64, 64);
             const horizonMat = new THREE.MeshBasicMaterial({ color: 0x000000 });
             const horizon = new THREE.Mesh(horizonGeo, horizonMat);
             coreGroup.add(horizon);
 
-            // Photon Ring (Lensing Effect)
-            const photonRingGeo = new THREE.RingGeometry(1.2, 1.35, 128);
-            const photonRingMat = new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide, transparent: true, opacity: 0.9 });
+            // Photon Ring (Lensing Effect Geometry)
+            const photonRingGeo = new THREE.RingGeometry(1.0, 1.1, 128);
+            const photonRingMat = new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide, transparent: true, opacity: 0.8 });
             const photonRing = new THREE.Mesh(photonRingGeo, photonRingMat);
-            photonRing.lookAt(camera.position);
+            photonRing.lookAt(camera.position); // Always face camera
             coreGroup.add(photonRing);
 
-            // Accretion Disk (Turbulent Plasma)
-            const diskGeo = new THREE.RingGeometry(1.5, 5.0, 128, 64);
+            // Accretion Disk (Physics Based)
+            const diskGeo = new THREE.RingGeometry(1.2, 4.0, 128, 32);
+            // Custom shader for accretion disk to simulate Doppler beaming
             const diskMat = new THREE.ShaderMaterial({
                 uniforms: {
                     uTime: { value: 0 },
-                    uColor: { value: new THREE.Color('#00ff41') },
-                    uMouse: { value: new THREE.Vector2(0, 0) }
+                    uColor: { value: new THREE.Color('#00ff41') }
                 },
                 vertexShader: `
                     varying vec2 vUv;
                     varying vec3 vPos;
-                    uniform float uTime;
-                    
                     void main() {
                         vUv = uv;
                         vPos = position;
-                        
-                        // Turbulence
-                        vec3 pos = position;
-                        float angle = atan(pos.y, pos.x);
-                        float radius = length(pos.xy);
-                        
-                        // Warping
-                        float warp = sin(angle * 10.0 + uTime * 5.0) * 0.1;
-                        pos.z += warp * (5.0 / radius); // More warp near center
-                        
-                        gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
+                        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
                     }
                 `,
                 fragmentShader: `
@@ -859,27 +779,25 @@
                     varying vec3 vPos;
 
                     void main() {
+                        // Rotating texture effect
                         float angle = atan(vPos.y, vPos.x);
                         float radius = length(vPos.xy);
                         
-                        // Keplerian speed
-                        float speed = 8.0 / radius;
+                        // Keplerian speed: faster inside
+                        float speed = 5.0 / radius;
                         float offset = angle + uTime * speed;
                         
-                        // Plasma Noise
-                        float noise = sin(offset * 15.0) * sin(offset * 5.0 + radius * 10.0);
-                        float alpha = smoothstep(0.2, 0.8, noise * 0.5 + 0.5);
+                        float noise = sin(offset * 10.0) * 0.5 + 0.5;
+                        float alpha = smoothstep(0.0, 1.0, noise);
                         
-                        // Doppler Beaming
+                        // Doppler Beaming: One side brighter (approaching), one dimmer (receding)
+                        // Assuming rotation is counter-clockwise
                         float doppler = sin(angle); 
-                        float beaming = 0.5 + 0.5 * doppler;
+                        float beaming = 0.5 + 0.5 * doppler; // 0 to 1
                         
-                        // Color Shift (Redshift/Blueshift)
-                        vec3 color = uColor;
-                        if (doppler > 0.0) color = mix(color, vec3(0.5, 0.8, 1.0), 0.5); // Blue
-                        else color = mix(color, vec3(1.0, 0.2, 0.2), 0.3); // Red
+                        vec3 finalColor = uColor * (0.5 + beaming); // Brighter on left/right depending on view
                         
-                        gl_FragColor = vec4(color * (0.5 + beaming), alpha * 0.8);
+                        gl_FragColor = vec4(finalColor, alpha * 0.6);
                     }
                 `,
                 side: THREE.DoubleSide,
@@ -891,123 +809,46 @@
             disk.rotation.x = Math.PI / 2;
             coreGroup.add(disk);
 
-            // --- 2. RELATIVISTIC JETS (Particle Systems) ---
-            const jetGeo = new THREE.BufferGeometry();
-            const jetCount = 2000;
-            const jetPos = new Float32Array(jetCount * 3);
-            const jetSpeed = new Float32Array(jetCount);
-            
-            for(let i=0; i<jetCount; i++) {
-                const i3 = i*3;
-                const r = Math.random() * 0.5;
-                const theta = Math.random() * Math.PI * 2;
-                
-                jetPos[i3] = r * Math.cos(theta); // X
-                jetPos[i3+1] = (Math.random() - 0.5) * 20; // Y (Height)
-                jetPos[i3+2] = r * Math.sin(theta); // Z
-                
-                jetSpeed[i] = Math.random() + 0.5;
-            }
-            
-            jetGeo.setAttribute('position', new THREE.BufferAttribute(jetPos, 3));
-            jetGeo.setAttribute('aSpeed', new THREE.BufferAttribute(jetSpeed, 1));
-            
-            const jetMat = new THREE.ShaderMaterial({
-                uniforms: {
-                    uTime: { value: 0 },
-                    uColor: { value: new THREE.Color('#00ffff') }
-                },
-                vertexShader: `
-                    uniform float uTime;
-                    attribute float aSpeed;
-                    varying float vAlpha;
-                    
-                    void main() {
-                        vec3 pos = position;
-                        
-                        // Move particles along Y
-                        float yOffset = uTime * aSpeed * 10.0;
-                        
-                        // Reset logic
-                        if (pos.y > 0.0) {
-                            pos.y = mod(pos.y + yOffset, 10.0);
-                        } else {
-                            pos.y = mod(pos.y - yOffset, -10.0);
-                        }
-                        
-                        // Collimation (Narrowing the beam)
-                        float dist = abs(pos.y);
-                        pos.x *= (1.0 + dist * 0.1);
-                        pos.z *= (1.0 + dist * 0.1);
-                        
-                        vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
-                        gl_Position = projectionMatrix * mvPosition;
-                        gl_PointSize = (50.0 / -mvPosition.z);
-                        
-                        // Fade out at ends
-                        vAlpha = 1.0 - smoothstep(0.0, 10.0, abs(pos.y));
-                    }
-                `,
-                fragmentShader: `
-                    uniform vec3 uColor;
-                    varying float vAlpha;
-                    void main() {
-                        float strength = distance(gl_PointCoord, vec2(0.5));
-                        strength = 1.0 - step(0.5, strength);
-                        gl_FragColor = vec4(uColor, strength * vAlpha);
-                    }
-                `,
-                transparent: true,
-                depthWrite: false,
-                blending: THREE.AdditiveBlending
-            });
-            const jets = new THREE.Points(jetGeo, jetMat);
-            scene.add(jets);
 
-
-            // --- 3. GRAVITATIONAL WAVE (Shockwave) ---
-            const waveGeo = new THREE.RingGeometry(0.1, 0.2, 64);
-            const waveMat = new THREE.MeshBasicMaterial({ 
-                color: 0xffffff, 
-                transparent: true, 
-                opacity: 0.0, 
-                side: THREE.DoubleSide 
-            });
-            const wave = new THREE.Mesh(waveGeo, waveMat);
-            wave.rotation.x = Math.PI / 2;
-            scene.add(wave);
-            
-            let waveActive = false;
-            let waveScale = 0;
-
-
-            // --- 4. GALAXY PARTICLES ---
+            // --- 2. GALAXY PHYSICS SIMULATION ---
             const galaxyGeometry = new THREE.BufferGeometry();
-            const galaxyCount = 40000;
+            const galaxyCount = 30000;
             const galaxyPos = new Float32Array(galaxyCount * 3);
             const galaxyColors = new Float32Array(galaxyCount * 3);
-            
+            const galaxyScales = new Float32Array(galaxyCount);
+            const galaxyRandomness = new Float32Array(galaxyCount * 3);
+
             const colorHot = new THREE.Color('#ffffff');
             const colorCold = new THREE.Color('#00ff41');
 
             for(let i = 0; i < galaxyCount; i++) {
                 const i3 = i * 3;
-                const radius = Math.random() * 25 + 2; 
+                const radius = Math.random() * 20 + 1.5; // Start outside event horizon
                 const angle = Math.random() * Math.PI * 2;
-                const spread = (Math.random() - 0.5) * (radius * 0.15); 
+                
+                // Flat disk with slight bulge
+                const spread = (Math.random() - 0.5) * (radius * 0.1); 
 
                 galaxyPos[i3] = Math.cos(angle) * radius;
                 galaxyPos[i3+1] = spread;
                 galaxyPos[i3+2] = Math.sin(angle) * radius;
 
-                const mixedColor = colorHot.clone().lerp(colorCold, radius / 25);
+                // Color based on temperature (radius)
+                const mixedColor = colorHot.clone().lerp(colorCold, radius / 20);
                 galaxyColors[i3] = mixedColor.r;
                 galaxyColors[i3+1] = mixedColor.g;
                 galaxyColors[i3+2] = mixedColor.b;
+
+                galaxyScales[i] = Math.random();
+                galaxyRandomness[i3] = Math.random();
+                galaxyRandomness[i3+1] = Math.random();
+                galaxyRandomness[i3+2] = Math.random();
             }
 
             galaxyGeometry.setAttribute('position', new THREE.BufferAttribute(galaxyPos, 3));
             galaxyGeometry.setAttribute('color', new THREE.BufferAttribute(galaxyColors, 3));
+            galaxyGeometry.setAttribute('aScale', new THREE.BufferAttribute(galaxyScales, 1));
+            galaxyGeometry.setAttribute('aRandomness', new THREE.BufferAttribute(galaxyRandomness, 3));
 
             const galaxyMaterial = new THREE.ShaderMaterial({
                 depthWrite: false,
@@ -1015,30 +856,30 @@
                 vertexColors: true,
                 uniforms: {
                     uTime: { value: 0 },
-                    uSize: { value: 15 * renderer.getPixelRatio() },
+                    uSize: { value: 20 * renderer.getPixelRatio() },
                     uMouse: { value: new THREE.Vector3(0, 0, 0) },
-                    uWave: { value: 0 } // For shockwave
+                    uCameraPos: { value: new THREE.Vector3() }
                 },
                 vertexShader: `
                     uniform float uTime;
                     uniform float uSize;
                     uniform vec3 uMouse;
-                    uniform float uWave;
+                    uniform vec3 uCameraPos;
+                    attribute float aScale;
+                    attribute vec3 aRandomness;
                     varying vec3 vColor;
 
                     void main() {
                         vec4 modelPosition = modelMatrix * vec4(position, 1.0);
                         float r = length(modelPosition.xz);
 
-                        // Keplerian Orbit
-                        float speed = 4.0 / (r + 0.1); 
+                        // 1. KEPLERIAN ORBITAL MECHANICS
+                        // v = sqrt(GM/r). Angular velocity w = v/r = sqrt(GM)/r^1.5
+                        // We simplify for visuals: w ~ 1/r
+                        float speed = 3.0 / (r + 0.1); 
                         float angle = uTime * speed * 0.2;
                         
-                        // Frame Dragging (Mouse Interaction)
-                        // If mouse is far right, spin faster. Far left, spin slower.
-                        float drag = uMouse.x * 2.0; 
-                        angle += drag * (10.0/r); // Effect stronger near center
-
+                        // Apply rotation matrix
                         float s = sin(angle);
                         float c = cos(angle);
                         float x = modelPosition.x;
@@ -1046,24 +887,40 @@
                         modelPosition.x = x * c - z * s;
                         modelPosition.z = x * s + z * c;
 
-                        // Gravity Well
+                        // 2. MOUSE GRAVITY WELL (Physics)
+                        // F = G*M / dist^2
                         float distToMouse = distance(modelPosition.xz, uMouse.xy * 15.0);
-                        float gravityForce = 8.0 / (distToMouse * distToMouse + 1.0);
+                        float gravityForce = 5.0 / (distToMouse * distToMouse + 0.5);
+                        gravityForce = min(gravityForce, 3.0); // Clamp singularity
+                        
                         vec3 dirToMouse = normalize(vec3(uMouse.x * 15.0, 0.0, uMouse.y * 15.0) - modelPosition.xyz);
-                        modelPosition.xyz += dirToMouse * min(gravityForce, 5.0);
+                        modelPosition.xyz += dirToMouse * gravityForce;
 
-                        // Shockwave Effect
-                        float waveDist = distance(r, uWave);
-                        if (waveDist < 2.0) {
-                            float waveForce = (2.0 - waveDist) * 0.5;
-                            modelPosition.y += sin(waveDist * 10.0) * waveForce;
-                        }
+                        // 3. RELATIVISTIC DOPPLER SHIFT
+                        // Calculate velocity vector (tangent to orbit)
+                        // Tangent of (x, z) is (-z, x)
+                        vec3 velocity = vec3(-modelPosition.z, 0.0, modelPosition.x) * speed;
+                        vec3 viewDir = normalize(uCameraPos - modelPosition.xyz);
+                        
+                        // Dot product determines if moving towards (+) or away (-)
+                        float doppler = dot(normalize(velocity), viewDir);
 
                         vec4 viewPosition = viewMatrix * modelPosition;
                         gl_Position = projectionMatrix * viewPosition;
-                        gl_PointSize = uSize * (1.0 / -viewPosition.z);
                         
-                        vColor = color;
+                        gl_PointSize = uSize * aScale;
+                        gl_PointSize *= (1.0 / -viewPosition.z);
+                        
+                        // Apply Doppler Color Shift
+                        // Blue shift (approaching) = +doppler
+                        // Red shift (receding) = -doppler
+                        vec3 baseColor = color;
+                        vec3 blue = vec3(0.0, 0.8, 1.0);
+                        vec3 red = vec3(1.0, 0.2, 0.2);
+                        
+                        vColor = baseColor;
+                        vColor = mix(vColor, blue, max(0.0, doppler * 0.6));
+                        vColor = mix(vColor, red, max(0.0, -doppler * 0.6));
                     }
                 `,
                 fragmentShader: `
@@ -1072,7 +929,8 @@
                         float strength = distance(gl_PointCoord, vec2(0.5));
                         strength = 1.0 - step(0.5, strength);
                         strength = pow(strength, 3.0);
-                        gl_FragColor = vec4(vColor, strength);
+                        vec3 finalColor = mix(vec3(0.0), vColor, strength);
+                        gl_FragColor = vec4(finalColor, 1.0);
                     }
                 `
             });
@@ -1081,40 +939,27 @@
             scene.add(galaxy);
 
 
-            // --- INTERACTION & HUD ---
+            // --- INTERACTION ---
             let mouseX = 0;
             let mouseY = 0;
             let scrollY = 0;
             
-            // HUD Elements
-            const hudVelocity = document.getElementById('hud-velocity');
-            const hudRadius = document.getElementById('hud-radius');
+            // Raycaster for accurate mouse plane intersection
+            const raycaster = new THREE.Raycaster();
+            const mouseVector = new THREE.Vector2();
+            const plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0); // Horizontal plane
+            const worldMouse = new THREE.Vector3();
 
             window.addEventListener('mousemove', (event) => {
+                mouseVector.x = (event.clientX / window.innerWidth) * 2 - 1;
+                mouseVector.y = -(event.clientY / window.innerHeight) * 2 + 1;
+                
                 mouseX = (event.clientX - window.innerWidth / 2) * 0.001;
                 mouseY = (event.clientY - window.innerHeight / 2) * 0.001;
-                
-                // Update HUD
-                if(hudVelocity) {
-                    const vel = Math.abs(mouseX * 300000).toFixed(2); // Fake speed of light calc
-                    hudVelocity.innerText = `${vel} km/s`;
-                }
-            });
-            
-            window.addEventListener('click', () => {
-                // Trigger Shockwave
-                waveActive = true;
-                waveScale = 1.0;
-                wave.scale.set(1,1,1);
-                wave.material.opacity = 1.0;
             });
 
             window.addEventListener('scroll', () => {
                 scrollY = window.scrollY;
-                if(hudRadius) {
-                    const dist = (2.4 - scrollY * 0.001).toFixed(2);
-                    hudRadius.innerText = `${dist} AU`;
-                }
             });
 
             const clock = new THREE.Clock();
@@ -1122,34 +967,21 @@
             function animate() {
                 const elapsedTime = clock.getElapsedTime();
 
-                // Camera
+                // Update Camera
                 camera.position.x += (mouseX * 10 - camera.position.x) * 0.05;
                 camera.position.y += (-mouseY * 5 + 2 - camera.position.y) * 0.05;
-                camera.position.y += scrollY * 0.005;
+                camera.position.y += scrollY * 0.005; // Scroll fly up
                 camera.lookAt(0, 0, 0);
 
+                // Update Photon Ring (Always face camera)
                 photonRing.lookAt(camera.position);
 
-                // Uniforms
+                // Update Uniforms
                 diskMat.uniforms.uTime.value = elapsedTime;
-                jetMat.uniforms.uTime.value = elapsedTime;
                 
                 galaxyMaterial.uniforms.uTime.value = elapsedTime;
-                galaxyMaterial.uniforms.uMouse.value.set(mouseX, -mouseY, 0);
-                
-                // Shockwave Animation
-                if (waveActive) {
-                    waveScale += 0.5;
-                    wave.scale.set(waveScale, waveScale, 1);
-                    wave.material.opacity *= 0.95;
-                    
-                    galaxyMaterial.uniforms.uWave.value = waveScale; // Pass to shader
-                    
-                    if (wave.material.opacity < 0.01) {
-                        waveActive = false;
-                        galaxyMaterial.uniforms.uWave.value = 0;
-                    }
-                }
+                galaxyMaterial.uniforms.uMouse.value.set(mouseX, -mouseY, 0); // Approximate for now
+                galaxyMaterial.uniforms.uCameraPos.value.copy(camera.position);
 
                 composer.render();
                 requestAnimationFrame(animate);
@@ -1161,7 +993,7 @@
                 camera.updateProjectionMatrix();
                 renderer.setSize(window.innerWidth, window.innerHeight);
                 composer.setSize(window.innerWidth, window.innerHeight);
-                galaxyMaterial.uniforms.uSize.value = 15 * renderer.getPixelRatio();
+                galaxyMaterial.uniforms.uSize.value = 20 * renderer.getPixelRatio();
             });
 
         } catch (e) {
