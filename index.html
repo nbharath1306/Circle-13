@@ -600,7 +600,8 @@
 
                 const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: false }); // Antialias off for post-processing perf
                 renderer.setSize(window.innerWidth, window.innerHeight);
-                renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+                // OPTIMIZATION: Cap pixel ratio at 1 for post-processing scenes to prevent GPU hang
+                renderer.setPixelRatio(1); 
                 renderer.toneMapping = THREE.ReinhardToneMapping;
                 
                 const container = document.getElementById('webgl-container');
@@ -612,7 +613,8 @@
                 // --- POST PROCESSING (BLOOM) ---
                 const renderScene = new RenderPass(scene, camera);
                 
-                const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.5, 0.4, 0.85);
+                // OPTIMIZATION: Half-resolution bloom for performance
+                const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth / 2, window.innerHeight / 2), 1.5, 0.4, 0.85);
                 bloomPass.threshold = 0;
                 bloomPass.strength = 1.2; // High bloom for neon look
                 bloomPass.radius = 0.5;
@@ -644,7 +646,7 @@
 
                 // 2. The Starfield (Background)
                 const starGeometry = new THREE.BufferGeometry();
-                const starCount = 5000;
+                const starCount = 2000; // Reduced from 5000
                 const starPos = new Float32Array(starCount * 3);
                 for(let i=0; i<starCount*3; i++) {
                     starPos[i] = (Math.random() - 0.5) * 100; // Wide spread
@@ -661,7 +663,7 @@
 
 
                 // 3. The Nebula System (Volumetric Clouds via Particles)
-                const nebulaParticles = 20000;
+                const nebulaParticles = 10000; // Reduced from 20000
                 const nebulaGeo = new THREE.BufferGeometry();
                 const nebulaPos = new Float32Array(nebulaParticles * 3);
                 const nebulaColors = new Float32Array(nebulaParticles * 3);
