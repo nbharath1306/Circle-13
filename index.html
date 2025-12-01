@@ -937,7 +937,8 @@
                     uSize: { value: 20 * renderer.getPixelRatio() },
                     uMouse: { value: new THREE.Vector3(0, 0, 0) },
                     uHoverState: { value: 0 },
-                    uScroll: { value: 0 }
+                    uScroll: { value: 0 },
+                    uVelocity: { value: 0 }
                 },
                 vertexShader: `
                     uniform float uTime;
@@ -945,6 +946,7 @@
                     uniform vec3 uMouse;
                     uniform float uHoverState;
                     uniform float uScroll;
+                    uniform float uVelocity;
                     attribute float aScale;
                     attribute vec3 aRandomness;
                     varying vec3 vColor;
@@ -962,14 +964,16 @@
                         modelPosition.z = x * s + z * c;
 
                         // 2. SHARP INTERACTION: Repulsion Field
-                        // If particle is close to mouse ray, push it away instantly
-                        float dist = distance(modelPosition.xy, uMouse.xy * 10.0); // Scale mouse to world
+                        float dist = distance(modelPosition.xy, uMouse.xy * 10.0);
                         float repulsion = 1.0 - smoothstep(0.0, 3.0, dist);
-                        
                         vec3 dir = normalize(modelPosition.xyz - vec3(uMouse.xy * 10.0, 0.0));
-                        modelPosition.xyz += dir * repulsion * 2.0 * uHoverState; // Push out
+                        modelPosition.xyz += dir * repulsion * 2.0 * uHoverState;
 
-                        // 3. Vertical Wave
+                        // 3. WARP SPEED DISTORTION (Velocity Stretch)
+                        // Stretch particles along Z axis based on speed
+                        modelPosition.z += sin(modelPosition.x * 10.0 + uTime) * uVelocity * 0.1;
+
+                        // 4. Vertical Wave
                         modelPosition.y += sin(uTime + modelPosition.x) * 0.2;
 
                         vec4 viewPosition = viewMatrix * modelPosition;
@@ -978,12 +982,14 @@
                         gl_PointSize = uSize * aScale;
                         gl_PointSize *= (1.0 / -viewPosition.z);
                         
-                        // Twinkle
+                        // Twinkle + Velocity Bloom
                         gl_PointSize *= (1.0 + sin(uTime * 10.0 + aRandomness.x * 100.0) * 0.5);
+                        gl_PointSize *= (1.0 + uVelocity * 0.05); // Grow on speed
                         
                         vColor = color;
-                        // Brighten on interaction
-                        vColor += vec3(repulsion * uHoverState); 
+                        // Brighten on interaction & speed
+                        vColor += vec3(repulsion * uHoverState);
+                        vColor += vec3(uVelocity * 0.005); // Flash on fast scroll
                     }
                 `,
                 fragmentShader: `
@@ -1007,6 +1013,8 @@
             let mouseY = 0;
             let targetScrollY = 0;
             let currentScrollY = 0;
+            let lastScrollY = 0;
+            let scrollVelocity = 0;
             
             // We use a raycaster to get world coordinates for the mouse
             const raycaster = new THREE.Raycaster();
@@ -1035,6 +1043,10 @@
 
                 // SMOOTH SCROLL LERP (Butter)
                 currentScrollY += (targetScrollY - currentScrollY) * 0.05;
+                
+                // Calculate Velocity for Warp Effect
+                scrollVelocity = Math.abs(currentScrollY - lastScrollY);
+                lastScrollY = currentScrollY;
 
                 // 1. Get World Mouse Position for Shader
                 raycaster.setFromCamera(mouseVector, camera);
@@ -1045,18 +1057,21 @@
                 galaxyMaterial.uniforms.uMouse.value.copy(worldMouse);
                 galaxyMaterial.uniforms.uHoverState.value = 1.0; 
                 galaxyMaterial.uniforms.uScroll.value = currentScrollY;
+                galaxyMaterial.uniforms.uVelocity.value = scrollVelocity;
 
                 // 2. Core Animation (Techy Rotation)
-                coreInner.rotation.y = elapsedTime * 2;
-                coreInner.rotation.z = elapsedTime * 1.5;
+                // Spin faster when scrolling
+                const spinBoost = scrollVelocity * 0.05;
+                coreInner.rotation.y += 0.02 + spinBoost;
+                coreInner.rotation.z += 0.015 + spinBoost;
                 
-                coreMid.rotation.x = -elapsedTime;
-                coreMid.rotation.y = elapsedTime * 0.5;
+                coreMid.rotation.x -= 0.01 + spinBoost;
+                coreMid.rotation.y += 0.005;
                 
-                coreRing.rotation.z = elapsedTime * 0.2;
+                coreRing.rotation.z += 0.002;
                 coreRing.rotation.x = Math.PI / 2 + Math.sin(elapsedTime) * 0.2;
 
-                bits.rotation.y = -elapsedTime * 0.5;
+                bits.rotation.y -= 0.005 + spinBoost;
 
                 // 3. ORBITAL CAMERA MECHANICS
                 // Calculate orbital position based on scroll
