@@ -188,26 +188,42 @@
             color: var(--accent-color);
         }
         
-        /* Floating Image Reveal */
+        /* Floating Image Reveal - UPDATED (Fixed Position & Cinematic) */
         .hover-reveal {
             position: fixed;
-            width: 300px;
-            height: 400px;
-            top: 0;
-            left: 0;
+            width: 350px;
+            height: 450px;
+            top: 50%;
+            left: 75%; /* Fixed to the right side */
+            transform: translate(-50%, -50%);
             pointer-events: none;
             opacity: 0;
-            z-index: 50;
-            transform: translate(-50%, -50%) scale(0.8);
-            transition: opacity 0.3s, transform 0.3s;
-            mix-blend-mode: normal;
+            z-index: 40;
             overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: #050505;
+            box-shadow: 0 0 30px rgba(0, 255, 65, 0.1);
         }
         .hover-reveal-inner {
             width: 100%;
             height: 100%;
             background-size: cover;
-            background-position: center top; /* Focus on faces */
+            background-position: center;
+            filter: grayscale(100%) contrast(1.2);
+            transition: transform 0.5s;
+        }
+        /* Scanline Overlay */
+        .hover-reveal::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0) 50%, rgba(0,0,0,0.3) 50%, rgba(0,0,0,0.3));
+            background-size: 100% 4px;
+            z-index: 2;
+            pointer-events: none;
         }
 
         /* Project Gallery - Horizontal Scroll */
@@ -659,42 +675,81 @@
                 }
             }
 
-            // --- 6. TEAM HOVER REVEAL ---
+            // --- 6. TEAM HOVER REVEAL (COOKED VERSION) ---
             const teamItems = document.querySelectorAll('.team-list-item');
             const revealContainer = document.querySelector('.hover-reveal');
             const revealInner = document.querySelector('.hover-reveal-inner');
+            
+            // Scroll Detection to prevent "Pop"
+            let isScrolling = false;
+            let scrollTimeout;
+            window.addEventListener('scroll', () => {
+                isScrolling = true;
+                // Force hide if scrolling starts while hovering
+                if(revealContainer && revealContainer.style.opacity > 0) {
+                    gsap.to(revealContainer, { opacity: 0, duration: 0.2 });
+                }
+                clearTimeout(scrollTimeout);
+                scrollTimeout = setTimeout(() => {
+                    isScrolling = false;
+                }, 100);
+            });
 
             if (revealContainer && revealInner && typeof gsap !== 'undefined') {
                 teamItems.forEach(item => {
                     item.addEventListener('mouseenter', (e) => {
+                        if (isScrolling) return; // STOP THE POP ON SCROLL
+
                         const imgUrl = item.getAttribute('data-img');
                         revealInner.style.backgroundImage = `url(${imgUrl})`;
                         
-                        gsap.to(revealContainer, {
+                        // Cinematic Reveal Animation
+                        gsap.killTweensOf(revealContainer);
+                        gsap.set(revealContainer, { scale: 0.95, opacity: 0 });
+                        
+                        const tl = gsap.timeline();
+                        tl.to(revealContainer, {
                             opacity: 1,
                             scale: 1,
-                            duration: 0.3,
-                            ease: "power2.out"
-                        });
+                            duration: 0.4,
+                            ease: "power3.out"
+                        })
+                        .fromTo(revealInner, 
+                            { scale: 1.2, filter: "grayscale(100%) blur(5px)" },
+                            { scale: 1, filter: "grayscale(100%) blur(0px)", duration: 0.5, ease: "power2.out" },
+                            0
+                        );
+                        
+                        // Text Interaction
+                        const text = item.querySelector('.font-display');
+                        if(text) {
+                            gsap.to(text, { x: 30, color: "#00ff41", duration: 0.4, ease: "power3.out" });
+                        }
+                        const role = item.querySelector('.team-role');
+                        if(role) {
+                            gsap.to(role, { x: 30, color: "white", duration: 0.4, delay: 0.05, ease: "power3.out" });
+                        }
                     });
 
                     item.addEventListener('mouseleave', () => {
                         gsap.to(revealContainer, {
                             opacity: 0,
-                            scale: 0.8,
+                            scale: 0.95,
                             duration: 0.3,
-                            ease: "power2.out"
+                            ease: "power2.in"
                         });
+                        
+                        const text = item.querySelector('.font-display');
+                        if(text) {
+                            gsap.to(text, { x: 0, color: "white", duration: 0.4, ease: "power3.out" });
+                        }
+                        const role = item.querySelector('.team-role');
+                        if(role) {
+                            gsap.to(role, { x: 0, color: "#6b7280", duration: 0.4, ease: "power3.out" });
+                        }
                     });
-
-                    item.addEventListener('mousemove', (e) => {
-                        gsap.to(revealContainer, {
-                            x: e.clientX,
-                            y: e.clientY,
-                            duration: 0.5,
-                            ease: "power2.out"
-                        });
-                    });
+                    
+                    // Removed mousemove listener -> Fixed position is cleaner and avoids glitches
                 });
             }
         });

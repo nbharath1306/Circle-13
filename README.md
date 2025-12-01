@@ -129,4 +129,4 @@ Copyright © 2025 Circle 13. All rights reserved.
 
 Made with 💜 by Circle 13
 
-</div><- Visual Trigger Vercel Deployment: Revert to Void Engine v3.0 -->
+</div><!-- Vercel Trigger: UI Polish - Fixed Team Reveal Glitch -->
