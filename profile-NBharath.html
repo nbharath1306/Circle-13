@@ -41,7 +41,7 @@
             color: var(--text-color);
             font-family: 'Inter', sans-serif;
             overflow-x: hidden;
-            cursor: none;
+            cursor: auto;
         }
 
         .font-display { font-family: 'Syncopate', sans-serif; }
@@ -65,7 +65,6 @@
             width: 40px; height: 40px;
             border: 1px solid rgba(255, 255, 255, 0.3);
             border-radius: 50%;
-            transition: width 0.2s, height 0.2s, background-color 0.2s, border-color 0.2s;
         }
         .cursor-outline::before {
             content: ''; position: absolute; inset: -6px;
@@ -104,7 +103,7 @@
         }
         .profile-img-container::after {
             content: ''; position: absolute; inset: 0;
-            background: linear-gradient(to bottom, transparent 50%, rgba(0,0,0,0.8));
+            background: linear-gradient(to bottom, transparent 60%, rgba(0,0,0,0.5));
         }
         
         .skill-tag {
@@ -148,7 +147,7 @@
                 
                 <!-- Image -->
                 <div class="w-full md:w-1/3 max-w-md">
-                    <div class="profile-img-container aspect-[3/4] grayscale hover:grayscale-0 transition-all duration-700">
+                    <div class="profile-img-container aspect-[3/4] transition-all duration-700">
                         <img src="Assets/Images/N.Bharath.jpg" alt="N. Bharath" class="w-full h-full object-cover">
                     </div>
                 </div>
@@ -225,27 +224,41 @@
             const cursorOutline = document.querySelector('.cursor-outline');
             const magneticBtns = document.querySelectorAll('.magnetic-btn');
 
-            if (window.matchMedia("(pointer: fine)").matches) {
-                window.addEventListener('mousemove', (e) => {
-                    const posX = e.clientX; const posY = e.clientY;
-                    if(cursorDot) { cursorDot.style.left = `${posX}px`; cursorDot.style.top = `${posY}px`; }
-                    if(cursorOutline) { cursorOutline.animate({ left: `${posX}px`, top: `${posY}px` }, { duration: 500, fill: "forwards" }); }
-                });
+            // Hide default cursor
+            document.body.style.cursor = 'none';
 
-                magneticBtns.forEach(btn => {
-                    btn.addEventListener('mousemove', (e) => {
-                        const rect = btn.getBoundingClientRect();
-                        const x = e.clientX - rect.left - rect.width / 2;
-                        const y = e.clientY - rect.top - rect.height / 2;
-                        gsap.to(btn, { x: x * 0.3, y: y * 0.3, duration: 0.3, ease: "power2.out" });
-                        gsap.to(cursorOutline, { scale: 1.5, borderColor: "#00ff41", duration: 0.3 });
+            window.addEventListener('mousemove', (e) => {
+                const posX = e.clientX;
+                const posY = e.clientY;
+                
+                if(cursorDot) {
+                    cursorDot.style.left = `${posX}px`;
+                    cursorDot.style.top = `${posY}px`;
+                }
+                
+                if(cursorOutline) {
+                    gsap.to(cursorOutline, {
+                        left: posX,
+                        top: posY,
+                        duration: 0.5,
+                        ease: "power2.out"
                     });
-                    btn.addEventListener('mouseleave', () => {
-                        gsap.to(btn, { x: 0, y: 0, duration: 0.5, ease: "elastic.out(1, 0.3)" });
-                        gsap.to(cursorOutline, { scale: 1, borderColor: "rgba(255, 255, 255, 0.3)", duration: 0.3 });
-                    });
+                }
+            });
+
+            magneticBtns.forEach(btn => {
+                btn.addEventListener('mousemove', (e) => {
+                    const rect = btn.getBoundingClientRect();
+                    const x = e.clientX - rect.left - rect.width / 2;
+                    const y = e.clientY - rect.top - rect.height / 2;
+                    gsap.to(btn, { x: x * 0.3, y: y * 0.3, duration: 0.3, ease: "power2.out" });
+                    gsap.to(cursorOutline, { scale: 1.5, borderColor: "#00ff41", duration: 0.3 });
                 });
-            }
+                btn.addEventListener('mouseleave', () => {
+                    gsap.to(btn, { x: 0, y: 0, duration: 0.5, ease: "elastic.out(1, 0.3)" });
+                    gsap.to(cursorOutline, { scale: 1, borderColor: "rgba(255, 255, 255, 0.3)", duration: 0.3 });
+                });
+            });
         });
     </script>
 

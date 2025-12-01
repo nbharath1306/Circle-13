@@ -44,7 +44,7 @@
             color: var(--text-color);
             font-family: 'Inter', sans-serif;
             overflow-x: hidden;
-            cursor: none; /* Custom cursor */
+            cursor: auto; /* Custom cursor */
         }
 
         /* Typography */
@@ -521,6 +521,7 @@
 
             // Only run cursor logic if devices have a mouse (simple check)
             if (window.matchMedia("(pointer: fine)").matches) {
+                document.body.style.cursor = 'none';
                 window.addEventListener('mousemove', (e) => {
                     const posX = e.clientX;
                     const posY = e.clientY;
