@@ -129,4 +129,4 @@ Copyright © 2025 Circle 13. All rights reserved.
 
 Made with 💜 by Circle 13
 
-</div><!-- Vercel Trigger: UI Polish - Fixed Team Reveal Glitch -->
+</div><!-- Vercel Trigger: Dark Mode Gallery - Fixed White Backgrounds -->
