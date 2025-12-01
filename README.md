@@ -129,4 +129,4 @@ Copyright © 2025 Circle 13. All rights reserved.
 
 Made with 💜 by Circle 13
 
-</div><!-- Vercel Trigger: Futuristic HUD Cursor & Click Effects -->
+</div><!-- Vercel Trigger: Orbital Camera - Galaxy Circles on Scroll -->
