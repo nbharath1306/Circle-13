@@ -51,28 +51,62 @@
         .font-display { font-family: 'Syncopate', sans-serif; }
         .font-mono { font-family: 'Space Mono', monospace; }
 
-        /* Custom Cursor */
+        /* Custom Cursor - Futuristic HUD */
         .cursor-dot,
         .cursor-outline {
             position: fixed;
             top: 0;
             left: 0;
             transform: translate(-50%, -50%);
-            border-radius: 50%;
             z-index: 9999;
             pointer-events: none;
         }
         .cursor-dot {
             width: 8px;
             height: 8px;
-            background-color: white;
+            background-color: var(--accent-color);
+            box-shadow: 0 0 15px var(--accent-color);
+            transform: translate(-50%, -50%) rotate(45deg); /* Diamond Core */
         }
         .cursor-outline {
             width: 40px;
             height: 40px;
-            border: 1px solid rgba(255, 255, 255, 0.5);
-            transition: width 0.2s, height 0.2s, background-color 0.2s;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            transition: width 0.2s, height 0.2s, background-color 0.2s, border-color 0.2s;
         }
+        /* Rotating Data Ring */
+        .cursor-outline::before {
+            content: '';
+            position: absolute;
+            inset: -6px;
+            border-radius: 50%;
+            border: 1px dashed rgba(0, 255, 65, 0.3);
+            animation: cursorSpin 10s linear infinite;
+        }
+        /* Crosshair Ticks */
+        .cursor-outline::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100%;
+            height: 100%;
+            background: 
+                linear-gradient(to bottom, transparent 45%, rgba(255,255,255,0.5) 45%, rgba(255,255,255,0.5) 55%, transparent 55%),
+                linear-gradient(to right, transparent 45%, rgba(255,255,255,0.5) 45%, rgba(255,255,255,0.5) 55%, transparent 55%);
+            background-size: 100% 100%;
+            mask: radial-gradient(circle, transparent 60%, black 65%);
+            -webkit-mask: radial-gradient(circle, transparent 60%, black 65%);
+            opacity: 0.5;
+        }
+
+        @keyframes cursorSpin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
         body:hover .cursor-outline {
             opacity: 1;
         }
@@ -522,6 +556,7 @@
                             
                             gsap.to(cursorOutline, {
                                 scale: 1.5,
+                                borderColor: "#00ff41",
                                 duration: 0.3
                             });
                         });
@@ -536,11 +571,22 @@
                             
                             gsap.to(cursorOutline, {
                                 scale: 1,
+                                borderColor: "rgba(255, 255, 255, 0.3)",
                                 duration: 0.3
                             });
                         });
                     });
                 }
+                
+                // Click Effect (Recoil)
+                window.addEventListener('mousedown', () => {
+                    gsap.to(cursorOutline, { scale: 0.8, duration: 0.1, ease: "power2.out" });
+                    gsap.to(cursorDot, { scale: 1.5, backgroundColor: "#ff003c", duration: 0.1 });
+                });
+                window.addEventListener('mouseup', () => {
+                    gsap.to(cursorOutline, { scale: 1, duration: 0.3, ease: "elastic.out(1, 0.5)" });
+                    gsap.to(cursorDot, { scale: 1, backgroundColor: "#00ff41", duration: 0.3 });
+                });
             }
 
             // --- 3. LOADER & TEXT SCRAMBLE ---
