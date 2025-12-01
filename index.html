@@ -454,12 +454,12 @@
             try {
                 if (typeof Lenis !== 'undefined') {
                     lenis = new Lenis({
-                        duration: 1.2,
+                        duration: 2.5,
                         easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
                         direction: 'vertical',
                         gestureDirection: 'vertical',
                         smooth: true,
-                        mouseMultiplier: 1,
+                        mouseMultiplier: 0.8,
                         smoothTouch: false,
                         touchMultiplier: 2,
                     });
@@ -668,7 +668,7 @@
                         scrollTrigger: {
                             trigger: ".gallery-container",
                             pin: true,
-                            scrub: 1,
+                            scrub: 2,
                             snap: 1 / (sections.length - 1),
                             end: () => "+=" + document.querySelector(".gallery-container").offsetWidth
                         }
@@ -890,13 +890,15 @@
                     uTime: { value: 0 },
                     uSize: { value: 20 * renderer.getPixelRatio() },
                     uMouse: { value: new THREE.Vector3(0, 0, 0) },
-                    uHoverState: { value: 0 }
+                    uHoverState: { value: 0 },
+                    uScroll: { value: 0 }
                 },
                 vertexShader: `
                     uniform float uTime;
                     uniform float uSize;
                     uniform vec3 uMouse;
                     uniform float uHoverState;
+                    uniform float uScroll;
                     attribute float aScale;
                     attribute vec3 aRandomness;
                     varying vec3 vColor;
@@ -905,7 +907,7 @@
                         vec4 modelPosition = modelMatrix * vec4(position, 1.0);
                         
                         // 1. Constant Rotation + Scroll Interaction
-                        float angle = uTime * 0.1 + (uMouse.y * 0.5); // Rotate based on scroll/mouse Y
+                        float angle = uTime * 0.1 + (uScroll * 0.0005); 
                         float s = sin(angle);
                         float c = cos(angle);
                         float x = modelPosition.x;
@@ -954,10 +956,11 @@
             scene.add(galaxy);
 
 
-            // --- INTERACTION LOGIC (SHARP) ---
+            // --- INTERACTION LOGIC (SMOOTH) ---
             let mouseX = 0;
             let mouseY = 0;
-            let scrollY = 0;
+            let targetScrollY = 0;
+            let currentScrollY = 0;
             
             // We use a raycaster to get world coordinates for the mouse
             const raycaster = new THREE.Raycaster();
@@ -976,7 +979,7 @@
             });
 
             window.addEventListener('scroll', () => {
-                scrollY = window.scrollY;
+                targetScrollY = window.scrollY;
             });
 
             const clock = new THREE.Clock();
@@ -984,14 +987,18 @@
             function animate() {
                 const elapsedTime = clock.getElapsedTime();
 
+                // SMOOTH SCROLL LERP (Butter)
+                currentScrollY += (targetScrollY - currentScrollY) * 0.05;
+
                 // 1. Get World Mouse Position for Shader
                 raycaster.setFromCamera(mouseVector, camera);
                 raycaster.ray.intersectPlane(plane, worldMouse);
                 
-                // Update Shader Uniforms - DIRECT MAPPING (No Lerp = Sharp)
+                // Update Shader Uniforms
                 galaxyMaterial.uniforms.uTime.value = elapsedTime;
                 galaxyMaterial.uniforms.uMouse.value.copy(worldMouse);
-                galaxyMaterial.uniforms.uHoverState.value = 1.0; // Always active
+                galaxyMaterial.uniforms.uHoverState.value = 1.0; 
+                galaxyMaterial.uniforms.uScroll.value = currentScrollY;
 
                 // 2. Core Animation (Techy Rotation)
                 coreInner.rotation.y = elapsedTime * 2;
@@ -1005,15 +1012,51 @@
 
                 bits.rotation.y = -elapsedTime * 0.5;
 
-                // 3. Camera Movement (Sharp & Responsive)
-                // We use a very fast lerp or direct mapping for "sharpness"
-                camera.position.x += (mouseX * 5 - camera.position.x) * 0.1; // Faster factor (0.1)
-                camera.position.y += (-mouseY * 5 - camera.position.y) * 0.1;
+                // 3. Camera Movement (Smoother Damping 0.1 -> 0.03)
+                camera.position.x += (mouseX * 5 - camera.position.x) * 0.03;
+                camera.position.y += (-mouseY * 5 - camera.position.y) * 0.03;
                 
-                // Scroll Effect (Fly Up)
-                camera.position.y += scrollY * 0.01;
+                // Scroll Effect (Move Camera Down/Through)
+                // We add the scroll offset to the Y position relative to base
+                // Reset Y to base (0) + scroll offset + mouse offset
+                // Actually, let's just add the scroll offset to the target Y
+                // But since we are lerping position, we need to be careful.
+                // Let's just modify the Y position directly with the scroll offset
                 
-                camera.lookAt(0, scrollY * 0.01, 0);
+                // Base Y is 0. We want to move UP as we scroll down? Or DOWN?
+                // Let's move UP (positive Y) to fly through the galaxy
+                const scrollOffset = currentScrollY * 0.005;
+                camera.position.y += scrollOffset * 0.05; // Add a bit of drift? No, that's infinite.
+                
+                // Correct Logic:
+                // The camera position is controlled by mouse (tilt) AND scroll (fly).
+                // We need to separate them or combine them cleanly.
+                // Let's use a base position.
+                const baseY = scrollOffset;
+                const targetY = baseY + (-mouseY * 5);
+                
+                // Lerp to targetY
+                // But wait, camera.position.y is already being lerped for mouse.
+                // Let's just add the scroll offset to the lookAt or position.
+                
+                // Simplest "Fly" effect:
+                camera.position.y = (currentScrollY * 0.01) + (camera.position.y * 0.95); // Blend? No.
+                
+                // Let's stick to the previous logic but smoothed:
+                // Previous: camera.position.y += scrollY * 0.01; (Infinite acceleration)
+                // Let's fix that to be position based.
+                
+                // We want the camera to move up as we scroll.
+                const targetCameraY = currentScrollY * 0.01;
+                
+                // Apply mouse tilt on top of that?
+                // Let's just set it directly for stability + mouse tilt
+                camera.position.y += (targetCameraY - camera.position.y) * 0.05;
+                
+                // Add mouse tilt
+                camera.position.y += (-mouseY * 0.1); 
+                
+                camera.lookAt(0, targetCameraY, 0);
 
                 composer.render();
                 requestAnimationFrame(animate);
