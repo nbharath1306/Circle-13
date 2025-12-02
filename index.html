@@ -982,24 +982,6 @@
                         this.analyser.connect(this.ctx.destination);
                     }
                     
-                    // Drone Setup (Synthesized)
-                    this.droneOsc = this.ctx.createOscillator();
-                    this.droneOsc.type = 'sawtooth';
-                    this.droneOsc.frequency.setValueAtTime(55, this.ctx.currentTime); // Low A
-                    
-                    this.droneGain = this.ctx.createGain();
-                    this.droneGain.gain.setValueAtTime(0.02, this.ctx.currentTime); // Very quiet
-                    
-                    // Lowpass filter for drone to make it "deep space"
-                    const droneFilter = this.ctx.createBiquadFilter();
-                    droneFilter.type = 'lowpass';
-                    droneFilter.frequency.setValueAtTime(120, this.ctx.currentTime);
-                    
-                    this.droneOsc.connect(droneFilter);
-                    droneFilter.connect(this.droneGain);
-                    this.droneGain.connect(this.ctx.destination);
-                    
-                    this.droneOsc.start();
                     this.isInit = true;
                     console.log("Audio System Initialized");
                 } catch (e) {
@@ -1025,17 +1007,13 @@
                     ui.classList.remove('error');
                     status.innerText = "// RECEIVING DATA STREAM [EST. 2025]";
                     
-                    // SFX: Lock-on
-                    this.playTone(800, 0.1, 'sine');
-                    setTimeout(() => this.playTone(1200, 0.2, 'square'), 100);
-                    
                     // Fade In
                     audioElement.volume = 0;
                     const playPromise = audioElement.play();
                     
                     if (playPromise !== undefined) {
                         playPromise.then(_ => {
-                            this.fadeVolume(audioElement, 0.8, 2000);
+                            this.fadeVolume(audioElement, 1.0, 2000);
                         })
                         .catch(error => {
                             console.error("Audio Play Failed:", error);
@@ -1049,9 +1027,6 @@
                     this.isActive = false;
                     ui.classList.remove('active');
                     status.innerText = "// TRANSMISSION: OFFLINE";
-                    
-                    // SFX: Power down
-                    this.playTone(400, 0.3, 'sawtooth', true);
                     
                     // Fade Out
                     this.fadeVolume(audioElement, 0, 1000, () => audioElement.pause());
