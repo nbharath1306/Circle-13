@@ -878,47 +878,59 @@
 
             // --- 2. THE SPIRAL GALAXY (Universe in a Website) ---
             const galaxyGeometry = new THREE.BufferGeometry();
-            const galaxyCount = 50000; // Increased density for better structure
+            const galaxyCount = 75000; // High density for realism
             const galaxyPos = new Float32Array(galaxyCount * 3);
             const galaxyColors = new Float32Array(galaxyCount * 3);
             const galaxyScales = new Float32Array(galaxyCount);
             const galaxyRandomness = new Float32Array(galaxyCount * 3);
 
-            const colorInside = new THREE.Color('#ff6030'); // Hot Core
-            const colorOutside = new THREE.Color('#1b3984'); // Cold Space
+            const colorInside = new THREE.Color('#ff9d5c'); // Warm Star Core
+            const colorOutside = new THREE.Color('#1b3984'); // Deep Space Blue
+            const colorAccent = new THREE.Color('#00ff41'); // The Signal
 
             for(let i = 0; i < galaxyCount; i++) {
                 const i3 = i * 3;
 
-                // Spiral Math - Improved for "Galaxy" look
-                const radius = Math.random() * 25 + 1; // Wider galaxy
-                const spinAngle = radius * 0.8; // How much it curls
-                const branches = 5; // 5 Arms for better structure
+                // ORGANIC DISTRIBUTION
+                // Radius: Non-linear distribution for dense core and diffuse edges
+                const radius = Math.pow(Math.random(), 1.5) * 35 + 0.5; 
+                
+                // Spiral Logic
+                const spinAngle = radius * 0.5; // Looser, more majestic spiral
+                const branches = 3; // 3 Main arms (Organic asymmetry)
                 const branchAngle = (i % branches) / branches * Math.PI * 2;
 
-                // Randomness - Tighter arms, less "bubble"
-                const randomX = Math.pow(Math.random(), 3) * (Math.random() < 0.5 ? 1 : -1) * 2;
-                const randomY = Math.pow(Math.random(), 3) * (Math.random() < 0.5 ? 1 : -1) * 1.5; // Flatter
-                const randomZ = Math.pow(Math.random(), 3) * (Math.random() < 0.5 ? 1 : -1) * 2;
+                // Randomness (Scatter)
+                // Scatter increases with radius (entropy)
+                const randomX = Math.pow(Math.random(), 3) * (Math.random() < 0.5 ? 1 : -1) * (radius * 0.4);
+                const randomY = Math.pow(Math.random(), 3) * (Math.random() < 0.5 ? 1 : -1) * (Math.random() * 4); // Vertical dust spread
+                const randomZ = Math.pow(Math.random(), 3) * (Math.random() < 0.5 ? 1 : -1) * (radius * 0.4);
 
                 galaxyPos[i3] = Math.cos(branchAngle + spinAngle) * radius + randomX;
-                galaxyPos[i3+1] = randomY * (Math.random() * 0.2); // Significantly flatter (Disk shape)
+                galaxyPos[i3+1] = randomY * (1 - radius/40); // Tapered thickness at edges
                 galaxyPos[i3+2] = Math.sin(branchAngle + spinAngle) * radius + randomZ;
 
-                // Color mixing
+                // Color mixing with organic variation
                 const mixedColor = colorInside.clone();
-                mixedColor.lerp(colorOutside, radius / 20);
+                mixedColor.lerp(colorOutside, radius / 25);
                 
-                // Add some "Signal Green" glitches
-                if(Math.random() < 0.05) {
-                    mixedColor.set('#00ff41');
+                // Add stellar temperature variation
+                mixedColor.r += (Math.random() - 0.5) * 0.1;
+                mixedColor.g += (Math.random() - 0.5) * 0.1;
+                mixedColor.b += (Math.random() - 0.5) * 0.1;
+
+                // Signal Glitches (The "Matrix" in the stars)
+                if(Math.random() < 0.015) {
+                    mixedColor.set(colorAccent);
+                    galaxyScales[i] = Math.random() * 2 + 1; // Brighter signal stars
+                } else {
+                    galaxyScales[i] = Math.random() * Math.random(); // Mostly small stars
                 }
 
                 galaxyColors[i3] = mixedColor.r;
                 galaxyColors[i3+1] = mixedColor.g;
                 galaxyColors[i3+2] = mixedColor.b;
 
-                galaxyScales[i] = Math.random();
                 galaxyRandomness[i3] = Math.random();
                 galaxyRandomness[i3+1] = Math.random();
                 galaxyRandomness[i3+2] = Math.random();
@@ -935,7 +947,7 @@
                 vertexColors: true,
                 uniforms: {
                     uTime: { value: 0 },
-                    uSize: { value: 25 * renderer.getPixelRatio() },
+                    uSize: { value: 22 * renderer.getPixelRatio() },
                     uMouse: { value: new THREE.Vector3(0, 0, 0) },
                     uHoverState: { value: 0 },
                     uScroll: { value: 0 },
@@ -955,8 +967,8 @@
                     void main() {
                         vec4 modelPosition = modelMatrix * vec4(position, 1.0);
                         
-                        // 1. Constant Rotation
-                        float angle = uTime * 0.05; 
+                        // 1. Majestic Slow Rotation
+                        float angle = uTime * 0.03; 
                         float s = sin(angle);
                         float c = cos(angle);
                         float x = modelPosition.x;
@@ -964,20 +976,18 @@
                         modelPosition.x = x * c - z * s;
                         modelPosition.z = x * s + z * c;
 
-                        // 2. SHARP INTERACTION: Repulsion Field
+                        // 2. Interaction: Subtle Repulsion
                         float dist = distance(modelPosition.xy, uMouse.xy * 10.0);
-                        float repulsion = 1.0 - smoothstep(0.0, 3.0, dist);
+                        float repulsion = 1.0 - smoothstep(0.0, 4.0, dist);
                         vec3 dir = normalize(modelPosition.xyz - vec3(uMouse.xy * 10.0, 0.0));
-                        modelPosition.xyz += dir * repulsion * 2.0 * uHoverState;
+                        modelPosition.xyz += dir * repulsion * 1.5 * uHoverState;
 
-                        // 3. WARP SPEED DISTORTION (Velocity Stretch)
-                        // Stretch particles along Z axis based on speed to create "Star Wars" hyperspace effect
-                        float warp = uVelocity * 0.5;
-                        modelPosition.z += sin(modelPosition.x * 5.0 + uTime) * warp;
-                        modelPosition.x += cos(modelPosition.z * 5.0 + uTime) * warp * 0.2;
-
-                        // 4. Vertical Wave
-                        modelPosition.y += sin(uTime + modelPosition.x) * 0.2;
+                        // 3. Warp Speed (Hyperspace Stretch)
+                        float warp = uVelocity * 0.8;
+                        modelPosition.z += sin(modelPosition.x * 4.0 + uTime) * warp;
+                        
+                        // 4. Organic Wave (Breathing Galaxy)
+                        modelPosition.y += sin(uTime * 0.5 + modelPosition.x * 0.5) * 0.3;
 
                         vec4 viewPosition = viewMatrix * modelPosition;
                         gl_Position = projectionMatrix * viewPosition;
@@ -985,22 +995,22 @@
                         gl_PointSize = uSize * aScale;
                         gl_PointSize *= (1.0 / -viewPosition.z);
                         
-                        // Twinkle + Velocity Bloom
-                        gl_PointSize *= (1.0 + sin(uTime * 10.0 + aRandomness.x * 100.0) * 0.5);
-                        gl_PointSize *= (1.0 + uVelocity * 0.2); // Grow significantly on speed
+                        // Twinkle
+                        gl_PointSize *= (1.0 + sin(uTime * 5.0 + aRandomness.x * 100.0) * 0.3);
+                        gl_PointSize *= (1.0 + uVelocity * 0.1); 
                         
                         vColor = color;
-                        // Brighten on interaction & speed
-                        vColor += vec3(repulsion * uHoverState);
-                        vColor += vec3(uVelocity * 0.01); // Flash on fast scroll
+                        vColor += vec3(repulsion * 0.5); // Glow on touch
                     }
                 `,
                 fragmentShader: `
                     varying vec3 vColor;
                     void main() {
+                        // Soft Glow Particle
                         float strength = distance(gl_PointCoord, vec2(0.5));
-                        strength = 1.0 - step(0.5, strength);
-                        strength = pow(strength, 3.0);
+                        strength = 1.0 - strength;
+                        strength = pow(strength, 5.0); // Exponential falloff for realistic light
+                        
                         vec3 finalColor = mix(vec3(0.0), vColor, strength);
                         gl_FragColor = vec4(finalColor, 1.0);
                     }
@@ -1008,8 +1018,7 @@
             });
 
             const galaxy = new THREE.Points(galaxyGeometry, galaxyMaterial);
-            // Tilt the galaxy to show off the disk shape
-            galaxy.rotation.x = Math.PI / 6; 
+            galaxy.rotation.x = Math.PI / 5; // Better viewing angle
             scene.add(galaxy);
 
 
