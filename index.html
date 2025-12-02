@@ -326,6 +326,83 @@
         /* Utility */
         .char { display: inline-block; }
         .word { display: inline-block; white-space: nowrap; }
+
+        /* --- AUDIO ORACLE UI --- */
+        #audio-oracle-container {
+            position: fixed;
+            bottom: 40px;
+            right: 40px;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            mix-blend-mode: difference;
+        }
+
+        .oracle-gyro {
+            position: relative;
+            width: 60px;
+            height: 60px;
+            transform-style: preserve-3d;
+            transition: all 0.5s cubic-bezier(0.19, 1, 0.22, 1);
+        }
+
+        .oracle-ring {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            transition: all 0.5s ease;
+        }
+
+        .ring-1 { width: 100%; height: 100%; animation: spin 10s linear infinite; }
+        .ring-2 { width: 70%; height: 70%; animation: spin 7s linear infinite reverse; border-color: rgba(255, 255, 255, 0.5); }
+        .ring-3 { width: 40%; height: 40%; animation: spin 4s linear infinite; border-color: rgba(255, 255, 255, 0.7); background: rgba(255,255,255,0.05); }
+
+        .oracle-core {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 4px;
+            height: 4px;
+            background: white;
+            border-radius: 50%;
+            box-shadow: 0 0 10px white;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .oracle-text {
+            margin-top: 15px;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.6rem;
+            color: rgba(255, 255, 255, 0.5);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            transition: color 0.3s;
+            text-align: center;
+            width: 200px;
+        }
+
+        /* STATES */
+        #audio-oracle-container:hover .oracle-ring { border-color: rgba(255, 255, 255, 0.9); }
+        #audio-oracle-container:hover .ring-1 { animation-duration: 2s; }
+        #audio-oracle-container:hover .ring-2 { animation-duration: 1.5s; }
+        #audio-oracle-container:hover .ring-3 { animation-duration: 1s; }
+        #audio-oracle-container:hover .oracle-core { opacity: 0.5; }
+        #audio-oracle-container:hover .oracle-text { color: white; }
+
+        #audio-oracle-container.active .oracle-ring { border-color: var(--accent-color); box-shadow: 0 0 10px var(--accent-color), inset 0 0 10px var(--accent-color); }
+        #audio-oracle-container.active .oracle-core { background: var(--accent-color); opacity: 1; box-shadow: 0 0 20px var(--accent-color); }
+        #audio-oracle-container.active .oracle-text { color: var(--accent-color); text-shadow: 0 0 5px var(--accent-color); }
+        #audio-oracle-container.active .oracle-gyro { animation: pulseBeat 1s ease-in-out infinite; }
+
+        @keyframes spin { 0% { transform: translate(-50%, -50%) rotate(0deg) rotateX(60deg); } 100% { transform: translate(-50%, -50%) rotate(360deg) rotateX(60deg); } }
+        @keyframes pulseBeat { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
     </style>
 </head>
 <body>
@@ -501,6 +578,22 @@
     <div class="hover-reveal">
         <div class="hover-reveal-inner"></div>
     </div>
+
+    <!-- Audio Oracle UI -->
+    <div id="audio-oracle-container">
+        <div class="oracle-gyro">
+            <div class="oracle-ring ring-1"></div>
+            <div class="oracle-ring ring-2"></div>
+            <div class="oracle-ring ring-3"></div>
+            <div class="oracle-core"></div>
+        </div>
+        <div class="oracle-text" id="oracle-status">// TRANSMISSION: OFFLINE</div>
+    </div>
+    
+    <!-- Audio Element (Hidden) -->
+    <audio id="main-audio" loop crossorigin="anonymous">
+        <source src="./Assets/Audio/tarana.mp3" type="audio/mpeg">
+    </audio>
 
     <!-- SCRIPT 1: UI, LOADER, GSAP (Critical Path) -->
     <script>
@@ -856,6 +949,171 @@
         });
     </script>
 
+    <!-- SCRIPT 1.5: AUDIO SYSTEM -->
+    <script>
+        window.AUDIO_SYSTEM = {
+            ctx: null,
+            analyser: null,
+            dataArray: null,
+            source: null,
+            droneOsc: null,
+            droneGain: null,
+            isInit: false,
+            isActive: false,
+            
+            init: function() {
+                if (this.isInit) return;
+                
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                this.ctx = new AudioContext();
+                
+                // Analyser
+                this.analyser = this.ctx.createAnalyser();
+                this.analyser.fftSize = 256;
+                this.dataArray = new Uint8Array(this.analyser.frequencyBinCount);
+                
+                // Main Track Setup
+                const audioElement = document.getElementById('main-audio');
+                this.source = this.ctx.createMediaElementSource(audioElement);
+                this.source.connect(this.analyser);
+                this.analyser.connect(this.ctx.destination);
+                
+                // Drone Setup (Synthesized)
+                this.droneOsc = this.ctx.createOscillator();
+                this.droneOsc.type = 'sawtooth';
+                this.droneOsc.frequency.setValueAtTime(55, this.ctx.currentTime); // Low A
+                
+                this.droneGain = this.ctx.createGain();
+                this.droneGain.gain.setValueAtTime(0.02, this.ctx.currentTime); // Very quiet
+                
+                // Lowpass filter for drone to make it "deep space"
+                const droneFilter = this.ctx.createBiquadFilter();
+                droneFilter.type = 'lowpass';
+                droneFilter.frequency.setValueAtTime(120, this.ctx.currentTime);
+                
+                this.droneOsc.connect(droneFilter);
+                droneFilter.connect(this.droneGain);
+                this.droneGain.connect(this.ctx.destination);
+                
+                this.droneOsc.start();
+                this.isInit = true;
+            },
+            
+            toggle: function() {
+                if (!this.isInit) this.init();
+                
+                if (this.ctx.state === 'suspended') {
+                    this.ctx.resume();
+                }
+                
+                const audioElement = document.getElementById('main-audio');
+                const ui = document.getElementById('audio-oracle-container');
+                const status = document.getElementById('oracle-status');
+                
+                if (!this.isActive) {
+                    // ACTIVATE
+                    this.isActive = true;
+                    ui.classList.add('active');
+                    status.innerText = "// RECEIVING DATA STREAM [EST. 2025]";
+                    
+                    // SFX: Lock-on
+                    this.playTone(800, 0.1, 'sine');
+                    setTimeout(() => this.playTone(1200, 0.2, 'square'), 100);
+                    
+                    // Fade In
+                    audioElement.volume = 0;
+                    audioElement.play();
+                    this.fadeVolume(audioElement, 0.8, 2000);
+                    
+                } else {
+                    // DEACTIVATE
+                    this.isActive = false;
+                    ui.classList.remove('active');
+                    status.innerText = "// TRANSMISSION: OFFLINE";
+                    
+                    // SFX: Power down
+                    this.playTone(400, 0.3, 'sawtooth', true);
+                    
+                    // Fade Out
+                    this.fadeVolume(audioElement, 0, 1000, () => audioElement.pause());
+                }
+            },
+            
+            playTone: function(freq, duration, type, slideDown = false) {
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                
+                osc.type = type;
+                osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+                if (slideDown) {
+                    osc.frequency.exponentialRampToValueAtTime(50, this.ctx.currentTime + duration);
+                }
+                
+                gain.gain.setValueAtTime(0.1, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + duration);
+                
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                
+                osc.start();
+                osc.stop(this.ctx.currentTime + duration);
+            },
+            
+            fadeVolume: function(element, target, duration, callback) {
+                const start = element.volume;
+                const change = target - start;
+                const startTime = performance.now();
+                
+                const animate = (currentTime) => {
+                    const elapsed = currentTime - startTime;
+                    const progress = Math.min(elapsed / duration, 1);
+                    
+                    element.volume = start + (change * progress);
+                    
+                    if (progress < 1) {
+                        requestAnimationFrame(animate);
+                    } else {
+                        if (callback) callback();
+                    }
+                };
+                requestAnimationFrame(animate);
+            },
+            
+            getData: function() {
+                if (!this.isActive || !this.analyser) return 0;
+                this.analyser.getByteFrequencyData(this.dataArray);
+                // Get average of lower frequencies (bass/beat)
+                let sum = 0;
+                for(let i = 0; i < 20; i++) {
+                    sum += this.dataArray[i];
+                }
+                return sum / 20; // 0-255
+            }
+        };
+
+        // UI Interaction
+        document.addEventListener('DOMContentLoaded', () => {
+            const oracle = document.getElementById('audio-oracle-container');
+            const status = document.getElementById('oracle-status');
+            
+            oracle.addEventListener('mouseenter', () => {
+                if (!window.AUDIO_SYSTEM.isActive) {
+                    status.innerText = "// DECRYPT SIGNAL?";
+                }
+            });
+            
+            oracle.addEventListener('mouseleave', () => {
+                if (!window.AUDIO_SYSTEM.isActive) {
+                    status.innerText = "// TRANSMISSION: OFFLINE";
+                }
+            });
+            
+            oracle.addEventListener('click', () => {
+                window.AUDIO_SYSTEM.toggle();
+            });
+        });
+    </script>
+
     <!-- SCRIPT 2: THREE.JS UNIVERSE (Module) -->
     <script type="module">
         import * as THREE from 'three';
@@ -1121,6 +1379,12 @@
             function animate() {
                 const elapsedTime = clock.getElapsedTime();
 
+                // AUDIO REACTIVITY
+                let audioLevel = 0;
+                if (window.AUDIO_SYSTEM && window.AUDIO_SYSTEM.getData) {
+                    audioLevel = window.AUDIO_SYSTEM.getData() / 255; // Normalized 0-1
+                }
+
                 // SMOOTH SCROLL LERP (Butter)
                 currentScrollY += (targetScrollY - currentScrollY) * 0.05;
                 
@@ -1135,9 +1399,9 @@
                 // Update Shader Uniforms
                 galaxyMaterial.uniforms.uTime.value = elapsedTime;
                 galaxyMaterial.uniforms.uMouse.value.copy(worldMouse);
-                galaxyMaterial.uniforms.uHoverState.value = 1.0; 
+                galaxyMaterial.uniforms.uHoverState.value = 1.0 + (audioLevel * 2.0); // Pulse on beat
                 galaxyMaterial.uniforms.uScroll.value = currentScrollY;
-                galaxyMaterial.uniforms.uVelocity.value = scrollVelocity;
+                galaxyMaterial.uniforms.uVelocity.value = scrollVelocity + (audioLevel * 0.5); // Warp on beat
 
                 // 2. Core Animation (Techy Rotation)
                 // Spin faster when scrolling
