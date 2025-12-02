@@ -32,10 +32,10 @@
 
     <style>
         :root {
-            --bg-color: #050505;
-            --text-color: #e0e0e0;
-            --accent-color: #00ff41; /* Matrix Green / Signal Green */
-            --secondary-accent: #ff003c; /* Cyberpunk Red */
+            --bg-color: #020204; /* Deep Void */
+            --text-color: #EAEAEA; /* Starlight White */
+            --accent-color: #00F0FF; /* Electric Cyan */
+            --secondary-accent: #7B2CBF; /* Nebula Purple */
         }
 
         body {
@@ -82,7 +82,7 @@
             position: absolute;
             inset: -6px;
             border-radius: 50%;
-            border: 1px dashed rgba(0, 255, 65, 0.3);
+            border: 1px dashed rgba(0, 240, 255, 0.3);
             animation: cursorSpin 10s linear infinite;
         }
         /* Crosshair Ticks */
@@ -144,8 +144,8 @@
         }
         .loader-grid {
             position: absolute; inset: 0; opacity: 0.15;
-            background-image: linear-gradient(rgba(0, 255, 65, 0.3) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(0, 255, 65, 0.3) 1px, transparent 1px);
+            background-image: linear-gradient(rgba(0, 240, 255, 0.3) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(0, 240, 255, 0.3) 1px, transparent 1px);
             background-size: 40px 40px;
             transform-origin: center;
             animation: gridPulse 4s ease-in-out infinite;
@@ -157,7 +157,7 @@
         .loader-logo {
             font-family: 'Syncopate', sans-serif; font-weight: 700; font-size: 3.5rem;
             color: white; margin-bottom: 2rem; letter-spacing: -2px;
-            text-shadow: 0 0 20px rgba(0, 255, 65, 0.5);
+            text-shadow: 0 0 20px rgba(0, 240, 255, 0.5);
             mix-blend-mode: difference;
         }
         
@@ -257,9 +257,9 @@
             opacity: 0;
             z-index: 40;
             overflow: hidden;
-            border: 1px solid rgba(0, 255, 65, 0.4); /* Tech Green Border */
+            border: 1px solid rgba(0, 240, 255, 0.4); /* Tech Cyan Border */
             background: #050505;
-            box-shadow: 0 0 40px rgba(0, 255, 65, 0.15); /* Green Glow */
+            box-shadow: 0 0 40px rgba(0, 240, 255, 0.15); /* Cyan Glow */
         }
         .hover-reveal-inner {
             width: 100%;
