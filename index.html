@@ -884,9 +884,9 @@
             const galaxyScales = new Float32Array(galaxyCount);
             const galaxyRandomness = new Float32Array(galaxyCount * 3);
 
-            const colorInside = new THREE.Color('#ff9d5c'); // Warm Star Core
-            const colorOutside = new THREE.Color('#1b3984'); // Deep Space Blue
-            const colorAccent = new THREE.Color('#00ff41'); // The Signal
+            const colorInside = new THREE.Color('#ffdbba'); // Warm White/Gold Core
+            const colorOutside = new THREE.Color('#3b66f5'); // Deep Azure Blue Arms
+            const colorAccent = new THREE.Color('#00ff41'); // The Signal (Rare)
 
             for(let i = 0; i < galaxyCount; i++) {
                 const i3 = i * 3;
@@ -912,19 +912,31 @@
 
                 // Color mixing with organic variation
                 const mixedColor = colorInside.clone();
-                mixedColor.lerp(colorOutside, radius / 25);
+                mixedColor.lerp(colorOutside, radius / 20);
                 
-                // Add stellar temperature variation
-                mixedColor.r += (Math.random() - 0.5) * 0.1;
-                mixedColor.g += (Math.random() - 0.5) * 0.1;
-                mixedColor.b += (Math.random() - 0.5) * 0.1;
+                // Realistic Star Temperature Variation
+                // Stars vary from Red -> Orange -> Yellow -> White -> Blue
+                const variation = Math.random();
+                if (variation < 0.1) {
+                    mixedColor.set('#ff6030'); // Red Dwarf
+                } else if (variation < 0.2) {
+                    mixedColor.set('#ffcc00'); // Yellow Star
+                } else if (variation > 0.9) {
+                    mixedColor.set('#a0c4ff'); // Blue Giant
+                }
 
-                // Signal Glitches (The "Matrix" in the stars)
-                if(Math.random() < 0.015) {
+                // Nebula Dust (Purple/Pink Haze)
+                if(Math.random() < 0.15 && radius > 10) {
+                    mixedColor.r += 0.1;
+                    mixedColor.b += 0.1;
+                }
+
+                // Signal Glitches (Very Rare now)
+                if(Math.random() < 0.002) {
                     mixedColor.set(colorAccent);
-                    galaxyScales[i] = Math.random() * 2 + 1; // Brighter signal stars
+                    galaxyScales[i] = Math.random() * 3 + 1; 
                 } else {
-                    galaxyScales[i] = Math.random() * Math.random(); // Mostly small stars
+                    galaxyScales[i] = Math.random() * Math.random() * 1.5; // Varied star sizes
                 }
 
                 galaxyColors[i3] = mixedColor.r;
