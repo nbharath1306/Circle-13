@@ -283,7 +283,7 @@
             pos[i] = (Math.random() - 0.5) * 15;
         }
         geometry.setAttribute('position', new THREE.BufferAttribute(pos, 3));
-        const material = new THREE.PointsMaterial({ size: 0.02, color: 0x00ff41, transparent: true, opacity: 0.6 });
+        const material = new THREE.PointsMaterial({ size: 0.02, color: 0x00F0FF, transparent: true, opacity: 0.6 });
         const particles = new THREE.Points(geometry, material);
         scene.add(particles);
 

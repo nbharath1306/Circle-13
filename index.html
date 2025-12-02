@@ -956,8 +956,6 @@
             analyser: null,
             dataArray: null,
             source: null,
-            droneOsc: null,
-            droneGain: null,
             isInit: false,
             isActive: false,
             
@@ -1008,12 +1006,12 @@
                     status.innerText = "// RECEIVING DATA STREAM [EST. 2025]";
                     
                     // Fade In
-                    audioElement.volume = 0;
+                    audioElement.volume = 1.0; // Set volume immediately
                     const playPromise = audioElement.play();
                     
                     if (playPromise !== undefined) {
                         playPromise.then(_ => {
-                            this.fadeVolume(audioElement, 1.0, 2000);
+                            // this.fadeVolume(audioElement, 1.0, 2000);
                         })
                         .catch(error => {
                             console.error("Audio Play Failed:", error);
@@ -1031,26 +1029,6 @@
                     // Fade Out
                     this.fadeVolume(audioElement, 0, 1000, () => audioElement.pause());
                 }
-            },
-            
-            playTone: function(freq, duration, type, slideDown = false) {
-                const osc = this.ctx.createOscillator();
-                const gain = this.ctx.createGain();
-                
-                osc.type = type;
-                osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
-                if (slideDown) {
-                    osc.frequency.exponentialRampToValueAtTime(50, this.ctx.currentTime + duration);
-                }
-                
-                gain.gain.setValueAtTime(0.1, this.ctx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + duration);
-                
-                osc.connect(gain);
-                gain.connect(this.ctx.destination);
-                
-                osc.start();
-                osc.stop(this.ctx.currentTime + duration);
             },
             
             fadeVolume: function(element, target, duration, callback) {
@@ -1090,21 +1068,26 @@
             const oracle = document.getElementById('audio-oracle-container');
             const status = document.getElementById('oracle-status');
             
-            // Global interaction listener to start Drone (Track A)
-            const startDrone = () => {
+            // Global interaction listener to initialize Audio Context
+            const initAudioContext = () => {
                 if (!window.AUDIO_SYSTEM.isInit) {
                     window.AUDIO_SYSTEM.init();
                     if (window.AUDIO_SYSTEM.ctx && window.AUDIO_SYSTEM.ctx.state === 'suspended') {
                         window.AUDIO_SYSTEM.ctx.resume();
                     }
                 }
+                // Auto-play on first interaction if not already active
+                if (!window.AUDIO_SYSTEM.isActive) {
+                    window.AUDIO_SYSTEM.toggle();
+                }
+                
                 // Remove listeners once initialized
-                document.removeEventListener('click', startDrone);
-                document.removeEventListener('keydown', startDrone);
+                document.removeEventListener('click', initAudioContext);
+                document.removeEventListener('keydown', initAudioContext);
             };
             
-            document.addEventListener('click', startDrone);
-            document.addEventListener('keydown', startDrone);
+            document.addEventListener('click', initAudioContext);
+            document.addEventListener('keydown', initAudioContext);
             
             oracle.addEventListener('mouseenter', () => {
                 if (!window.AUDIO_SYSTEM.isActive) {
