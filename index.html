@@ -878,7 +878,7 @@
 
             // --- 2. THE SPIRAL GALAXY (Universe in a Website) ---
             const galaxyGeometry = new THREE.BufferGeometry();
-            const galaxyCount = 25000; // High density
+            const galaxyCount = 50000; // Increased density for better structure
             const galaxyPos = new Float32Array(galaxyCount * 3);
             const galaxyColors = new Float32Array(galaxyCount * 3);
             const galaxyScales = new Float32Array(galaxyCount);
@@ -890,23 +890,24 @@
             for(let i = 0; i < galaxyCount; i++) {
                 const i3 = i * 3;
 
-                // Spiral Math
-                const radius = Math.random() * 15 + 1; // Distance from center
+                // Spiral Math - Improved for "Galaxy" look
+                const radius = Math.random() * 25 + 1; // Wider galaxy
                 const spinAngle = radius * 0.8; // How much it curls
-                const branches = 3;
+                const branches = 5; // 5 Arms for better structure
                 const branchAngle = (i % branches) / branches * Math.PI * 2;
 
-                const randomX = Math.pow(Math.random(), 3) * (Math.random() < 0.5 ? 1 : -1);
-                const randomY = Math.pow(Math.random(), 3) * (Math.random() < 0.5 ? 1 : -1);
-                const randomZ = Math.pow(Math.random(), 3) * (Math.random() < 0.5 ? 1 : -1);
+                // Randomness - Tighter arms, less "bubble"
+                const randomX = Math.pow(Math.random(), 3) * (Math.random() < 0.5 ? 1 : -1) * 2;
+                const randomY = Math.pow(Math.random(), 3) * (Math.random() < 0.5 ? 1 : -1) * 1.5; // Flatter
+                const randomZ = Math.pow(Math.random(), 3) * (Math.random() < 0.5 ? 1 : -1) * 2;
 
                 galaxyPos[i3] = Math.cos(branchAngle + spinAngle) * radius + randomX;
-                galaxyPos[i3+1] = randomY * (Math.random() * 2); // Flat galaxy
+                galaxyPos[i3+1] = randomY * (Math.random() * 0.2); // Significantly flatter (Disk shape)
                 galaxyPos[i3+2] = Math.sin(branchAngle + spinAngle) * radius + randomZ;
 
                 // Color mixing
                 const mixedColor = colorInside.clone();
-                mixedColor.lerp(colorOutside, radius / 15);
+                mixedColor.lerp(colorOutside, radius / 20);
                 
                 // Add some "Signal Green" glitches
                 if(Math.random() < 0.05) {
@@ -934,7 +935,7 @@
                 vertexColors: true,
                 uniforms: {
                     uTime: { value: 0 },
-                    uSize: { value: 20 * renderer.getPixelRatio() },
+                    uSize: { value: 25 * renderer.getPixelRatio() },
                     uMouse: { value: new THREE.Vector3(0, 0, 0) },
                     uHoverState: { value: 0 },
                     uScroll: { value: 0 },
@@ -954,8 +955,8 @@
                     void main() {
                         vec4 modelPosition = modelMatrix * vec4(position, 1.0);
                         
-                        // 1. Constant Rotation (No Scroll in Shader - Camera Orbits Instead)
-                        float angle = uTime * 0.1; 
+                        // 1. Constant Rotation
+                        float angle = uTime * 0.05; 
                         float s = sin(angle);
                         float c = cos(angle);
                         float x = modelPosition.x;
@@ -970,8 +971,10 @@
                         modelPosition.xyz += dir * repulsion * 2.0 * uHoverState;
 
                         // 3. WARP SPEED DISTORTION (Velocity Stretch)
-                        // Stretch particles along Z axis based on speed
-                        modelPosition.z += sin(modelPosition.x * 10.0 + uTime) * uVelocity * 0.1;
+                        // Stretch particles along Z axis based on speed to create "Star Wars" hyperspace effect
+                        float warp = uVelocity * 0.5;
+                        modelPosition.z += sin(modelPosition.x * 5.0 + uTime) * warp;
+                        modelPosition.x += cos(modelPosition.z * 5.0 + uTime) * warp * 0.2;
 
                         // 4. Vertical Wave
                         modelPosition.y += sin(uTime + modelPosition.x) * 0.2;
@@ -984,12 +987,12 @@
                         
                         // Twinkle + Velocity Bloom
                         gl_PointSize *= (1.0 + sin(uTime * 10.0 + aRandomness.x * 100.0) * 0.5);
-                        gl_PointSize *= (1.0 + uVelocity * 0.05); // Grow on speed
+                        gl_PointSize *= (1.0 + uVelocity * 0.2); // Grow significantly on speed
                         
                         vColor = color;
                         // Brighten on interaction & speed
                         vColor += vec3(repulsion * uHoverState);
-                        vColor += vec3(uVelocity * 0.005); // Flash on fast scroll
+                        vColor += vec3(uVelocity * 0.01); // Flash on fast scroll
                     }
                 `,
                 fragmentShader: `
@@ -1005,6 +1008,8 @@
             });
 
             const galaxy = new THREE.Points(galaxyGeometry, galaxyMaterial);
+            // Tilt the galaxy to show off the disk shape
+            galaxy.rotation.x = Math.PI / 6; 
             scene.add(galaxy);
 
 
@@ -1073,28 +1078,32 @@
 
                 bits.rotation.y -= 0.005 + spinBoost;
 
-                // 3. ORBITAL CAMERA MECHANICS
-                // Calculate orbital position based on scroll
-                const orbitSpeed = 0.0005; // Speed of rotation per scroll pixel
-                const orbitRadius = 6.0;   // Distance from center
-                const verticalSpeed = 0.005; // How fast we ascend
+                // 3. CINEMATIC CAMERA MOVEMENT
+                // Fly through the galaxy based on scroll
+                
+                // Spiral path that gets closer to the core
+                const angle = currentScrollY * 0.001; // Slow rotation
+                const radius = 10.0 - (currentScrollY * 0.002); // Start far, move in
+                const safeRadius = Math.max(radius, 4.0); // Don't crash into the core
+                
+                const targetX = Math.sin(angle) * safeRadius;
+                const targetZ = Math.cos(angle) * safeRadius;
+                const targetY = (currentScrollY * 0.002) - 1.0; // Slight rise
 
-                const orbitAngle = currentScrollY * orbitSpeed;
-                const targetX = Math.sin(orbitAngle) * orbitRadius;
-                const targetZ = Math.cos(orbitAngle) * orbitRadius;
-                const targetY = currentScrollY * verticalSpeed;
+                // Apply Mouse Tilt (Parallax)
+                const tiltX = mouseX * 2;
+                const tiltY = -mouseY * 2;
 
-                // Apply Mouse Tilt (Parallax) on top of Orbit
-                const tiltX = mouseX * 3;
-                const tiltY = -mouseY * 3;
-
-                // Smoothly Lerp Camera to Target Orbit + Tilt
+                // Smooth Camera
                 camera.position.x += (targetX + tiltX - camera.position.x) * 0.05;
                 camera.position.z += (targetZ - camera.position.z) * 0.05; 
                 camera.position.y += (targetY + tiltY - camera.position.y) * 0.05;
 
-                // Look at the center (ascending with us)
-                camera.lookAt(0, targetY, 0);
+                // Look at the core (0,0,0)
+                camera.lookAt(0, 0, 0);
+                
+                // Rotate the galaxy slowly independent of scroll
+                galaxy.rotation.y = elapsedTime * 0.02;
 
                 composer.render();
                 requestAnimationFrame(animate);
