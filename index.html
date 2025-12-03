@@ -403,6 +403,8 @@
 
         @keyframes spin { 0% { transform: translate(-50%, -50%) rotate(0deg) rotateX(60deg); } 100% { transform: translate(-50%, -50%) rotate(360deg) rotateX(60deg); } }
         @keyframes pulseBeat { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+        @keyframes drop { 0% { top: -100%; } 100% { top: 100%; } }
+        .animate-drop { animation: drop 2s cubic-bezier(0.77, 0, 0.175, 1) infinite; }
     </style>
 </head>
 <body>
@@ -460,9 +462,12 @@
                     <div class="overflow-hidden"><span class="reveal-hero inline-block scramble-text" data-value="IN THE NOISE">IN THE NOISE</span></div>
                 </h1>
                 
-                <div class="absolute bottom-10 right-10 md:right-20 text-right font-mono text-xs md:text-sm text-gray-400">
-                    SCROLL TO DECRYPT<br>
-                    ↓
+                <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex flex-col items-center gap-3 z-20 mix-blend-difference pointer-events-none">
+                    <div class="font-mono text-[10px] tracking-[0.3em] text-[#00F0FF] animate-pulse">SYSTEM_LOCKED</div>
+                    <div class="h-16 w-[1px] bg-gray-800 relative overflow-hidden">
+                        <div class="absolute top-0 left-0 w-full h-1/2 bg-[#00F0FF] animate-drop" style="box-shadow: 0 0 10px #00F0FF;"></div>
+                    </div>
+                    <div class="font-mono text-[10px] tracking-widest text-gray-500">SCROLL_TO_DECRYPT</div>
                 </div>
             </section>
 
@@ -987,6 +992,27 @@
                 }
             },
             
+            setText: function(element, text) {
+                const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%&";
+                let iterations = 0;
+                clearInterval(element.dataset.interval); // Clear previous
+                
+                const interval = setInterval(() => {
+                    element.innerText = text.split("")
+                        .map((letter, index) => {
+                            if(index < iterations) {
+                                return text[index];
+                            }
+                            return chars[Math.floor(Math.random() * chars.length)];
+                        })
+                        .join("");
+                    
+                    if(iterations >= text.length) clearInterval(interval);
+                    iterations += 1/2; // Speed
+                }, 30);
+                element.dataset.interval = interval;
+            },
+
             toggle: function() {
                 if (!this.isInit) this.init();
                 
@@ -1003,7 +1029,7 @@
                     this.isActive = true;
                     ui.classList.add('active');
                     ui.classList.remove('error');
-                    status.innerText = "// RECEIVING DATA STREAM [EST. 2025]";
+                    this.setText(status, "// RECEIVING DATA STREAM [EST. 2025]");
                     
                     // Fade In
                     audioElement.volume = 1.0; // Set volume immediately
@@ -1015,7 +1041,7 @@
                         })
                         .catch(error => {
                             console.error("Audio Play Failed:", error);
-                            status.innerText = "// SIGNAL ERROR: CHECK CONSOLE";
+                            this.setText(status, "// SIGNAL ERROR: CHECK CONSOLE");
                             ui.classList.add('error');
                         });
                     }
@@ -1024,7 +1050,7 @@
                     // DEACTIVATE
                     this.isActive = false;
                     ui.classList.remove('active');
-                    status.innerText = "// TRANSMISSION: OFFLINE";
+                    this.setText(status, "// TRANSMISSION: OFFLINE");
                     
                     // Fade Out
                     this.fadeVolume(audioElement, 0, 1000, () => audioElement.pause());
@@ -1091,13 +1117,13 @@
             
             oracle.addEventListener('mouseenter', () => {
                 if (!window.AUDIO_SYSTEM.isActive) {
-                    status.innerText = "// DECRYPT SIGNAL?";
+                    window.AUDIO_SYSTEM.setText(status, "// DECRYPT SIGNAL?");
                 }
             });
             
             oracle.addEventListener('mouseleave', () => {
                 if (!window.AUDIO_SYSTEM.isActive) {
-                    status.innerText = "// TRANSMISSION: OFFLINE";
+                    window.AUDIO_SYSTEM.setText(status, "// TRANSMISSION: OFFLINE");
                 }
             });
             
