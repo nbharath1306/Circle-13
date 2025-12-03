@@ -452,7 +452,7 @@
         <div id="smooth-content">
 
             <!-- Hero Section -->
-            <section class="h-screen flex flex-col justify-center px-6 md:px-20 relative">
+            <section class="h-screen flex flex-col justify-center px-6 md:px-20 relative pb-32">
                 <div class="font-mono text-xs md:text-sm text-gray-500 mb-4 overflow-hidden">
                     <div class="reveal-text">EST. 2025 // GLOBAL TRANSMISSION</div>
                 </div>
@@ -462,12 +462,28 @@
                     <div class="overflow-hidden"><span class="reveal-hero inline-block scramble-text" data-value="IN THE NOISE">IN THE NOISE</span></div>
                 </h1>
                 
-                <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex flex-col items-center gap-3 z-20 mix-blend-difference pointer-events-none">
-                    <div class="font-mono text-[10px] tracking-[0.3em] text-[#00F0FF] animate-pulse">SYSTEM_LOCKED</div>
-                    <div class="h-16 w-[1px] bg-gray-800 relative overflow-hidden">
-                        <div class="absolute top-0 left-0 w-full h-1/2 bg-[#00F0FF] animate-drop" style="box-shadow: 0 0 10px #00F0FF;"></div>
+                <!-- Tech Footer / Scroll Indicator -->
+                <div class="absolute bottom-0 left-0 w-full p-8 flex justify-between items-end z-20 mix-blend-difference pointer-events-none select-none">
+                    <!-- Left: System Status -->
+                    <div class="font-mono text-[10px] text-gray-500 flex flex-col gap-1 hidden md:flex">
+                        <div class="flex items-center gap-2">
+                            <div class="w-1.5 h-1.5 bg-[#00F0FF] rounded-full animate-pulse"></div>
+                            <span class="tracking-widest">SYSTEM_ONLINE</span>
+                        </div>
+                        <div class="opacity-50">SECURE_CHANNEL_V3</div>
                     </div>
-                    <div class="font-mono text-[10px] tracking-widest text-gray-500">SCROLL_TO_DECRYPT</div>
+
+                    <!-- Center: Scroll Prompt -->
+                    <div class="absolute left-1/2 transform -translate-x-1/2 bottom-8 flex flex-col items-center gap-2">
+                        <div class="text-[10px] font-mono tracking-[0.5em] text-white opacity-80 animate-pulse">INITIALIZE_SCROLL</div>
+                        <div class="w-[1px] h-16 bg-gradient-to-b from-transparent via-[#00F0FF] to-transparent opacity-50"></div>
+                    </div>
+
+                    <!-- Right: Coordinates/Data -->
+                    <div class="font-mono text-[10px] text-gray-500 text-right hidden md:block">
+                        <div>COORD: 13.00.00</div>
+                        <div class="text-[#00F0FF]">SIGNAL_DETECTED</div>
+                    </div>
                 </div>
             </section>
 
